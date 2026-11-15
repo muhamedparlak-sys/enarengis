@@ -315,3 +315,18 @@ summary{font-family:var(--f-head);font-weight:600;font-size:16px;color:var(--nav
 
 .flowctl .fc-ic{display:flex;align-items:center;gap:6px;font-size:12.5px;margin-top:6px;color:var(--ink);cursor:pointer}
 .flowctl .fc-ic input{accent-color:var(--navy)}
+
+.demo-badge{font-style:normal;font-family:var(--f-head);font-weight:700;font-size:11px;letter-spacing:.08em;color:var(--navy);background:var(--accent);border-radius:4px;padding:2px 6px;margin-left:8px;align-self:center}
+.gate{position:fixed;inset:0;z-index:100;background:var(--navy);display:flex;align-items:center;justify-content:center;padding:20px;transition:opacity .3s}
+.gate.out{opacity:0}
+html.locked body>*:not(#gate):not(script){visibility:hidden}
+.gate-box{background:#fff;border-radius:14px;max-width:380px;width:100%;padding:26px 24px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.gate-brand{display:flex;align-items:baseline;gap:8px;font-family:var(--f-head)}
+.gate-brand strong{font-size:22px;color:var(--navy);letter-spacing:.02em}.gate-brand span{color:var(--muted);font-size:15px}
+.gate-box h1{font-family:var(--f-head);font-weight:600;font-size:24px;margin:6px 0 0;color:var(--ink)}
+.gate-box p{margin:0;font-size:14.5px;line-height:1.5;color:#334}
+.gate-box label{font-size:13px;font-weight:600;color:var(--ink);margin-top:4px}
+.gate-box input{font-size:17px;padding:11px 12px;border:1px solid var(--line);border-radius:8px}
+.gate-box input:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.gate-err{color:#b3261e!important;font-size:13px!important}
+.gate-box small{color:var(--muted);font-size:12px}
