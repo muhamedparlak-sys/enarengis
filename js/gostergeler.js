@@ -7,7 +7,7 @@ const box = document.createElement('section'); box.className = 'gost';
 pane.prepend(box);
 // [başlık, değer, birim, ilerleme 0–1 | null, karşılaştırma, ne gösterir, hedef bölüm]
 function kartlar(){
-  const fd = window.ENAREN_VIZ?.computeFlows?.('tumu');
+  let fd = null; try { if (state.edas && state.santral) fd = window.ENAREN_VIZ?.computeFlows?.('tumu'); } catch (e) {}
   const aktar = fd ? fd.flows.reduce((s, f) => s + f.twh, 0) : null;
   const ed = state.edas?.features || [];
   const kayip = ed.length ? ed.reduce((s, f) => s + f.properties.kayip * f.properties.toplam_twh, 0) / ed.reduce((s, f) => s + f.properties.toplam_twh, 0) : null;

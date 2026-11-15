@@ -206,6 +206,7 @@ $('#pMah').addEventListener('change', () => { if ($('#pMah').value) zoomTo(`${tx
 })();
 // Sınır çizgilerini şebeke hatlarından ayırmak için beyaz zemin (casing) ve kalın çizgi
 (async () => {
+  const A = window.ENAREN_APP, map = A.map;
   for (let i = 0; i < 150 && !(map.getLayer('mebsin') && map.getLayer('trsinir') && map.getLayer('dyetki')); i++) await new Promise(r => setTimeout(r, 200));
   const W = ['interpolate', ['linear'], ['zoom'], 4, 3.2, 8, 4.6];
   [['dyetki', 'dyetki'], ['mebsin', 'mebsin'], ['trsinir', 'trsinir']].forEach(([id, src]) => {
