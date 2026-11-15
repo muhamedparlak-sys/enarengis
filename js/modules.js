@@ -237,16 +237,16 @@ $('#btnParsel').onclick = async () => {
     map.getSource('parsel').setData({type:'FeatureCollection', features:[f]});
     map.fitBounds(A.bbox(f.geometry), {padding: 60, maxZoom: 18});
     const ring = f.geometry.type === 'Polygon' ? f.geometry.coordinates[0] : f.geometry.coordinates[0][0];
-    const alan = parseFloat(String(p.Alan ?? p.alan ?? '').replace(/\./g, '').replace(',', '.')) || A.ringArea(ring.slice(0, -1));
+    const alan = parseFloat(String(p.Alan ?? p.alan ?? p.ALAN ?? '').replace(/\./g, '').replace(',', '.')) || A.ringArea(ring.slice(0, -1));
     const [cx, cy] = A.centroid(f.geometry);
     const mahAdi = $('#pMah').selectedOptions[0].textContent, ilceAdi = $('#pIlce').selectedOptions[0].textContent, ilAdi = $('#pIl').selectedOptions[0].textContent;
-    $('#parselResult').innerHTML = `<b>${esc(ilAdi)} / ${esc(ilceAdi)} / ${esc(mahAdi)}</b> – Ada ${esc(p.AdaNo ?? ada)} Parsel ${esc(p.ParselNo ?? parsel)}<br>Alan: <b>${fmt(alan)} m²</b> · Nitelik: ${esc(p.Nitelik ?? '–')} · Mevkii: ${esc(p.Mevkii ?? '–')}<p class="hint">Güneş/rüzgâr verisi alınıyor…</p>`;
+    $('#parselResult').innerHTML = `<b>${esc(ilAdi)} / ${esc(ilceAdi)} / ${esc(mahAdi)}</b> – Ada ${esc(p.AdaNo ?? p.adaNo ?? p.ADANO ?? ada)} Parsel ${esc(p.ParselNo ?? p.parselNo ?? p.PARSELNO ?? parsel)}<br>Alan: <b>${fmt(alan)} m²</b> · Nitelik: ${esc(p.Nitelik ?? p.nitelik ?? '–')} · Mevkii: ${esc(p.Mevkii ?? p.mevkii ?? '–')}<p class="hint">Güneş/rüzgâr verisi alınıyor…</p>`;
     // arazi GES: ~17 m²/kWp (sıra aralıklı sabit montaj)
     await new Promise(r => setTimeout(r, 1200)); // karoların yüklenmesi için (trafo mesafesi)
-    const d = await addCmp(cx, cy, `${mahAdi} ${p.AdaNo ?? ada}/${p.ParselNo ?? parsel}`, {alan});
+    const d = await addCmp(cx, cy, `${mahAdi} ${p.AdaNo ?? p.adaNo ?? p.ADANO ?? ada}/${p.ParselNo ?? p.parselNo ?? p.PARSELNO ?? parsel}`, {alan});
     const kwp = alan / 17, mwh = d.pvout ? kwp * d.pvout / 1000 : null;
-    lastParsel = {f, p, alan, d, kwp, mwh, etiket: `${ilAdi} / ${ilceAdi} / ${mahAdi} – ${p.AdaNo ?? ada}/${p.ParselNo ?? parsel}`};
-    $('#parselResult').innerHTML = `<b>${esc(lastParsel.etiket)}</b><br>Alan: <b>${fmt(alan)} m²</b> · Nitelik: ${esc(p.Nitelik ?? '–')} · Mevkii: ${esc(p.Mevkii ?? '–')}
+    lastParsel = {f, p, alan, d, kwp, mwh, etiket: `${ilAdi} / ${ilceAdi} / ${mahAdi} – ${p.AdaNo ?? p.adaNo ?? p.ADANO ?? ada}/${p.ParselNo ?? p.parselNo ?? p.PARSELNO ?? parsel}`};
+    $('#parselResult').innerHTML = `<b>${esc(lastParsel.etiket)}</b><br>Alan: <b>${fmt(alan)} m²</b> · Nitelik: ${esc(p.Nitelik ?? p.nitelik ?? '–')} · Mevkii: ${esc(p.Mevkii ?? p.mevkii ?? '–')}
       <div class="kpi" style="margin-top:8px">
         <div><strong>${d.ghi ? fmt(d.ghi) : '–'}</strong><span>GHI kWh/m²·yıl</span></div>
         <div><strong>${d.pvout ? fmt(d.pvout) : '–'}</strong><span>PV verimi kWh/kWp</span></div>
@@ -264,7 +264,7 @@ $('#btnParselReport').onclick = () => {
   const L = lastParsel; if (!L) return;
   const d = L.d;
   addReport({tip:'parsel', baslik:`Parsel: ${L.etiket}`, html:`<table class="t">
-    <tr><td>Alan</td><td>${fmt(L.alan)} m²</td></tr><tr><td>Nitelik / Mevkii</td><td>${esc(L.p.Nitelik ?? '–')} / ${esc(L.p.Mevkii ?? '–')}</td></tr>
+    <tr><td>Alan</td><td>${fmt(L.alan)} m²</td></tr><tr><td>Nitelik / Mevkii</td><td>${esc(L.p.Nitelik ?? p.nitelik ?? '–')} / ${esc(L.p.Mevkii ?? p.mevkii ?? '–')}</td></tr>
     <tr><td>Dağıtım bölgesi</td><td>${esc(d.edas || '–')}</td></tr>
     <tr><td>GHI (GSA)</td><td>${d.ghi ? fmt(d.ghi) : '–'} kWh/m²·yıl</td></tr><tr><td>PV özgül verim</td><td>${d.pvout ? fmt(d.pvout) : '–'} kWh/kWp</td></tr>
     <tr><td>Optimum eğim</td><td>${d.opta ?? '–'}°</td></tr>
