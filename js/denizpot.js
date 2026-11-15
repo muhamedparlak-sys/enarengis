@@ -75,6 +75,20 @@ function panel(fc){
     <p class="hint"><b>Boğaz akıntısı.</b> Akıntı tek yönlü ve sürekli, ama Nara kesitinin tamamından geçen güç bile en fazla onlarca MW; şebeke ölçeğinde değil, Ar-Ge pilotu ölçeğinde. Haritada bilgi amaçlı noktalar olarak duruyor.</p>
     <p class="hint">Kaynak: EMODnet Bathymetry (2,5 km'ye örneklenmiş), NASA POWER / MERRA-2 rüzgârı, Çanakkale Boğazı akıntı ölçümleri (Türk Boğazları Seyir Güvenliği 2000; Yücel ve Tarhan 2019). Ön elemedir; Copernicus Marine akıntı ve dalga verisiyle derinleştirilebilir.</p>`;
   dz.prepend(s);
+  fetch('data/mavi_vatan_tavan.json?v=1').then(r => r.json()).then(t => {
+    const T = t.talep_twh, K = [['bugun_res_sabit','RES sabit',RENK.res_sabit],['bugun_res_yuzer','RES yüzer (≤300 m)',RENK.res_yuzer],['bugun_res_orta','RES Karadeniz',RENK.res_orta],['bugun_ges_kiyi','Yüzer GES, kıyı',RENK.ges_yuzer],['tavan_res_derin','RES yüzer, derin (300–1.000 m)','#c2a5cf'],['tavan_ges_acik','Yüzer GES, açık deniz','#f6dc8a']];
+    const bug = K.slice(0, 4).reduce((a, [k]) => a + t[k].twh, 0), tav = K.reduce((a, [k]) => a + t[k].twh, 0);
+    const mx = Math.max(tav, T);
+    const box = document.createElement('div');
+    box.innerHTML = `<h3>Tavan: Mavi Vatan Türkiye'nin ihtiyacının ne kadarını üretebilir?</h3>
+      <div class="kpi"><div><strong>${fmt(bug)} TWh/yıl</strong><span>bugünkü teknolojiyle · 2025 talebinin <b>%${fmt(bug / T * 100)}</b>'i</span></div><div><strong>${fmt(tav)} TWh/yıl</strong><span>teknik tavan · talebin <b>${fmt(tav / T, 1)} katı</b></span></div></div>
+      <div style="position:relative;margin:10px 0 4px"><div class="stack" style="display:flex;height:26px;border-radius:6px;overflow:hidden;width:${(tav / mx * 100).toFixed(1)}%">${K.map(([k, ad, c]) => `<i title="${ad}: ${fmt(t[k].twh)} TWh" style="flex:${t[k].twh};background:${c}"></i>`).join('')}</div>
+      <div style="position:absolute;top:-4px;bottom:-4px;left:${(T / mx * 100).toFixed(1)}%;border-left:2px dashed #b3001b"></div></div>
+      <div class="hint" style="margin-top:2px">Kesikli çizgi: 2025 elektrik talebi (${fmt(T, 1)} TWh)</div>
+      ${K.map(([k, ad, c], i) => `<div class="bar ev"><span>${ad}${i > 3 ? ' <small>(gelecek teknoloji)</small>' : ''}</span><div class="t"><i style="width:${(t[k].twh / t.tavan_res_derin.twh * 100).toFixed(0)}%;background:${c}"></i></div><span class="v">${fmt(t[k].twh)} TWh · ${fmt(t[k].gw)} GW</span></div>`).join('')}
+      <p class="hint">Hesap: her 2,5–5 km'lik deniz hücresi tek kullanıma atandı (önce rüzgâr, sonra güneş). RES kapasite faktörü rüzgâr hızından (7 m/s'de ~%29, 8 m/s'de ~%38), yüzer GES üretimi ışınımın %84'ü (kWh/kWp) olarak alındı. Seyir yolları, askerî alanlar, kablolar, balıkçılık ve koruma alanları düşülmedi; bunlar düşüldüğünde gerçekçi pay bunun bir bölümü olur. Ege'deki sahaların bir kısmı şematik sınıra dayanır.</p>`;
+    s.insertBefore(box, s.querySelector('.hint'));
+  });
   const cb = s.querySelector('#lyrDpotPanel'), main = document.querySelector('#lyrDpot');
   cb.addEventListener('change', () => { if (main){ main.checked = cb.checked; } A.LAYER_MAP.lyrDpot.forEach(l => map.getLayer(l) && map.setLayoutProperty(l, 'visibility', cb.checked ? 'visible' : 'none')); if (cb.checked){ map.flyTo({center:[30.5, 38.5], zoom:4.8}); A.minimizeSheet(); } });
 }
