@@ -126,7 +126,11 @@ async function showIl(name){
   open(`<h3 style="margin-top:6px">${esc(p.il)}</h3>
     <div class="kpi"><div><strong>${fmt(p.tasit)}</strong><span>taşıt (Eyl. 2026)</span></div><div><strong>${fmt(p.otomobil)}</strong><span>otomobil</span></div>
     <div><strong>${fmt(p.ghi_yil)}</strong><span>ışınım kWh/m²·yıl</span></div><div><strong>${esc(p.edas.replace(' EDAŞ', ''))}</strong><span>dağıtım bölgesi</span></div></div>
-    ${facHtml(f.geometry)}<h3>İlçeler</h3><div id="drIlce" class="chips"><span class="hint">Yükleniyor…</span></div>`);
+    <div id="drIlTuk"></div>
+    <h3>Besleme kaynakları</h3>${facHtml(f.geometry)}<div id="drIlTm"></div>
+    <h3>İlçeler</h3><div id="drIlce" class="chips"><span class="hint">Yükleniyor…</span></div>`);
+  ilTuketim(f, ed);
+  setTimeout(() => ilAltyapi(f), 2600);
   const iller = await fetch('data/tkgm/iller.json?v=6').then(r => r.json());
   const tk = iller.find(([, ad]) => norm(ad) === norm(p.il)) || iller.find(([, ad]) => norm(ad).startsWith(norm(p.il).slice(0, 5)));
   if (!tk){ $('#drIlce').innerHTML = '<span class="hint">İlçe listesi bulunamadı.</span>'; return; }
@@ -162,6 +166,43 @@ async function showMah(kod){
   open(`<h3 style="margin-top:6px">${esc(m[1])}</h3><p class="hint">${esc(d.ilce.ad)} · ${esc(d.il.properties.il)} · ${esc(d.edas?.properties.edas || '')}</p>
     <div class="btnrow"><button class="btn primary" id="drCati">Bu mahallenin çatı GES önerisi</button><button class="btn" id="drParsel">Ada / parsel sorgula</button></div>
     ${geom ? facHtml(geom) : ''}`);
+}
+
+
+// ---------- il: tüketim kırılımı (yaklaşık) ve altyapı ----------
+const SEKTOR = [['Sanayi', 45, '#7b3294'], ['Ticaret ve kamu', 25.7, '#1f78b4'], ['Mesken', 22.6, '#E8B21C'], ['Tarımsal faaliyet', 4.6, '#33a02c'], ['Aydınlatma', 2, '#888']];
+function ilTuketim(f, ed){
+  const p = f.properties, e = ed.properties;
+  const pay = p.tasit / (e.tasit || 1); const twh = e.toplam_twh * pay;
+  const fd = window.ENAREN_VIZ?.computeFlows ? window.ENAREN_VIZ.computeFlows('tumu') : null;
+  const R = fd?.R.find(r => r.p.edas === e.edas);
+  const gel = fd ? fd.flows.filter(x => x.to.p.edas === e.edas) : [];
+  $('#drIlTuk').innerHTML = `<h3>Tüketim</h3>
+    <div class="kpi"><div><strong>≈${fmt(twh, 1)} TWh</strong><span>yıllık tüketim (tahmin)</span></div><div><strong>%${fmt(pay * 100)}</strong><span>${esc(e.edas.replace(' EDAŞ', ''))} içindeki payı</span></div></div>
+    ${SEKTOR.map(([ad, v, c]) => `<div class="bar ev"><span>${ad}</span><div class="t"><i style="width:${v / 45 * 100}%;background:${c}"></i></div><span class="v">≈${fmt(twh * v / 100, 2)} TWh</span></div>`).join('')}
+    <p class="hint">İl tüketimi, bölgenin 2024 faturalanan tüketiminin (ELDER) taşıt sayısı payıyla dağıtılmasıyla tahmin edildi; sektör kırılımı Türkiye ortalamasıdır (TEDAŞ, 2023). İl ölçeğinde resmî sektörel veri bu demoya eklenmedi.</p>
+    ${R ? `<p class="hint">Bölge dengesi (simülasyon, 2025): üretim ${fmt(R.genT, 1)} TWh, tüketim ${fmt(R.cons, 1)} TWh. ${R.net < 0 ? 'Açık, komşu bölgelerden karşılanıyor: ' + gel.map(x => esc(x.from.p.edas.replace(' EDAŞ', '')) + ' ' + fmt(x.twh, 1) + ' TWh').join(', ') + '.' : 'Bölge fazla veriyor; il, bölge içi üretimle besleniyor.'}</p>` : ''}
+    <div id="drIlSan"></div>`;
+}
+function ilAltyapi(f){
+  if (state.drill?.il !== f) return;
+  const g = f.geometry; const cen = gg => { const c = gg.type === 'Point' ? gg.coordinates : (gg.type === 'Polygon' ? gg.coordinates[0] : gg.coordinates[0][0]); if (typeof c[0] === 'number') return c; let x = 0, y = 0; c.forEach(q => { x += q[0]; y += q[1]; }); return [x / c.length, y / c.length]; };
+  // sanayi alanları (OSM landuse=industrial)
+  let san = [];
+  try { san = map.querySourceFeatures('ofm', {sourceLayer:'landuse', filter:['==', ['get', 'class'], 'industrial']}); } catch (e) {}
+  const by = {}; let topHa = 0;
+  san.forEach(q => { if (!inGeom(cen(q.geometry), g)) return; const rings = q.geometry.type === 'Polygon' ? [q.geometry.coordinates] : q.geometry.coordinates; const ha = rings.reduce((s, r) => s + A.ringArea(r[0]), 0) / 1e4; topHa += ha; const n = q.properties.name || q.properties['name:tr']; if (n){ (by[n] ||= {ha:0, c:cen(q.geometry)}); by[n].ha += ha; } });
+  const top = Object.entries(by).sort((a, b) => b[1].ha - a[1].ha).slice(0, 6);
+  const sanEl = document.querySelector('#drIlSan');
+  if (sanEl) sanEl.innerHTML = topHa ? `<h3>Başlıca tüketim alanları</h3><p class="hint">Haritada görünen sanayi alanları (OSM): yaklaşık <b>${fmt(topHa)} ha</b>.</p>${top.length ? `<ul class="flist">${top.map(([n, v]) => `<li data-c="${v.c.join(',')}">${window.ICON('sanayi', 14, '#7b3294', 2)} ${esc(n)} <b>${fmt(v.ha)} ha</b></li>`).join('')}</ul>` : ''}` : '';
+  // trafo merkezleri (OSM, OpenInfraMap)
+  let tm = [];
+  try { tm = map.querySourceFeatures('oim', {sourceLayer:'power_substation_point'}); } catch (e) {}
+  const kv = q => Math.max(...String(q.properties.voltage || '0').split(/[;,]/).map(v => parseFloat(v) || 0));
+  const seen = new Set();
+  const list = tm.filter(q => kv(q) >= 154 && inGeom(q.geometry.coordinates, g)).sort((a, b) => kv(b) - kv(a)).filter(q => { const k = (q.properties.name || '') + kv(q); if (seen.has(k)) return false; seen.add(k); return true; });
+  const el = document.querySelector('#drIlTm');
+  if (el) el.innerHTML = list.length ? `<p class="hint" style="margin-top:8px">İli iletim şebekesine bağlayan trafo merkezleri (154 kV ve üzeri, OSM): <b>${list.length}</b></p><ul class="flist">${list.slice(0, 8).map(q => `<li data-c="${q.geometry.coordinates.join(',')}">${window.ICON('elektrik', 14, '#0E3047', 2)} ${esc(q.properties.name || 'Adsız trafo merkezi')} <b>${fmt(kv(q) / 1000 >= 1 ? kv(q) / 1000 : kv(q))} kV</b></li>`).join('')}</ul>` : '';
 }
 
 // ---------- olaylar ----------

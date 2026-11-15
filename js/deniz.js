@@ -36,12 +36,18 @@ whenReady(async () => {
   A.syncLayerChecks();
 });
 Object.assign(A.LAYER_MAP, {lyrBathy:['bathy'], lyrMeb:['meb-fill','meb-line'], lyrDyetki:['dyetki','dyetki-sem','dyetki-lbl'], lyrBina:['bina']});
-let mebLoaded = false;
-$('#lyrMeb').addEventListener('change', async () => {
-  if (!$('#lyrMeb').checked || mebLoaded) return;
-  try { const j = await fetch(MR_WFS).then(r => r.json()); map.getSource('meb').setData(j); mebLoaded = true; }
-  catch (e) { A.toast('Marine Regions servisine ulaşılamadı'); }
-});
+// MEB poligonu ve komşu ülkelerle deniz sınırları (Marine Regions, depoya alınmış statik kopya)
+(async () => {
+  for (let i = 0; i < 100 && !map.getSource('meb'); i++) await new Promise(r => setTimeout(r, 200));
+  const [eez, sin] = await Promise.all(['data/meb.geojson?v=1', 'data/meb_sinir.geojson?v=1'].map(u => fetch(u).then(r => r.json())));
+  map.getSource('meb').setData(eez);
+  map.addSource('mebsin', {type:'geojson', data:sin});
+  map.addLayer({id:'mebsin', type:'line', source:'mebsin', layout:{'line-cap':'round'}, paint:{'line-color':['match', ['get', 'tip'], 'antlasma', '#c0392b', '#c0392b'], 'line-width':['interpolate', ['linear'], ['zoom'], 4, 2, 8, 3.2], 'line-dasharray':['literal', [1, 0]]}, filter:['==', ['get', 'tip'], 'antlasma']});
+  map.addLayer({id:'mebsin-acik', type:'line', source:'mebsin', paint:{'line-color':'#c0392b', 'line-width':['interpolate', ['linear'], ['zoom'], 4, 1.8, 8, 2.8], 'line-dasharray':[2, 1.5]}, filter:['!=', ['get', 'tip'], 'antlasma']});
+  map.addLayer({id:'mebsin-lbl', type:'symbol', source:'mebsin', minzoom:5.5, layout:{'symbol-placement':'line', 'text-field':['concat', ['get', 'ad'], ' · ', ['get', 'tipad']], 'text-size':11, 'text-font':['Open Sans Semibold']}, paint:{'text-color':'#c0392b', 'text-halo-color':'#fff', 'text-halo-width':1.6}});
+  A.LAYER_MAP.lyrDyetki = [...new Set([...(A.LAYER_MAP.lyrDyetki || []), 'mebsin', 'mebsin-acik', 'mebsin-lbl'])];
+  ['mebsin', 'mebsin-acik'].forEach(l => map.on('click', l, e => { const q = e.features[0].properties; new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<b>${q.ad}</b><br>${q.tipad}<br><small>${q.kaynak || 'Marine Regions, Flanders Marine Institute'}</small>`).addTo(map); }));
+})();
 
 // ---------- Deniz noktası analizi ----------
 const STRAITS = [
