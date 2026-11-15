@@ -14,7 +14,10 @@
     <strong>ENAREN Enerji WebGIS</strong>
     <span>demo · iletim · dağıtım · verimlilik</span>
   </div>
-  <button id="btnLocate" class="icon" title="Konumum" aria-label="Konumum">◎</button>
+  <div class="top-actions">
+    <button id="btnParselTop" class="pill" title="Parsel sorgu">🔍 Parsel</button>
+    <button id="btnLocate" class="icon" title="Konumum" aria-label="Konumum">◎</button>
+  </div>
 </header>
 
 <div id="map" aria-label="Harita"></div>
@@ -28,6 +31,7 @@
     <button class="tab" data-tab="analiz">Analiz</button>
     <button class="tab" data-tab="senaryo">EV Senaryo</button>
     <button class="tab" data-tab="parsel">Parsel</button>
+    <button class="tab" data-tab="deniz">Deniz</button>
     <button class="tab" data-tab="rapor">Rapor <b id="reportCount" class="badge hidden">0</b></button>
     <button class="tab" data-tab="enstitu">Enstitü</button>
     <button class="tab" data-tab="kaynak">Kaynaklar</button>
@@ -62,12 +66,27 @@
       <label class="row"><input type="checkbox" id="lyrPlants"> Santraller</label>
       <label class="row"><input type="checkbox" id="lyrSolarHeat"> Güneş kurulum yoğunluğu (ısı haritası)</label>
 
+      <h3>Deniz (Mavi Vatan)</h3>
+      <label class="row"><input type="checkbox" id="lyrDyetki"> Türkiye deniz yetki alanı sınırları – resmî koordinatlar</label>
+      <label class="row"><input type="checkbox" id="lyrMeb"> Türkiye MEB (Marine Regions)</label>
+      <label class="row"><input type="checkbox" id="lyrBathy"> Deniz derinliği (EMODnet)</label>
+      <h3>Ortofoto demosu</h3>
+      <label class="row"><input type="checkbox" id="lyrBina"> Bina izleri (OSM, zoom ≥ 14)</label>
+
       <h3>WMS servisleri</h3>
       <label class="row"><input type="checkbox" id="lyrCorine"> CORINE arazi örtüsü 2018 (Copernicus)</label>
       <label class="row"><input type="checkbox" id="lyrGepa"> GEPA yıllık toplam radyasyon (ETKB) <i id="gepaStatus" class="status">kontrol ediliyor…</i></label>
       <div class="sub">
         <label>Opaklık <input type="range" id="wmsOpacity" min="0.2" max="1" step="0.1" value="0.7"></label>
       </div>
+      <details>
+        <summary>➕ Kurumsal / harici WMS ekle</summary>
+        <p class="hint">TUCBS, TKGM, HGM veya kurum içi servis adresinizi ekleyin (yalnızca bu tarayıcıda, kaydedilmez). Servis CORS'a izin vermelidir.</p>
+        <label class="block">Servis adresi<input type="text" id="wmsUrl" placeholder="https://.../wms"></label>
+        <label class="block">Katman adı<input type="text" id="wmsLayer" placeholder="ör. ortofoto_2025"></label>
+        <button id="btnWmsAdd" class="btn">Ekle</button>
+        <div id="extLayers"></div>
+      </details>
       <p class="hint">Bir bölgeye ya da altyapı öğesine dokunarak bilgi alın, “Rapora ekle” ile rapora gönderin.</p>
     </div>
 
@@ -91,6 +110,13 @@
         </div>
         <div id="gesResult" class="result muted">Henüz nokta seçilmedi.</div>
         <button id="btnGesReport" class="btn primary hidden">+ Rapora ekle</button>
+      </details>
+
+      <details>
+        <summary>🏘 Ortofoto + bina izi: çatı GES potansiyeli</summary>
+        <p class="hint">Uydu/ortofoto altlığında görünür alandaki tüm binaların çatı izinden toplam GES potansiyelini hesaplar. Herhangi bir mahalleye yakınlaşıp "Hesapla"ya basın.</p>
+        <div class="btnrow"><button id="btnBinaDemo" class="btn primary">Demo (Ankara Kızılay)</button><button id="btnBinaCalc" class="btn">Bu görünümde hesapla</button><button id="btnBinaReport" class="btn hidden">+ Rapora ekle</button></div>
+        <div id="binaResult" class="result muted">Henüz hesaplanmadı.</div>
       </details>
 
       <details>
@@ -182,8 +208,30 @@
       </details>
     </div>
 
+    <!-- DENİZ -->
+    <div class="pane" id="pane-deniz">
+      <p class="hint">Türkiye'nin deniz yetki alanlarında (Mavi Vatan) açık deniz RES, yüzer GES ve akıntı enerjisi ön taraması. Denizde bir nokta seçin: derinlik (EMODnet), rüzgâr (NASA POWER), güneş (Global Solar Atlas), kıyı ve trafo mesafesi ile teknoloji önerisi üretilir.</p>
+      <div class="btnrow"><button id="btnDenizPick" class="btn primary">🌊 Denizde nokta seç</button><button id="btnDenizReport" class="btn hidden">+ Rapora ekle</button></div>
+      <div id="denizResult" class="result muted">Henüz nokta seçilmedi.</div>
+      <h3>Çözüm seçenekleri</h3>
+      <div class="duty"><b>🌬 Sabit tabanlı açık deniz RES</b><span>0–50 m derinlik, ≥ 7 m/s rüzgâr. Kuzey Ege (Gökçeada–Bozcaada açıkları), Saros, Marmara'nın batısı ve Karadeniz'in sığ batı kıyısı ön plana çıkar.</span></div>
+      <div class="duty"><b>🛟 Yüzer RES</b><span>50–1000 m derinlik. Akdeniz ve Ege'nin derin kesimleri; teknoloji olgunlaşıyor, birim maliyet sabit tabanlının ~1,5 katı.</span></div>
+      <div class="duty"><b>☀ Yüzer GES</b><span>Korunaklı koylar, liman içleri, balık çiftliği alanları ve baraj gölleri. Su soğutması verimi %5–10 artırır; dalga ve tuzluluk mühendislik gerektirir.</span></div>
+      <div class="duty"><b>🌊 Akıntı enerjisi</b><span>Gelgit küçük olduğu için potansiyel büyük ölçüde İstanbul ve Çanakkale boğazlarındaki sürekli akıntılarda; seyir güvenliği nedeniyle kıyı kenarı pilotlarıyla sınırlı.</span></div>
+      <div class="duty"><b>🔗 Hibrit ve depolama</b><span>RES + yüzer GES aynı sahada, ortak kablo/trafo; kıyıda yeşil hidrojen veya batarya ile dengeleme.</span></div>
+      <p class="hint"><b>Sınırlar hakkında:</b> Kırmızı hat, Türkiye'nin BM'ye bildirdiği (A/74/550) ve imzaladığı anlaşmalardaki (KKTC 2011, Libya 2019) resmî koordinatlardan çizilir; komşu ülkelerce itiraz edilmektedir. Ege'de kıta sahanlığı/MEB sınırlandırması yapılmamıştır ve resmî koordinat yayımlanmadığı için çizilmemiştir. Mavi MEB katmanı Marine Regions'ın uluslararası derlemesidir ve Türkiye'nin tutumunu tam yansıtmaz. Kaynak derleme: imer.av.tr.</p>
+    </div>
+
     <!-- RAPOR -->
     <div class="pane" id="pane-rapor">
+      <h3>Tip raporlar (otomatik harita + infografik)</h3>
+      <div class="rtype" data-r="ges"><b>☀ GES Fizibilite Raporu</b><span>Bir nokta, parsel ya da çatı için üretim, yatırım maliyeti, LCOE, geri ödeme, NPV/IRR ve CO₂. Veri: Global Solar Atlas + NASA POWER.</span></div>
+      <div class="rtype" data-r="bolge"><b>🗺 Bölge Yeni Nesil Enerji Fırsat Raporu</b><span>Dağıtım bölgesi için tüketim, kayıp, güneş/rüzgâr kaynağı, EV dönüşümü şebeke etkisi ve önceliklendirilmiş öneriler.</span></div>
+      <div class="rtype" data-r="deniz"><b>🌊 Deniz Enerjisi Saha Raporu</b><span>Denizde seçilen saha için derinlik, rüzgâr, teknoloji önerisi, örnek 100 MW RES ve 10 MWp yüzer GES ekonomisi.</span></div>
+
+      <div id="rForm" class="result hidden"></div>
+
+      <h3>Serbest rapor sepeti</h3>
       <label class="block">Rapor başlığı<input type="text" id="repTitle" value="Bölgesel Enerji Ön Değerlendirmesi"></label>
       <label class="block">Not / değerlendirme<textarea id="repNote" rows="3" placeholder="Kısa değerlendirmenizi yazın…"></textarea></label>
       <div class="btnrow">
@@ -211,6 +259,12 @@
   </div>
 </section>
 
+<!-- Tip rapor görüntüleyici -->
+<div id="rView" class="rview hidden">
+  <div class="rview-bar"><button id="rvClose" class="btn">✕ Kapat</button><button id="rvPrint" class="btn primary">⬇ PDF / Yazdır</button><button id="rvAdd" class="btn">+ Sepete ekle</button></div>
+  <div id="rvBody" class="rdoc"></div>
+</div>
+
 <!-- Yazdırma görünümü -->
 <div id="printArea" class="print-area"></div>
 
@@ -218,5 +272,7 @@
 <script src="js/content.js?v=9"></script>
 <script src="js/app.js?v=9"></script>
 <script src="js/modules.js?v=9"></script>
+<script src="js/deniz.js?v=9"></script>
+<script src="js/reports.js?v=9"></script>
 </body>
 </html>

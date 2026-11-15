@@ -310,5 +310,5 @@ function bolgeRaporu(edas){
     <small class="muted">Kaynak: ELDER 2024 (EPDK), TÜİK Motorlu Kara Taşıtları Eyl. 2026, NASA POWER. Puant tahmini yük faktörüne dayalıdır; EV senaryosu varsayımları EV Senaryo sekmesinde.</small>`});
   A.goTab('rapor');
 }
-window.ENAREN_MOD = { bolgeRaporu, addCmp, evRender };
+window.ENAREN_MOD = { bolgeRaporu, addCmp, evRender, evCalc };
 })();

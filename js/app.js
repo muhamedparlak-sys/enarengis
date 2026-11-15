@@ -3,7 +3,7 @@
  */
 (() => {
 'use strict';
-const DATA_V = '7'; // veri güncellenince artırın (önbellek kırıcı)
+const DATA_V = '9'; // veri güncellenince artırın (önbellek kırıcı)
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('tr-TR', {maximumFractionDigits: d, minimumFractionDigits: d});
@@ -254,7 +254,7 @@ map.on('click', (e) => {
   div.querySelector('button').onclick = () => { addReport(item); popup.remove(); };
   if (item.tip === 'bolge' && window.ENAREN_MOD){
     const b2 = document.createElement('button'); b2.className = 'btn'; b2.style.marginLeft = '6px'; b2.textContent = '📄 Bölge raporu';
-    b2.onclick = () => { popup.remove(); window.ENAREN_MOD.bolgeRaporu(p.edas); };
+    b2.onclick = () => { popup.remove(); window.ENAREN_REP ? window.ENAREN_REP.bolgeReport(p.edas) : window.ENAREN_MOD.bolgeRaporu(p.edas); };
     div.appendChild(b2);
   }
   const popup = new maplibregl.Popup({maxWidth:'290px'}).setLngLat(e.lngLat).setDOMContent(div).addTo(map);
