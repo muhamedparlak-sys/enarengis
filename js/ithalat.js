@@ -83,6 +83,7 @@ h3.insertAdjacentHTML('beforebegin', `
   <h3>Enerji türüne göre filtre (santraller ve projeler)</h3>
   <div class="chips" id="kFiltre"></div>
   <h3>İthalat ve depolama</h3>
+  <label class="row"><input type="checkbox" id="lyrBaraj"> Baraj göllerinde yüzer GES potansiyeli</label>
   <label class="row"><input type="checkbox" id="lyrDpot"> Mavi Vatan'da deniz enerjisi potansiyeli (RES, yüzer GES, akıntı)</label>
   <label class="row"><input type="checkbox" id="lyrFilo" checked> Enerji arama filosu (sondaj ve sismik gemileri)</label>
   <label class="row"><input type="checkbox" id="lyrIthal"> İthalat koridorları, LNG terminalleri, ara bağlantılar, depolama</label>
