@@ -10,7 +10,8 @@ const GRUP = [
   ['Genel bakış', [
     ['vizyon','genel','Göstergeler ve enerji dengesi','Bağımlılık, hedefler, kaynak karışımı'],
     ['canli','akis','Canlı durum (EPİAŞ)','24 saat tüketim, yarının puantı, gaz şebekesi'],
-    ['ithalat','akis','İthalat ve bağımlılık','Tür, ülke ve kanal kırılımı']]],
+    ['ithalat','akis','İthalat ve bağımlılık','Tür, ülke ve kanal kırılımı'],
+    ['paydas','enstitu','Paydaşlar','Kimde hangi veri var, kiminle çalışmalı']]],
   ['Harita', [
     ['katman','katman','Harita katmanları','Altlık, üretim, şebeke, ithalat, deniz']]],
   ['Yerinde analiz', [

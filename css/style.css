@@ -359,3 +359,17 @@ html.locked body>*:not(#gate):not(script){visibility:hidden}
 
 .lit{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:0 8px 8px 0;padding:9px 11px;margin:10px 0;font-size:13px;line-height:1.45}
 .lit ul{margin:6px 0 6px 16px;padding:0}.lit li{margin:3px 0}.lit span{display:block;color:var(--muted);font-size:12.5px}
+.flowctl .gorunum{border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:8px}
+.gorunum .gr-btn{display:flex;flex-wrap:wrap;gap:4px;margin:5px 0 4px}
+.gorunum .gr-btn button{all:unset;cursor:pointer;font-size:12.5px;font-weight:600;padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:var(--ink);background:#fff}
+.gorunum .gr-btn button.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.gorunum .gr-btn button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.gorunum small{display:block;font-size:11.5px;color:var(--muted);line-height:1.35;max-width:250px}
+.pdbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:0 0 10px;padding:6px 8px;background:var(--paper);border-radius:8px}
+.pdbar span{font-size:11.5px;color:var(--muted);margin-right:2px}
+.pdbar button{all:unset;cursor:pointer;font-size:12px;font-weight:600;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+.pdbar button:focus-visible{outline:3px solid var(--accent)}
+.pd{border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin:7px 0;display:flex;flex-direction:column;gap:3px;background:#fff;transition:background .4s}
+.pd b{font-family:var(--f-head);font-size:15.5px;color:var(--navy)}.pd small{color:var(--muted);font-size:12px}
+.pd span{font-size:13px;line-height:1.45}.pd em{font-style:normal;font-weight:600;color:var(--ink)}
+.pd.vurgu{background:#fff6d6}

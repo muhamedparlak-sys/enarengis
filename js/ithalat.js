@@ -85,7 +85,7 @@ h3.insertAdjacentHTML('beforebegin', `
   <h3>İthalat ve depolama</h3>
   <label class="row"><input type="checkbox" id="lyrBaraj"> Baraj göllerinde yüzer GES potansiyeli</label>
   <label class="row"><input type="checkbox" id="lyrDpot"> Mavi Vatan'da deniz enerjisi potansiyeli (RES, yüzer GES, akıntı)</label>
-  <label class="row"><input type="checkbox" id="lyrFilo" checked> Enerji arama filosu (sondaj ve sismik gemileri)</label>
+  <label class="row"><input type="checkbox" id="lyrFilo"> Enerji arama filosu (sondaj ve sismik gemileri)</label>
   <label class="row"><input type="checkbox" id="lyrIthal"> İthalat koridorları, LNG terminalleri, ara bağlantılar, depolama</label>
   <div class="legend2" style="margin:2px 0 8px">${Object.entries(AD).map(([k, v]) => `<span><i style="background:${RENK[k]}"></i>${v}</span>`).join('')}<span><i style="background:#fff;border:3px solid #555"></i>Depolama tesisi</span></div>`);
 // Deniz yetki alanı satırına not
