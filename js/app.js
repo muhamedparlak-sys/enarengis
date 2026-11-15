@@ -28,7 +28,7 @@ const METRICS = {
   otomobil:   {ad:'Otomobil sayısı (Eyl. 2026)', birim:'', d:0, ramp:['#f7f4f9','#c994c7','#dd1c77','#67001f']},
   ev_pct:     {ad:'EV ek tüketimi', birim:'% mevcut', d:1, ramp:['#ffffe5','#fec44f','#ec7014','#8c2d04']},
   ev_puant_pct:{ad:'EV ek akşam puantı', birim:'% tahmini puant', d:1, ramp:['#fff7f3','#fa9fb5','#dd3497','#49006a']},
-  yeterlilik: {ad:'Üretimin tüketimi karşılama oranı', birim:'%', d:0, kat:true, ramp:['#b2182b','#ef8a62','#e0e0e0','#67a9cf','#2166ac']},
+  yeterlilik: {ad:'Yurt içi bölgeler arası elektrik dengesi', birim:'%', d:0, kat:true, ramp:['#b2182b','#ef8a62','#e0e0e0','#67a9cf','#2166ac']},
   ghi:        {ad:'Ortalama güneş ışınımı', birim:'kWh/m²·yıl', d:0, ramp:['#ffffcc','#fed976','#fd8d3c','#bd0026']}
 };
 
@@ -164,7 +164,7 @@ function renderLegend(){
   const parts = [];
   if ($('#lyrEdas').checked && state.edas){
     const key = $('#edasMetric').value, m = METRICS[key], b = state.breaks || breaks(key);
-    if (m.kat) parts.push(`<div class="lt">Bölgenin rolü: üretim / tüketim (simülasyon, 2025)</div>${[['%150 üzeri – güçlü ihracatçı', 4], ['%105–150 – ihracatçı', 3], ['%95–105 – dengede', 2], ['%70–95 – ithalatçı', 1], ['%70 altı – güçlü ithalatçı', 0]].map(([t, i]) => `<div><i class="sw" style="background:${m.ramp[i]}"></i>${t}</div>`).join('')}`);
+    if (m.kat) parts.push(`<div class="lt">Yurt içi bölgeler arası elektrik dengesi<br><small style="font-weight:400">Bölge üretimi ÷ bölge tüketimi (simülasyon, 2025). Ülke dışı ithalat değildir.</small></div>${[['%150 üzeri – diğer bölgelere güçlü verici', 4], ['%105–150 – diğer bölgelere verici', 3], ['%95–105 – kendine yeterli', 2], ['%70–95 – diğer bölgelerden alıcı', 1], ['%70 altı – diğer bölgelerden güçlü alıcı', 0]].map(([t, i]) => `<div><i class="sw" style="background:${m.ramp[i]}"></i>${t}</div>`).join('')}`);
     else parts.push(`<div class="lt">${m.ad}${m.birim ? ' (' + m.birim + ')' : ''}</div><div class="ramp" style="background:linear-gradient(90deg,${m.ramp.join(',')})"></div><div class="lab"><span>${fmt(b[0], m.d)}</span><span>${fmt(b[3], m.d)}</span></div>`);
   }
   if ($('#lyrWind').checked) parts.push(`<div class="lt" style="margin-top:6px">50 m rüzgâr hızı (m/s)</div><div class="ramp" style="background:linear-gradient(90deg,#f7fbff,#6baed6,#2171b5,#08306b,#3f007d)"></div><div class="lab"><span>2</span><span>7,5+</span></div>`);

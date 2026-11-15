@@ -26,7 +26,7 @@ ready(() => {
   map.on('mousemove', 'edas-fill', e => {
     if (state.mode) return;
     const f = e.features[0]; const p = f.properties;
-    tip.innerHTML = `<b>${esc(p.edas)}</b>${p.rol ? `<span><b style="font-size:13px">${esc(p.rol)}</b> · üretim, tüketimin %${p.yeterlilik}'i</span>` : ''}<span>${esc(p.iller)}</span><small>Seçmek için tıklayın</small>`;
+    tip.innerHTML = `<b>${esc(p.edas)}</b>${p.rol ? `<span><b style="font-size:13px">${esc(p.rol)}</b> · yurt içi, bölgeler arası · üretim, tüketimin %${p.yeterlilik}'i</span>` : ''}<span>${esc(p.iller)}</span><small>Seçmek için tıklayın</small>`;
     tip.style.left = (e.originalEvent.clientX + 14) + 'px'; tip.style.top = (e.originalEvent.clientY + 14) + 'px'; tip.classList.remove('hidden');
     if (hoverId !== f.id){ if (hoverId != null) map.setFeatureState({source:'edas', id:hoverId}, {hover:false}); hoverId = f.id; map.setFeatureState({source:'edas', id:hoverId}, {hover:true}); }
   });
@@ -44,7 +44,7 @@ ready(() => {
   // ---------- bölge rolü: üretim ÷ tüketim ----------
   const rolHesap = () => {
     const fd = window.ENAREN_VIZ?.computeFlows?.('tumu'); if (!fd) return setTimeout(rolHesap, 500);
-    fd.R.forEach(r => { const y = r.genT / (r.cons || 1) * 100; r.f.properties.yeterlilik = Math.round(y); r.f.properties.rol = y >= 150 ? 'Güçlü ihracatçı' : y >= 105 ? 'İhracatçı' : y >= 95 ? 'Dengede' : y >= 70 ? 'İthalatçı' : 'Güçlü ithalatçı'; });
+    fd.R.forEach(r => { const y = r.genT / (r.cons || 1) * 100; r.f.properties.yeterlilik = Math.round(y); r.f.properties.rol = y >= 150 ? 'Diğer bölgelere güçlü verici' : y >= 105 ? 'Diğer bölgelere verici' : y >= 95 ? 'Kendine yeterli' : y >= 70 ? 'Diğer bölgelerden alıcı' : 'Diğer bölgelerden güçlü alıcı'; });
     map.getSource('edas').setData(state.edas); A.applyMetric(); A.renderLegend();
   };
   rolHesap();
@@ -114,7 +114,7 @@ function showEdas(f){
   const flowHtml = R ? `<h3>Enerji akışı (simülasyon, 2025)</h3>
     <div class="kpi"><div><strong>${fmt(R.genT, 1)} TWh</strong><span>bölgede üretim</span></div><div><strong>${fmt(R.cons, 1)} TWh</strong><span>bölgede tüketim</span></div>
     <div><strong style="color:${R.net > 0 ? '#1f8a4c' : '#c0392b'}">${R.net > 0 ? '+' : ''}${fmt(R.net, 1)} TWh</strong><span>${R.net > 0 ? 'fazla (dışarı akar)' : 'açık (dışarıdan gelir)'}</span></div>
-    <div><strong>%${fmt(R.genT / (R.cons || 1) * 100)}</strong><span>${esc(p.rol || '')} · üretim ÷ tüketim</span></div>
+    <div><strong>%${fmt(R.genT / (R.cons || 1) * 100)}</strong><span>${esc(p.rol || '')} (yurt içi) · üretim ÷ tüketim</span></div>
     <div><strong>${fmt(Object.entries(R.gen).filter(([k]) => ['hidro','gunes','ruzgar','jeotermal','biyokutle','linyit'].includes(k)).reduce((s, [, v]) => s + v, 0) / (R.genT || 1) * 100)}%</strong><span>üretimde yerli payı</span></div></div>
     <ul class="flist">${fl.map(x => `<li>${x.from.p.edas === p.edas ? '→' : '←'} ${esc((x.from.p.edas === p.edas ? x.to : x.from).p.edas)} <b>${fmt(x.twh, 1)} TWh</b></li>`).join('') || '<li>Bölgeler arası belirgin aktarım yok</li>'}</ul>` : '';
   const iller = state.il.features.filter(x => x.properties.edas === p.edas).sort((a, b) => b.properties.tasit - a.properties.tasit);
