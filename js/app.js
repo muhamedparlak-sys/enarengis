@@ -225,8 +225,13 @@ map.on('click', (e) => {
     item = {tip:'bolge', baslik:p.edas, html:edasHtml(p)};
   } else {
     const ad = p.name || p['name:tr'] || '(adsız)';
-    const rows = Object.entries(p).filter(([k, v]) => v !== '' && v != null && !/^(osm_|id$)/.test(k)).slice(0, 10)
-      .map(([k, v]) => `<tr><td>${k}</td><td>${String(v).slice(0, 40)}</td></tr>`).join('');
+    const num = v => { const n = parseFloat(v); return isNaN(n) ? v : fmt(n, n % 1 ? 1 : 0); };
+    const FIELDS = [['operator','İşletmeci'],['voltage','Gerilim',v => num(v) + ' kV'],['source','Kaynak',v => VAL_LABEL[v] || v],['method','Yöntem'],
+      ['output','Güç',v => num(v) + ' MW'],['substation','Tür',v => ({transmission:'İletim', distribution:'Dağıtım', generation:'Üretim'}[v] || v)],
+      ['circuits','Devre'],['start_date','Devreye alma'],['frequency','Frekans',v => num(v) + ' Hz']];
+    const rows = FIELDS.filter(([k]) => p[k] !== undefined && p[k] !== '' && p[k] !== null)
+      .map(([k, lbl, fn]) => `<tr><td>${lbl}</td><td>${fn ? fn(p[k]) : p[k]}</td></tr>`).join('')
+      + (p.osm_id ? `<tr><td>OSM</td><td><a href="https://www.openstreetmap.org/${p.is_node ? 'node' : p.osm_id < 0 ? 'relation' : 'way'}/${Math.abs(p.osm_id)}" target="_blank" rel="noopener">kaydı aç</a></td></tr>` : '');
     const tur = f.layer.id === 'oim-plants' ? 'Santral' : f.layer.id === 'oim-subs' ? 'Trafo merkezi' : 'Enerji hattı';
     html = `<div class="pop"><h5>${tur}: ${ad}</h5><table>${rows}</table><small class="muted">Kaynak: OpenStreetMap (gönüllü veri)</small></div>`;
     item = {tip:'osm', baslik:`${tur}: ${ad}`, html};
