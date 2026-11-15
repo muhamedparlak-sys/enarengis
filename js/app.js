@@ -13,7 +13,7 @@ const CORINE_WMS = 'https://image.discomap.eea.europa.eu/arcgis/services/Corine/
 const wmsUrl = (base, layer) => `${base}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=${layer}&STYLES=&SRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=true`;
 
 const BASEMAPS = {
-  sade:  {ad:'Sade', tiles:['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png','https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'], attr:'© OpenStreetMap katkıcıları © CARTO', max:19},
+  sade:  {ad:'Sade', tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'], attr:'Altlık © Esri, HERE, Garmin, © OpenStreetMap katkıcıları', max:16},
   osm:   {ad:'OSM', tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], attr:'© OpenStreetMap katkıcıları', max:19},
   uydu:  {ad:'Uydu (yüksek çöz.)', tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], attr:'Görüntü © Esri, Maxar, Earthstar Geographics', max:19},
   s2:    {ad:'Sentinel-2 2023', tiles:['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2023_3857/default/g/{z}/{y}/{x}.jpg'], attr:'<a href="https://s2maps.eu">Sentinel-2 cloudless</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2023)', max:15}
@@ -40,6 +40,7 @@ const map = new maplibregl.Map({
   container:'map', style, center:[35.2, 39.0], zoom:4.6, minZoom:3, maxZoom:19,
   hash:true, attributionControl:{compact:true}, preserveDrawingBuffer:true, cooperativeGestures:false
 });
+window.enarenMap = map;
 map.addControl(new maplibregl.NavigationControl({showCompass:false}), 'bottom-right');
 map.addControl(new maplibregl.ScaleControl({unit:'metric'}), 'bottom-left');
 
@@ -99,6 +100,8 @@ map.on('load', async () => {
   map.addLayer({id:'draw-line', type:'line', source:'draw', paint:{'line-color':'#f2a900','line-width':2.5}});
   map.addLayer({id:'draw-pt', type:'circle', source:'draw', filter:['==','$type','Point'], paint:{'circle-radius':6,'circle-color':'#f2a900','circle-stroke-color':'#000','circle-stroke-width':1.5}});
 
+  // dar ekranda atıf kutusunu kapalı başlat
+  document.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
   applyMetric();
   renderRank();
   syncLayerChecks();
@@ -153,8 +156,10 @@ function renderLegend(){
   if ($('#lyrLines').checked) parts.push(`<div class="lt" style="margin-top:6px">Hat gerilimi</div>
     <div><i class="sw" style="background:#c0392b"></i>380–400 kV</div><div><i class="sw" style="background:#e6550d"></i>200–300 kV</div>
     <div><i class="sw" style="background:#2b8cbe"></i>154 kV</div><div><i class="sw" style="background:#2ca25f"></i>35–100 kV</div><div><i class="sw" style="background:#8a8a8a"></i>&lt;35 kV / bilinmiyor</div>`);
-  $('#legend').innerHTML = parts.join('');
+  $('#legend').innerHTML = parts.length ? `<button class="lg-toggle" aria-label="Lejantı aç/kapat">Lejant</button><div class="lg-body">${parts.join('')}</div>` : '';
 }
+$('#legend').addEventListener('click', () => $('#legend').classList.toggle('open'));
+if (window.innerWidth >= 900) $('#legend').classList.add('open');
 
 // ---------- Panel (bottom sheet) ----------
 const sheetStates = ['', 'sheet-max', 'sheet-min'];
