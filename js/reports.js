@@ -54,7 +54,7 @@ async function snapshot({bounds, center, zoom, show = [], hide = [], basemap, ma
     map.getSource('rmark').setData({type:'Feature', geometry:{type:'Point', coordinates:marker}, properties:{}});
   }
   if (bounds) map.fitBounds(bounds, {padding: 30, animate: false, maxZoom: 15}); else map.jumpTo({center, zoom});
-  await new Promise(res => { let done = false; const fin = () => { if (!done){ done = true; res(); } }; map.once('idle', fin); setTimeout(fin, 9000); });
+  await new Promise(res => { let done = false; const fin = () => { if (!done){ done = true; res(); } }; map.once('idle', fin); setTimeout(fin, 3500); });
   await new Promise(r => setTimeout(r, 250));
   let img = null; try { img = map.getCanvas().toDataURL('image/jpeg', 0.85); } catch (e) {}
   // geri al

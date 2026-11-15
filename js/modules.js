@@ -169,7 +169,7 @@ map.on('load', () => {
     map.addLayer({id:'parsel-fill', type:'fill', source:'parsel', paint:{'fill-color':'#f2a900','fill-opacity':0.3}});
     map.addLayer({id:'parsel-line', type:'line', source:'parsel', paint:{'line-color':'#c0392b','line-width':2.5}});
   };
-  if (map.getSource('edas')) add(); else map.once('idle', add);
+  const t = setInterval(() => { if (map.getSource('edas') && map.isStyleLoaded()){ clearInterval(t); add(); } }, 200);
   const iv = setInterval(() => { if (state.edas && state.edas.features[0].properties.ghi){ clearInterval(iv); evRender(); } }, 300);
 });
 $('#btnCmpPick').onclick = () => {

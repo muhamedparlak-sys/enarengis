@@ -3,6 +3,7 @@
  * bölgeler arası elektrik akışı simülasyonu, tarım/sanayi arazi kullanımı potansiyeli, görev → altlık eşlemesi. */
 (() => {
 'use strict';
+const settle = (fn, ms = 2500) => { let d = false; const go = () => { if (!d){ d = true; fn(); } }; window.enarenMap.once('idle', go); setTimeout(go, ms); };
 const A = window.ENAREN_APP;
 const { map, state, fmt } = A;
 const $ = (s) => document.querySelector(s);
@@ -290,7 +291,7 @@ function renderVizyon(){
   setPreset('hedef35');
   renderHedefler();
   ['lyrSantral','lyrStrat','lyrAkis','lyrTarim'].forEach(id => $('#' + id).addEventListener('change', () => { A.syncLayerChecks(); if (id === 'lyrAkis'){ toggleFlow($('#lyrAkis').checked); updateFlowCtl(); } }));
-  $('#btnLand').onclick = () => { $('#lyrTarim').checked = true; A.syncLayerChecks(); if (map.getZoom() < 9){ map.flyTo({center:[29.94, 40.78], zoom:11}); A.toast('Örnek: Kocaeli sanayi + tarım'); } A.minimizeSheet(); map.once('idle', () => setTimeout(() => { landCalc(); A.openSheet(); A.goTab('vizyon'); }, 400)); };
+  $('#btnLand').onclick = () => { $('#lyrTarim').checked = true; A.syncLayerChecks(); if (map.getZoom() < 9){ map.flyTo({center:[29.94, 40.78], zoom:11}); A.toast('Örnek: Kocaeli sanayi + tarım'); } A.minimizeSheet(); settle(() => setTimeout(() => { landCalc(); A.openSheet(); A.goTab('vizyon'); }, 400)); };
   $$('.mrow').forEach(r => r.addEventListener('click', () => { const [x, y] = r.dataset.c.split(',').map(Number); map.flyTo({center:[x, y], zoom:7.5}); A.minimizeSheet(); }));
   renderGorevler();
 }

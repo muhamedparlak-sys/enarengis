@@ -74,7 +74,7 @@ async function footprints(geom){
   $('#lyrBina').checked = true; A.syncLayerChecks();
   map.fitBounds(bboxOf(geom), {padding: 20, maxZoom: 16.5, animate: false});
   if (map.getZoom() < 14.5) map.jumpTo({zoom: 14.5});
-  await new Promise(r => { let d = false; const f = () => { if (!d){ d = true; r(); } }; map.once('idle', f); setTimeout(f, 9000); });
+  await new Promise(r => { let d = false; const f = () => { if (!d){ d = true; r(); } }; map.once('idle', f); setTimeout(f, 3500); });
   const seen = new Set(); let n = 0, area = 0;
   (map.getLayer('bina') ? map.queryRenderedFeatures({layers:['bina']}) : []).forEach(f => {
     const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [];

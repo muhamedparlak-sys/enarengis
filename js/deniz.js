@@ -2,6 +2,7 @@
  * kurumsal WMS ekleme, parsel kısayolu ve idari birime yakınlaşma. */
 (() => {
 'use strict';
+const settle = (fn, ms = 2500) => { let d = false; const go = () => { if (!d){ d = true; fn(); } }; window.enarenMap.once('idle', go); setTimeout(go, ms); };
 const A = window.ENAREN_APP, M = window.ENAREN_MOD;
 const { map, state, addReport, fmt } = A;
 const $ = (s) => document.querySelector(s);
@@ -116,7 +117,7 @@ $('#btnBinaDemo').onclick = () => {
   $('#lyrBina').checked = true; A.syncLayerChecks(); A.setBasemap('uydu');
   map.jumpTo({center:[32.8541, 39.9208], zoom:16.2});
   A.minimizeSheet();
-  map.once('idle', () => setTimeout(binaHesap, 400));
+  settle(() => setTimeout(binaHesap, 400));
 };
 function binaHesap(){
   // Karo geometrileri görünür alanın dışına taşar: yalnızca merkezi ekranda olan bina parçalarını say
@@ -150,7 +151,7 @@ function binaHesap(){
     $('#btnBinaReport').classList.remove('hidden');
   });
 }
-$('#btnBinaCalc').onclick = () => { if (map.getZoom() < 14){ A.toast('Önce yakınlaşın (zoom ≥ 14)'); return; } $('#lyrBina').checked = true; A.syncLayerChecks(); map.once('idle', () => setTimeout(binaHesap, 300)); map.triggerRepaint(); };
+$('#btnBinaCalc').onclick = () => { if (map.getZoom() < 14){ A.toast('Önce yakınlaşın (zoom ≥ 14)'); return; } $('#lyrBina').checked = true; A.syncLayerChecks(); settle(() => setTimeout(binaHesap, 300)); };
 $('#btnBinaReport').onclick = () => state.lastBina && addReport({tip:'bina', baslik:state.lastBina.baslik, html:state.lastBina.html});
 
 // ---------- Kurumsal / harici WMS ekleme ----------
