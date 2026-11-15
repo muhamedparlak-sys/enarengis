@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3d5e">
+<title>ENAREN Enerji WebGIS – Demo</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <strong>ENAREN Enerji WebGIS</strong>
+    <span>demo · iletim · dağıtım · verimlilik</span>
+  </div>
+  <button id="btnLocate" class="icon" title="Konumum" aria-label="Konumum">◎</button>
+</header>
+
+<div id="map" aria-label="Harita"></div>
+<div id="modeBanner" class="mode-banner hidden"></div>
+<div id="legend" class="legend"></div>
+
+<section id="sheet" class="sheet">
+  <button id="sheetHandle" class="handle" aria-label="Paneli aç/kapat"><span></span></button>
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="katman">Katmanlar</button>
+    <button class="tab" data-tab="analiz">Analiz</button>
+    <button class="tab" data-tab="rapor">Rapor <b id="reportCount" class="badge hidden">0</b></button>
+    <button class="tab" data-tab="enstitu">Enstitü</button>
+    <button class="tab" data-tab="kaynak">Kaynaklar</button>
+  </nav>
+
+  <div class="panes">
+    <!-- KATMANLAR -->
+    <div class="pane active" id="pane-katman">
+      <h3>Altlık</h3>
+      <div class="chips" id="basemaps"></div>
+
+      <h3>Tematik katmanlar</h3>
+      <label class="row"><input type="checkbox" id="lyrEdas" checked> Dağıtım bölgeleri (21 EDAŞ)</label>
+      <div class="sub">
+        <select id="edasMetric">
+          <option value="toplam_twh">Faturalanan tüketim (TWh, 2024)</option>
+          <option value="kayip">Kayıp oranı (%)</option>
+          <option value="tuketici">Tüketici sayısı</option>
+          <option value="kwh_kisi">Tüketici başına dağıtım tüketimi (kWh)</option>
+        </select>
+      </div>
+      <label class="row"><input type="checkbox" id="lyrIl"> İl sınırları</label>
+      <label class="row"><input type="checkbox" id="lyrSolar"> Güneş ışınımı (NASA POWER, 1°)</label>
+
+      <h3>Enerji altyapısı (OpenStreetMap)</h3>
+      <label class="row"><input type="checkbox" id="lyrLines" checked> İletim / dağıtım hatları</label>
+      <label class="row"><input type="checkbox" id="lyrSubs" checked> Trafo merkezleri</label>
+      <label class="row"><input type="checkbox" id="lyrPlants"> Santraller</label>
+      <label class="row"><input type="checkbox" id="lyrSolarHeat"> Güneş kurulum yoğunluğu (ısı haritası)</label>
+
+      <h3>WMS servisleri</h3>
+      <label class="row"><input type="checkbox" id="lyrCorine"> CORINE arazi örtüsü 2018 (Copernicus)</label>
+      <label class="row"><input type="checkbox" id="lyrGepa"> GEPA yıllık toplam radyasyon (ETKB) <i id="gepaStatus" class="status">kontrol ediliyor…</i></label>
+      <div class="sub">
+        <label>Opaklık <input type="range" id="wmsOpacity" min="0.2" max="1" step="0.1" value="0.7"></label>
+      </div>
+      <p class="hint">Bir bölgeye ya da altyapı öğesine dokunarak bilgi alın, “Rapora ekle” ile rapora gönderin.</p>
+    </div>
+
+    <!-- ANALİZ -->
+    <div class="pane" id="pane-analiz">
+      <details open>
+        <summary>☀ Çatı GES hesaplayıcı</summary>
+        <p class="hint">Haritada bir nokta seçin ya da çatıyı çizin (çizimde uydu altlığı otomatik açılır).</p>
+        <div class="btnrow">
+          <button id="btnPickPoint" class="btn">📍 Nokta seç</button>
+          <button id="btnDraw" class="btn">✏ Çatıyı çiz</button>
+          <button id="btnDrawDone" class="btn hidden">✓ Bitir</button>
+        </div>
+        <div class="grid2">
+          <label>Çatı alanı (m²)<input type="number" id="gesArea" value="120" min="1"></label>
+          <label>Kullanılabilir oran (%)<input type="number" id="gesUse" value="60" min="1" max="100"></label>
+          <label>Panel gücü (kWp/m²)<input type="number" id="gesKwp" value="0.21" step="0.01"></label>
+          <label>Performans oranı<input type="number" id="gesPr" value="0.80" step="0.01"></label>
+          <label>Eğim kazancı (×)<input type="number" id="gesTilt" value="1.12" step="0.01"></label>
+          <label>Hane tüketimi (kWh/yıl)<input type="number" id="gesHome" value="2600" step="100"></label>
+        </div>
+        <div id="gesResult" class="result muted">Henüz nokta seçilmedi.</div>
+        <button id="btnGesReport" class="btn primary hidden">+ Rapora ekle</button>
+      </details>
+
+      <details>
+        <summary>🔎 Ekrandaki altyapı özeti</summary>
+        <p class="hint">Haritada görünen alandaki OSM enerji öğelerini sayar (yakınlaştırınca daha ayrıntılı).</p>
+        <button id="btnViewStats" class="btn">Görünümü analiz et</button>
+        <div id="viewStats" class="result muted"></div>
+        <button id="btnViewReport" class="btn primary hidden">+ Rapora ekle</button>
+      </details>
+
+      <details>
+        <summary>📊 Bölge karşılaştırma</summary>
+        <select id="rankMetric">
+          <option value="toplam_twh">Faturalanan tüketim (TWh)</option>
+          <option value="kayip">Kayıp oranı (%)</option>
+          <option value="tuketici">Tüketici sayısı</option>
+          <option value="kwh_kisi">Tüketici başına tüketim (kWh)</option>
+          <option value="ghi">Ortalama güneş ışınımı (kWh/m²·yıl)</option>
+        </select>
+        <div id="rankList" class="bars"></div>
+        <button id="btnRankReport" class="btn primary">+ Rapora ekle</button>
+      </details>
+    </div>
+
+    <!-- RAPOR -->
+    <div class="pane" id="pane-rapor">
+      <label class="block">Rapor başlığı<input type="text" id="repTitle" value="Bölgesel Enerji Ön Değerlendirmesi"></label>
+      <label class="block">Not / değerlendirme<textarea id="repNote" rows="3" placeholder="Kısa değerlendirmenizi yazın…"></textarea></label>
+      <div class="btnrow">
+        <button id="btnSnap" class="btn">🗺 Harita görüntüsü ekle</button>
+        <button id="btnPrint" class="btn primary">⬇ PDF / Yazdır</button>
+        <button id="btnShare" class="btn">🔗 Bağlantı</button>
+      </div>
+      <div id="repItems" class="rep-items"><p class="muted">Rapor boş. Analiz sekmesinden ya da haritadaki bilgi kutularından öğe ekleyin.</p></div>
+      <button id="btnClear" class="btn ghost">Raporu temizle</button>
+    </div>
+
+    <!-- ENSTİTÜ -->
+    <div class="pane" id="pane-enstitu"><div id="enstituContent"></div></div>
+
+    <!-- KAYNAKLAR -->
+    <div class="pane" id="pane-kaynak">
+      <div class="chips" id="srcFilter">
+        <button class="chip active" data-f="hepsi">Hepsi</button>
+        <button class="chip" data-f="ulusal">Ulusal</button>
+        <button class="chip" data-f="uluslararasi">Uluslararası</button>
+      </div>
+      <div id="srcList"></div>
+      <button id="btnTestAll" class="btn">Servisleri canlı test et</button>
+    </div>
+  </div>
+</section>
+
+<!-- Yazdırma görünümü -->
+<div id="printArea" class="print-area"></div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="js/content.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
