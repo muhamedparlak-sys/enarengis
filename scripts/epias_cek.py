@@ -40,7 +40,7 @@ ISLER = {
     'elektrik_uretim':  ('electricity-service', 'v1/generation/data/realtime-generation', gun(dun, bugun)),
     'elektrik_tuketim': ('electricity-service', 'v1/consumption/data/realtime-consumption', gun(dun, bugun)),
     'elektrik_tahmin':  ('electricity-service', 'v1/consumption/data/load-estimation-plan', gun(bugun, yarin)),
-    'elektrik_ptf':     ('electricity-service', 'v1/markets/dam/data/mcp', gun(bugun, yarin)),
+    'elektrik_ptf':     ('electricity-service', 'v1/markets/dam/data/mcp', gun(dun, bugun)),
     'gaz_giris_gercek': ('natural-gas-service', 'v1/transmission/data/realization-entry-amount', gun(hafta, dun)),
     'gaz_cikis_gercek': ('natural-gas-service', 'v1/transmission/data/realization-exit-amount', gun(hafta, dun)),
     'gaz_max_giris':    ('natural-gas-service', 'v1/transmission/data/max-entry-amount', gun(hafta, dun)),
