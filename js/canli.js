@@ -35,6 +35,8 @@ async function yukle(){
   const dunG = gunler[0], bugG = gunler[1];
   const seri = (arr, g, k) => { const v = Array(24).fill(null); arr.filter(d => gunu(d) === g).forEach(d => { v[+saat(d).slice(0, 2)] = d[k]; }); return v; };
   const tDun = seri(tkI, dunG, 'consumption'), tBug = seri(tkI, bugG, 'consumption');
+  // son saat henüz tamamlanmamışsa (kısmi veri) eğriden çıkar
+  for (let i = 23; i > 0; i--){ if (tBug[i] != null){ if (tBug[i - 1] != null && tBug[i] < tBug[i - 1] * 0.8) tBug[i] = null; break; } }
   const tahG = [...new Set(thI.map(gunu))];
   const hBug = seri(thI, tahG[0], 'lep'), hYar = seri(thI, tahG[1], 'lep');
   const yarPuant = Math.max(...hYar.filter(x => x != null)), yarPuantS = hYar.indexOf(yarPuant);
@@ -45,7 +47,8 @@ async function yukle(){
   const toplam = Object.values(top).reduce((a, b) => a + b, 0) || 1;
   const yerli = Object.entries(top).filter(([k]) => YERLI.has(k)).reduce((s, [, v]) => s + v, 0);
   const sirali = KAY.filter(([k]) => top[k] > toplam * 0.004).sort((a, b) => top[b[0]] - top[a[0]]);
-  const sonU = urI[urI.length - 1];
+  let sonU = urI[urI.length - 1]; const onc = urI[urI.length - 2];
+  if (sonU && onc && sonU.total < onc.total * 0.8) sonU = onc;
   // gaz (son gün)
   const son = a => (a?.items || []).slice(-1)[0];
   const gGir = son(gg)?.entryAmount, gMax = son(gm)?.maxEntryAmount, gCek = son(gd)?.reproduction, gEnj = son(gd)?.injection, gStok = son(gs)?.stockAmount;
