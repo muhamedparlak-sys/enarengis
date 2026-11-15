@@ -219,3 +219,18 @@ $('#pMah').addEventListener('change', () => { if ($('#pMah').value) zoomTo(`${tx
   map.setPaintProperty('dyetki-sem', 'line-color', '#B3001B');
   A.LAYER_MAP.lyrDyetki = [...new Set([...(A.LAYER_MAP.lyrDyetki || []), 'dyetki-case', 'mebsin-case', 'trsinir-case'])];
 })();
+// Mavi Vatan: kapalı alan (Karadeniz antlaşmaları + Doğu Akdeniz resmî bildirimleri + Ege'de şematik orta hat)
+(async () => {
+  const A = window.ENAREN_APP, map = A.map;
+  for (let i = 0; i < 150 && !(map.getLayer('dyetki') && map.isStyleLoaded()); i++) await new Promise(r => setTimeout(r, 200));
+  const mv = await fetch('data/mavi_vatan.geojson?v=1').then(r => r.json());
+  map.addSource('mavivatan', {type:'geojson', data:mv});
+  map.addLayer({id:'mavivatan-fill', type:'fill', source:'mavivatan', paint:{'fill-color':'#1f5f8b', 'fill-opacity':0.13}}, map.getLayer('dyetki-case') ? 'dyetki-case' : 'dyetki');
+  map.addLayer({id:'mavivatan-line', type:'line', source:'mavivatan', paint:{'line-color':'#B3001B', 'line-width':['interpolate', ['linear'], ['zoom'], 4, 1, 8, 1.8], 'line-opacity':0.85}}, 'dyetki');
+  const ege = [[26.04,40.72],[25.62,40.38],[25.28,39.92],[25.0,39.3],[24.9,38.7],[25.18,38.0],[25.3,37.3],[25.62,36.62],[26.08,35.92],[26.38,35.3],[26.32,34.27]];
+  map.addSource('mv-ege', {type:'geojson', data:{type:'Feature', geometry:{type:'LineString', coordinates:ege}, properties:{}}});
+  map.addLayer({id:'mv-ege', type:'line', source:'mv-ege', paint:{'line-color':'#B3001B', 'line-width':['interpolate', ['linear'], ['zoom'], 4, 2.6, 8, 3.6], 'line-dasharray':[2, 1.2]}});
+  map.addLayer({id:'mavivatan-lbl', type:'symbol', source:'mavivatan', layout:{'text-field':'MAVİ VATAN', 'text-font':['Open Sans Semibold'], 'text-size':['interpolate', ['linear'], ['zoom'], 4, 12, 7, 18], 'text-letter-spacing':0.25}, paint:{'text-color':'#1f5f8b', 'text-halo-color':'#fff', 'text-halo-width':1.5, 'text-opacity':0.85}});
+  A.LAYER_MAP.lyrDyetki = [...new Set([...(A.LAYER_MAP.lyrDyetki || []), 'mavivatan-fill', 'mavivatan-line', 'mv-ege', 'mavivatan-lbl'])];
+  map.on('click', 'mv-ege', e => new maplibregl.Popup({maxWidth:'300px'}).setLngLat(e.lngLat).setHTML('<b>Ege: şematik sınır</b><br>Ege\'de iki ülke arasında sınırlandırma yapılmamıştır ve Türkiye resmî koordinat yayımlamamıştır. Bu hat, ana karalar arası orta hat esas alınarak şematik çizilmiştir; Yunan adalarının çevresinde 6 deniz mili karasuyu bırakılmıştır.').addTo(map));
+})();

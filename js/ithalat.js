@@ -87,7 +87,7 @@ h3.insertAdjacentHTML('beforebegin', `
   <label class="row"><input type="checkbox" id="lyrIthal"> İthalat koridorları, LNG terminalleri, ara bağlantılar, depolama</label>
   <div class="legend2" style="margin:2px 0 8px">${Object.entries(AD).map(([k, v]) => `<span><i style="background:${RENK[k]}"></i>${v}</span>`).join('')}<span><i style="background:#fff;border:3px solid #555"></i>Depolama tesisi</span></div>`);
 // Deniz yetki alanı satırına not
-const dy = $('#lyrDyetki')?.parentElement; if (dy) dy.lastChild.textContent = ' Türkiye deniz yetki alanı sınırları + kara sınırı (resmî koordinatlar)';
+const dy = $('#lyrDyetki')?.parentElement; if (dy) dy.lastChild.textContent = ' Mavi Vatan ve kara sınırı (Doğu Akdeniz ve Karadeniz resmî, Ege şematik)';
 
 const FILTRE = [['hepsi','Tümü'],['hidro','Hidro'],['gunes','Güneş'],['ruzgar','Rüzgâr'],['jeotermal','Jeotermal'],['biyokutle','Biyokütle'],['linyit','Yerli kömür'],['ithal_komur','İthal kömür'],['dogalgaz','Doğal gaz'],['nukleer','Nükleer'],['petrol','Petrol'],['maden','Bor / toryum']];
 $('#kFiltre').innerHTML = FILTRE.map(([k, l]) => `<button class="chip ${k === 'hepsi' ? 'active' : ''}" data-k="${k}">${l}</button>`).join('');
