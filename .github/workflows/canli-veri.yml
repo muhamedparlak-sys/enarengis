@@ -1,0 +1,26 @@
+name: Canlı veri (EPİAŞ)
+on:
+  schedule:
+    - cron: '17 * * * *'   # saatte bir (UTC)
+  workflow_dispatch:
+  push:
+    paths: ['scripts/epias_cek.py', '.github/workflows/canli-veri.yml']
+permissions:
+  contents: write
+concurrency: canli-veri
+jobs:
+  cek:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: EPİAŞ verisini çek
+        env:
+          EPIAS_KULLANICI: ${{ secrets.EPIAS_KULLANICI }}
+          EPIAS_SIFRE: ${{ secrets.EPIAS_SIFRE }}
+        run: python3 scripts/epias_cek.py
+      - name: Değişiklik varsa kaydet
+        run: |
+          git config user.name "enaren-veri-botu"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/canli
+          git diff --cached --quiet || (git commit -m "Canlı veri: $(date -u +%Y-%m-%dT%H:%MZ)" && git pull --rebase -q && git push)
