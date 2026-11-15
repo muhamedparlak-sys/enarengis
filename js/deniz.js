@@ -38,7 +38,7 @@ whenReady(async () => {
 Object.assign(A.LAYER_MAP, {lyrBathy:['bathy'], lyrDyetki:['dyetki','dyetki-sem','dyetki-lbl'], lyrBina:['bina']});
 // Karadeniz: Türkiye'nin taraf olduğu antlaşmalarla belirlenmiş deniz sınırları (koordinatlar Marine Regions derlemesinden)
 (async () => {
-  for (let i = 0; i < 100 && !map.getSource('meb'); i++) await new Promise(r => setTimeout(r, 200));
+  for (let i = 0; i < 3000 && !map.getSource('meb'); i++) await new Promise(r => setTimeout(r, 200));
   const sin = await fetch('data/meb_sinir.geojson?v=2').then(r => r.json());
   map.addSource('mebsin', {type:'geojson', data:sin});
   map.addLayer({id:'mebsin', type:'line', source:'mebsin', layout:{'line-cap':'round'}, paint:{'line-color':['match', ['get', 'tip'], 'antlasma', '#c0392b', '#c0392b'], 'line-width':['interpolate', ['linear'], ['zoom'], 4, 2, 8, 3.2], 'line-dasharray':['literal', [1, 0]]}, filter:['==', ['get', 'tip'], 'antlasma']});
@@ -207,7 +207,7 @@ $('#pMah').addEventListener('change', () => { if ($('#pMah').value) zoomTo(`${tx
 // Sınır çizgilerini şebeke hatlarından ayırmak için beyaz zemin (casing) ve kalın çizgi
 (async () => {
   const A = window.ENAREN_APP, map = A.map;
-  for (let i = 0; i < 150 && !(map.getLayer('mebsin') && map.getLayer('trsinir') && map.getLayer('dyetki')); i++) await new Promise(r => setTimeout(r, 200));
+  for (let i = 0; i < 3000 && !(map.getLayer('mebsin') && map.getLayer('trsinir') && map.getLayer('dyetki')); i++) await new Promise(r => setTimeout(r, 200));
   const W = ['interpolate', ['linear'], ['zoom'], 4, 3.2, 8, 4.6];
   [['dyetki', 'dyetki'], ['mebsin', 'mebsin'], ['trsinir', 'trsinir']].forEach(([id, src]) => {
     const L = map.getLayer(id); if (!L) return;
@@ -222,7 +222,7 @@ $('#pMah').addEventListener('change', () => { if ($('#pMah').value) zoomTo(`${tx
 // Mavi Vatan: kapalı alan (Karadeniz antlaşmaları + Doğu Akdeniz resmî bildirimleri + Ege'de şematik orta hat)
 (async () => {
   const A = window.ENAREN_APP, map = A.map;
-  for (let i = 0; i < 150 && !(map.getLayer('dyetki') && map.isStyleLoaded()); i++) await new Promise(r => setTimeout(r, 200));
+  for (let i = 0; i < 3000 && !(map.getLayer('dyetki') && map.isStyleLoaded()); i++) await new Promise(r => setTimeout(r, 200));
   const mv = await fetch('data/mavi_vatan.geojson?v=1').then(r => r.json());
   map.addSource('mavivatan', {type:'geojson', data:mv});
   map.addLayer({id:'mavivatan-fill', type:'fill', source:'mavivatan', paint:{'fill-color':'#1f5f8b', 'fill-opacity':0.13}}, map.getLayer('dyetki-case') ? 'dyetki-case' : 'dyetki');
