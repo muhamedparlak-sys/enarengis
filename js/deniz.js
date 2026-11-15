@@ -110,7 +110,7 @@ map.on('click', e => {
 // ---------- Ortofoto / bina çatı potansiyeli demosu ----------
 $('#btnBinaDemo').onclick = () => {
   $('#lyrBina').checked = true; A.syncLayerChecks(); A.setBasemap('uydu');
-  if (map.getZoom() < 15.5) map.flyTo({center: map.getZoom() < 8 ? [32.8541, 39.9208] : map.getCenter(), zoom:16.2});
+  map.jumpTo({center:[32.8541, 39.9208], zoom:16.2});
   A.minimizeSheet();
   map.once('idle', () => setTimeout(binaHesap, 400));
 };
