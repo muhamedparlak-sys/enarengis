@@ -29,7 +29,7 @@ function ekle(){
     map.on('click', 'dpot', e => { const p = e.features[0].properties; new maplibregl.Popup({maxWidth:'300px'}).setLngLat(e.lngLat).setHTML(`<b>${esc(p.ad)}</b><br>Mavi Vatan içindeki toplam alan: <b>${fmt(p.km2)} km²</b><br>Kaba kapasite: <b>≈${fmt(p.gw, 1)} GW</b> (${p.yogunluk} MW/km²)<br><small>Ön eleme; seyir yolları, askerî alanlar, kablolar, koruma alanları ve zemin etüdü dikkate alınmadı.</small>`).addTo(map); });
     map.on('click', 'akinti', e => { const p = e.features[0].properties; new maplibregl.Popup({maxWidth:'300px'}).setLngLat(e.lngLat).setHTML(`<b>${esc(p.ad)}</b><br>${p.v ? `En yüksek yüzey akıntısı ≈${fmt(p.v, 1)} m/s → güç yoğunluğu ≈<b>${fmt(pd(p.v), 1)} kW/m²</b> (P = ½ρv³)<br>` : ''}${esc(p.n)}`).addTo(map); });
     panel(fc);
-    return fetch('data/hedef_sahalar.geojson?v=1').then(r => r.json());
+    return fetch('data/hedef_sahalar.geojson?v=2').then(r => r.json());
   }).then(hs => { if (hs) hedefler(hs); });
 }
 const TURAD = {res_sabit:'Deniz üstü RES · sabit temelli', res_yuzer:'Deniz üstü RES · yüzer', ges_yuzer:'Yüzer GES'};
