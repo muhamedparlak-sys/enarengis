@@ -110,6 +110,20 @@ table.t{border-collapse:collapse;width:100%;font-size:13px}
 table.t td{padding:3px 0;border-bottom:1px solid var(--soft);vertical-align:top}
 table.t td:last-child{text-align:right;font-weight:600}
 
+.manifest{background:linear-gradient(135deg,#0f3d5e,#1f78b4);color:#fff;border-radius:12px;padding:12px 14px;margin:8px 0}
+.manifest b{display:block;font-size:15px;margin-bottom:4px}.manifest span{font-size:13px;line-height:1.45;opacity:.95}
+.stack{display:flex;height:30px;border-radius:8px;overflow:hidden;margin:6px 0;background:var(--soft)}
+.stack .seg{display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;border-right:1px solid rgba(255,255,255,.6)}
+.stack .seg.yerli{opacity:.45;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.5) 0 4px,transparent 4px 8px)!important}
+.stack .seg.gap{background:repeating-linear-gradient(45deg,#c0392b 0 6px,#e66 6px 12px);font-size:11px;font-weight:600}
+.legend2{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--muted)}
+.legend2 i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
+.svbar{position:relative;padding-top:22px}
+.svbar .demand{position:absolute;top:0;bottom:0;border-left:3px dashed #1d2733}
+.svbar .demand span{position:absolute;top:0;left:4px;font-size:11px;font-weight:700;white-space:nowrap;background:#fff;padding:0 3px}
+.matrix .mrow{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.matrix .mrow b{color:var(--navy);font-size:14px}.matrix .mrow span{font-size:12.5px;color:#334}
+.altlik{display:block;margin-top:5px;font-size:12.5px;color:#0f3d5e;background:#e8f1f8;border-radius:6px;padding:5px 7px}
 .rtype{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;cursor:pointer;background:#fff}
 .rtype b{display:block;color:var(--navy);font-size:14.5px}.rtype span{font-size:12.5px;color:var(--muted)}
 .rtype.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}

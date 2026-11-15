@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f3d5e">
 <title>ENAREN Enerji WebGIS – Demo</title>
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-<link rel="stylesheet" href="css/style.css?v=11">
+<link rel="stylesheet" href="css/style.css?v=12">
 </head>
 <body>
 <header class="topbar">
@@ -27,7 +27,8 @@
 <section id="sheet" class="sheet">
   <button id="sheetHandle" class="handle" aria-label="Paneli aç/kapat"><span></span></button>
   <nav class="tabs" role="tablist">
-    <button class="tab active" data-tab="katman">Katmanlar</button>
+    <button class="tab active" data-tab="vizyon">🇹🇷 Vizyon</button>
+    <button class="tab" data-tab="katman">Katmanlar</button>
     <button class="tab" data-tab="analiz">Analiz</button>
     <button class="tab" data-tab="senaryo">EV Senaryo</button>
     <button class="tab" data-tab="parsel">Parsel</button>
@@ -39,7 +40,8 @@
 
   <div class="panes">
     <!-- KATMANLAR -->
-    <div class="pane active" id="pane-katman">
+    <div class="pane active" id="pane-vizyon"></div>
+    <div class="pane" id="pane-katman">
       <h3>Altlık</h3>
       <div class="chips" id="basemaps"></div>
 
@@ -269,10 +271,11 @@
 <div id="printArea" class="print-area"></div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="js/content.js?v=11"></script>
-<script src="js/app.js?v=11"></script>
-<script src="js/modules.js?v=11"></script>
-<script src="js/deniz.js?v=11"></script>
-<script src="js/reports.js?v=11"></script>
+<script src="js/content.js?v=12"></script>
+<script src="js/app.js?v=12"></script>
+<script src="js/modules.js?v=12"></script>
+<script src="js/deniz.js?v=12"></script>
+<script src="js/reports.js?v=12"></script>
+<script src="js/vizyon.js?v=12"></script>
 </body>
 </html>
