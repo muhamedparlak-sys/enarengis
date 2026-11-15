@@ -140,7 +140,8 @@ print("GHI aralığı", min(f["properties"]["ghi_gun"] for f in il_feats), max(f
 
 # --- Denizleri de kapsayan güneş (1°) ve rüzgâr (0,5°) ızgaraları: raw/g_<PARAM>_<lon>.json ---
 import glob, os
-def grid_from(param, half):
+def grid_from(param, half, half_lon=None):
+    half_lon = half_lon or half
     feats = []
     seen = set()
     for f in sorted(glob.glob(f"{RAW}/g_{param}_*.json")):
@@ -150,7 +151,7 @@ def grid_from(param, half):
             if v is None or v < 0 or (x, y) in seen:
                 continue
             seen.add((x, y))
-            cell = box(x - half, y - half, x + half, y + half)
+            cell = box(x - half_lon, y - half, x + half_lon, y + half)
             kara = cell.intersection(tr).area / cell.area
             props = {"deniz": kara < 0.05, "kara_orani": round(kara, 2)}
             if param == "WS50M":
@@ -163,7 +164,7 @@ def grid_from(param, half):
 if glob.glob(f"{RAW}/g_ALLSKY_SFC_SW_DWN_*.json"):
     g = grid_from("ALLSKY_SFC_SW_DWN", 0.5)
     dump("gunes_grid.geojson", rnd(g))
-    w = grid_from("WS50M", 0.25)
+    w = grid_from("WS50M", 0.25, 0.3125)  # MERRA-2 ızgarası 0,5° × 0,625°
     dump("ruzgar_grid.geojson", rnd(w))
     print("güneş ızgarası", len(g), "deniz", sum(f["properties"]["deniz"] for f in g),
           "| rüzgâr ızgarası", len(w), "deniz", sum(f["properties"]["deniz"] for f in w),

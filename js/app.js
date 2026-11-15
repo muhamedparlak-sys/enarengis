@@ -3,7 +3,7 @@
  */
 (() => {
 'use strict';
-const DATA_V = '6'; // veri güncellenince artırın (önbellek kırıcı)
+const DATA_V = '7'; // veri güncellenince artırın (önbellek kırıcı)
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('tr-TR', {maximumFractionDigits: d, minimumFractionDigits: d});
