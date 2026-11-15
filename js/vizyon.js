@@ -53,7 +53,7 @@ async function addIcons(){
 const ready = (fn) => { const t = setInterval(() => { if (state.edas && map.getSource('ofm') && map.isStyleLoaded()){ clearInterval(t); fn(); } }, 300); };
 ready(async () => {
   await addIcons();
-  const [sant, strat] = await Promise.all(['data/santraller.geojson?v=12', 'data/stratejik.geojson?v=12'].map(u => fetch(u).then(r => r.json())));
+  const [sant, strat] = await Promise.all(['data/santraller.geojson?v=12', 'data/stratejik.geojson?v=22'].map(u => fetch(u).then(r => r.json())));
   state.santral = sant; state.stratejik = strat;
   const size = ['interpolate', ['linear'], ['sqrt', ['coalesce', ['get', 'mw'], 300]], 3, 0.32, 20, 0.6, 40, 0.95, 70, 1.45];
   // Arazi kullanımı (OpenFreeMap / OSM)

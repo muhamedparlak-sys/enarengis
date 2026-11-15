@@ -8,6 +8,7 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 // ---------------- Hamburger menü ----------------
 const MENU = [
   ['vizyon','genel','Genel Bakış','Enerji dengesi, resmî hedefler, kaynaklar'],
+  ['projeler','rapor','Projeler','Süren ve gelecek projeler, beklentiler'],
   ['katman','katman','Katmanlar','Altlıklar, tematik ve deniz katmanları'],
   ['analiz','analiz','Analiz','Çatı GES, karşılaştırma, bölge sıralaması'],
   ['senaryo','ev','EV Senaryo','Elektrikli araç dönüşümü, timelapse'],
