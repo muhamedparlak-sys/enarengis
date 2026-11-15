@@ -69,8 +69,8 @@ function addFleet(){
   if (!map.isStyleLoaded() || !map.getLayer('santral')) return setTimeout(addFleet, 400);
   const fc = {type:'FeatureCollection', features:FILO.map(([ad, tur, x, y, gorev, tarih]) => ({type:'Feature', geometry:{type:'Point', coordinates:[x, y]}, properties:{ad, tur, gorev, tarih}}))};
   map.addSource('filo', {type:'geojson', data:fc});
-  map.addLayer({id:'filo-halo', type:'circle', source:'filo', paint:{'circle-radius':11, 'circle-color':'#E8B21C', 'circle-opacity':0.25, 'circle-stroke-color':'#0E3047', 'circle-stroke-width':1.5}});
-  map.addLayer({id:'filo', type:'circle', source:'filo', paint:{'circle-radius':5, 'circle-color':['match', ['get', 'tur'], 'Sismik araştırma gemisi', '#1f78b4', 'Yüzer üretim platformu', '#1f8a4c', '#0E3047'], 'circle-stroke-color':'#fff', 'circle-stroke-width':1.5}});
+  map.addLayer({id:'filo-halo', type:'circle', source:'filo', paint:{'circle-radius':['interpolate', ['linear'], ['zoom'], 4, 6, 8, 11], 'circle-color':'#E8B21C', 'circle-opacity':0.25, 'circle-stroke-color':'#0E3047', 'circle-stroke-width':1.5}});
+  map.addLayer({id:'filo', type:'circle', source:'filo', paint:{'circle-radius':['interpolate', ['linear'], ['zoom'], 4, 3, 8, 5], 'circle-color':['match', ['get', 'tur'], 'Sismik araştırma gemisi', '#1f78b4', 'Yüzer üretim platformu', '#1f8a4c', '#0E3047'], 'circle-stroke-color':'#fff', 'circle-stroke-width':1.5}});
   map.addLayer({id:'filo-lbl', type:'symbol', source:'filo', minzoom:5, layout:{'text-field':['get', 'ad'], 'text-font':['Open Sans Semibold'], 'text-size':12, 'text-offset':[0, 1.3], 'text-anchor':'top'}, paint:{'text-color':'#0E3047', 'text-halo-color':'#fff', 'text-halo-width':1.6}});
   Object.assign(A.LAYER_MAP, {lyrFilo:['filo-halo', 'filo', 'filo-lbl']});
   $('#lyrFilo')?.addEventListener('change', A.syncLayerChecks);

@@ -70,10 +70,10 @@ ready(async () => {
   map.addLayer({id:'denge-lbl', type:'symbol', source:'denge', layout:{visibility:'none','text-field':['concat',['case',['>',['get','net'],0],'+',''],['to-string',['get','neti']],' TWh'],'text-size':11,'text-font':['Open Sans Semibold'],'text-offset':[0,2.2]}, paint:{'text-color':'#1d2733','text-halo-color':'#fff','text-halo-width':1.5}});
   // Santraller (WRI GPPD – büyük santraller) ve stratejik projeler
   map.addSource('santral', {type:'geojson', data:sant});
-  map.addLayer({id:'santral', type:'symbol', source:'santral', layout:{visibility:'visible','icon-image':['concat','ic-',['get','kaynak']],'icon-size':size,'icon-allow-overlap':true,'symbol-sort-key':['-',0,['get','mw']],
+  map.addLayer({id:'santral', type:'symbol', source:'santral', layout:{visibility:'visible','icon-image':['concat','ic-',['get','kaynak']],'icon-size':['interpolate',['linear'],['zoom'],4,['*',0.42,size],6.5,['*',0.7,size],9,size],'icon-allow-overlap':true,'symbol-sort-key':['-',0,['get','mw']],
     'text-field':['step',['zoom'],'',7,['concat',['get','ad'],'\n',['to-string',['round',['get','mw']]],' MW']],'text-size':10.5,'text-font':['Open Sans Semibold'],'text-offset':[0,1.6],'text-anchor':'top','text-optional':true}, paint:{'text-color':'#1d2733','text-halo-color':'#fff','text-halo-width':1.4}});
   map.addSource('stratejik', {type:'geojson', data:strat});
-  map.addLayer({id:'stratejik', type:'symbol', source:'stratejik', layout:{visibility:'visible','icon-image':['concat','ic-',['get','kaynak'],'-',['get','durum']],'icon-size':['interpolate',['linear'],['sqrt',['coalesce',['get','mw'],900]],10,0.7,70,1.6],'icon-allow-overlap':true,
+  map.addLayer({id:'stratejik', type:'symbol', source:'stratejik', layout:{visibility:'visible','icon-image':['concat','ic-',['get','kaynak'],'-',['get','durum']],'icon-size':['interpolate',['linear'],['zoom'],4,['interpolate',['linear'],['sqrt',['coalesce',['get','mw'],900]],10,0.32,70,0.65],6.5,['interpolate',['linear'],['sqrt',['coalesce',['get','mw'],900]],10,0.5,70,1.05],9,['interpolate',['linear'],['sqrt',['coalesce',['get','mw'],900]],10,0.7,70,1.6]],'icon-allow-overlap':true,
     'text-field':['step',['zoom'],'',5.5,['get','ad']],'text-size':11,'text-font':['Open Sans Semibold'],'text-offset':[0,1.9],'text-anchor':'top','text-optional':true}, paint:{'text-color':'#0f3d5e','text-halo-color':'#fff','text-halo-width':1.6}});
   Object.assign(A.LAYER_MAP, {lyrSantral:['santral'], lyrStrat:['stratejik'], lyrAkis:['akis','akis-bg','akis-lbl','denge','denge-lbl'], lyrTarim:['tarim','sanayi']});
   renderVizyon();
@@ -162,8 +162,9 @@ function toggleFlow(on){
 function setFlowMode(m){ flowMode = m; if (!$('#lyrAkis').checked){ $('#lyrAkis').checked = true; A.syncLayerChecks(); } toggleFlow(true); }
 // harita üstü akış denetimi
 const flowCtl = document.createElement('div'); flowCtl.className = 'flowctl';
-flowCtl.innerHTML = `<b>Enerji akışı</b><div class="seg3"><button data-m="tumu">Tümü</button><button data-m="yerli">Yerli</button><button data-m="ithal">İthal</button></div><button class="fc-off" aria-label="Akışı kapat">✕</button><div class="fc-sum"></div>`;
+flowCtl.innerHTML = `<b>Enerji akışı</b><div class="seg3"><button data-m="tumu">Tümü</button><button data-m="yerli">Yerli</button><button data-m="ithal">İthal</button></div><button class="fc-off" aria-label="Akışı kapat">✕</button><label class="fc-ic"><input type="checkbox" id="fcIkon" checked> Tesis ve gemi ikonları</label><div class="fc-sum"></div>`;
 document.body.appendChild(flowCtl);
+flowCtl.querySelector('#fcIkon').addEventListener('change', e => { ['lyrSantral', 'lyrStrat', 'lyrFilo'].forEach(id => { const c = document.querySelector('#' + id); if (c){ c.checked = e.target.checked; } }); A.syncLayerChecks(); });
 flowCtl.querySelector('.seg3').addEventListener('click', e => { const m = e.target.dataset.m; if (m) setFlowMode(m); });
 flowCtl.querySelector('.fc-off').onclick = () => { $('#lyrAkis').checked = false; $('#lyrAkis').dispatchEvent(new Event('change')); updateFlowCtl(); };
 function updateFlowCtl(){
