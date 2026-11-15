@@ -28,6 +28,7 @@ const METRICS = {
   otomobil:   {ad:'Otomobil sayısı (Eyl. 2026)', birim:'', d:0, ramp:['#f7f4f9','#c994c7','#dd1c77','#67001f']},
   ev_pct:     {ad:'EV ek tüketimi', birim:'% mevcut', d:1, ramp:['#ffffe5','#fec44f','#ec7014','#8c2d04']},
   ev_puant_pct:{ad:'EV ek akşam puantı', birim:'% tahmini puant', d:1, ramp:['#fff7f3','#fa9fb5','#dd3497','#49006a']},
+  yeterlilik: {ad:'Üretimin tüketimi karşılama oranı', birim:'%', d:0, kat:true, ramp:['#b2182b','#ef8a62','#e0e0e0','#67a9cf','#2166ac']},
   ghi:        {ad:'Ortalama güneş ışınımı', birim:'kWh/m²·yıl', d:0, ramp:['#ffffcc','#fed976','#fd8d3c','#bd0026']}
 };
 
@@ -150,7 +151,9 @@ function breaks(key){
 }
 function applyMetric(){
   if (!state.edas) return;
-  const key = $('#edasMetric').value, m = METRICS[key], b = breaks(key);
+  const key = $('#edasMetric').value, m = METRICS[key];
+  if (m.kat){ map.setPaintProperty('edas-fill', 'fill-color', ['step', ['coalesce', ['get', key], 100], m.ramp[0], 70, m.ramp[1], 95, m.ramp[2], 105, m.ramp[3], 150, m.ramp[4]]); state.breaks = [70, 95, 105, 150]; return; }
+  const b = breaks(key);
   // eşit olmayan kırılımlarda sıralamayı garanti et
   for (let i = 1; i < b.length; i++) if (b[i] <= b[i - 1]) b[i] = b[i - 1] + 1e-6;
   map.setPaintProperty('edas-fill', 'fill-color', ['interpolate',['linear'],['get',key], b[0],m.ramp[0], b[1],m.ramp[1], b[2],m.ramp[2], b[3],m.ramp[3]]);
@@ -161,7 +164,8 @@ function renderLegend(){
   const parts = [];
   if ($('#lyrEdas').checked && state.edas){
     const key = $('#edasMetric').value, m = METRICS[key], b = state.breaks || breaks(key);
-    parts.push(`<div class="lt">${m.ad}${m.birim ? ' (' + m.birim + ')' : ''}</div><div class="ramp" style="background:linear-gradient(90deg,${m.ramp.join(',')})"></div><div class="lab"><span>${fmt(b[0], m.d)}</span><span>${fmt(b[3], m.d)}</span></div>`);
+    if (m.kat) parts.push(`<div class="lt">Bölgenin rolü: üretim / tüketim (simülasyon, 2025)</div>${[['%150 üzeri – güçlü ihracatçı', 4], ['%105–150 – ihracatçı', 3], ['%95–105 – dengede', 2], ['%70–95 – ithalatçı', 1], ['%70 altı – güçlü ithalatçı', 0]].map(([t, i]) => `<div><i class="sw" style="background:${m.ramp[i]}"></i>${t}</div>`).join('')}`);
+    else parts.push(`<div class="lt">${m.ad}${m.birim ? ' (' + m.birim + ')' : ''}</div><div class="ramp" style="background:linear-gradient(90deg,${m.ramp.join(',')})"></div><div class="lab"><span>${fmt(b[0], m.d)}</span><span>${fmt(b[3], m.d)}</span></div>`);
   }
   if ($('#lyrWind').checked) parts.push(`<div class="lt" style="margin-top:6px">50 m rüzgâr hızı (m/s)</div><div class="ramp" style="background:linear-gradient(90deg,#f7fbff,#6baed6,#2171b5,#08306b,#3f007d)"></div><div class="lab"><span>2</span><span>7,5+</span></div>`);
   if ($('#lyrSolar').checked) parts.push(`<div class="lt" style="margin-top:6px">Güneş ışınımı (kWh/m²·yıl)</div><div class="ramp" style="background:linear-gradient(90deg,#ffffcc,#fed976,#fd8d3c,#bd0026)"></div><div class="lab"><span>1.400</span><span>1.900</span></div>`);
