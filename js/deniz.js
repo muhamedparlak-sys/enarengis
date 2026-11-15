@@ -21,8 +21,8 @@ whenReady(async () => {
   map.addLayer({id:'meb-line', type:'line', source:'meb', paint:{'line-color':'#1f78b4','line-width':1.5,'line-dasharray':[3,2]}, layout:{visibility:'none'}});
   const dy = await fetch('data/deniz_yetki.geojson?v=8').then(r => r.json());
   map.addSource('dyetki', {type:'geojson', data:dy});
-  map.addLayer({id:'dyetki', type:'line', source:'dyetki', layout:{visibility:'none','line-cap':'round'}, paint:{
-    'line-color':'#c0392b','line-width':3,'line-dasharray':['case',['==',['get','nitelik'],'sematik'],['literal',[1,2]],['literal',[1,0]]]}});
+  map.addLayer({id:'dyetki', type:'line', source:'dyetki', filter:['!=',['get','nitelik'],'sematik'], layout:{visibility:'none','line-cap':'round'}, paint:{'line-color':'#c0392b','line-width':3}});
+  map.addLayer({id:'dyetki-sem', type:'line', source:'dyetki', filter:['==',['get','nitelik'],'sematik'], layout:{visibility:'none'}, paint:{'line-color':'#c0392b','line-width':2.5,'line-dasharray':[1,2]}});
   map.addLayer({id:'dyetki-lbl', type:'symbol', source:'dyetki', layout:{visibility:'none','symbol-placement':'line','text-field':['get','ad'],'text-size':11,'text-font':['Open Sans Semibold']}, paint:{'text-color':'#c0392b','text-halo-color':'#fff','text-halo-width':1.5}});
   // OpenFreeMap bina izleri (ortofoto demosu)
   map.addSource('ofm', {type:'vector', url:'https://tiles.openfreemap.org/planet', attribution:'Bina izleri © OpenStreetMap katkıcıları, OpenFreeMap'});
@@ -30,7 +30,7 @@ whenReady(async () => {
   ['lyrBathy','lyrMeb','lyrDyetki','lyrBina'].forEach(id => A.LAYER_MAP[id] && $('#' + id).addEventListener('change', A.syncLayerChecks));
   A.syncLayerChecks();
 });
-Object.assign(A.LAYER_MAP, {lyrBathy:['bathy'], lyrMeb:['meb-fill','meb-line'], lyrDyetki:['dyetki','dyetki-lbl'], lyrBina:['bina']});
+Object.assign(A.LAYER_MAP, {lyrBathy:['bathy'], lyrMeb:['meb-fill','meb-line'], lyrDyetki:['dyetki','dyetki-sem','dyetki-lbl'], lyrBina:['bina']});
 let mebLoaded = false;
 $('#lyrMeb').addEventListener('change', async () => {
   if (!$('#lyrMeb').checked || mebLoaded) return;

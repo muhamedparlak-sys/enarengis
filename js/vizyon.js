@@ -72,7 +72,7 @@ ready(async () => {
   map.addLayer({id:'stratejik', type:'symbol', source:'stratejik', layout:{visibility:'visible','icon-image':['concat','ic-',['get','kaynak'],'-',['get','durum']],'icon-size':['interpolate',['linear'],['sqrt',['coalesce',['get','mw'],900]],10,0.7,70,1.6],'icon-allow-overlap':true,
     'text-field':['step',['zoom'],'',5.5,['get','ad']],'text-size':11,'text-font':['Open Sans Semibold'],'text-offset':[0,1.9],'text-anchor':'top','text-optional':true}, paint:{'text-color':'#0f3d5e','text-halo-color':'#fff','text-halo-width':1.6}});
   Object.assign(A.LAYER_MAP, {lyrSantral:['santral'], lyrStrat:['stratejik'], lyrAkis:['akis','akis-bg','denge','denge-lbl'], lyrTarim:['tarim','sanayi']});
-  ['lyrSantral','lyrStrat','lyrAkis','lyrTarim'].forEach(id => $('#' + id).addEventListener('change', () => { A.syncLayerChecks(); if (id === 'lyrAkis') toggleFlow($('#lyrAkis').checked); }));
+  renderVizyon();
   A.syncLayerChecks();
   // tıklama
   ['santral','stratejik'].forEach(l => {
@@ -88,7 +88,6 @@ ready(async () => {
     map.on('mouseenter', l, () => { map.getCanvas().style.cursor = 'pointer'; });
     map.on('mouseleave', l, () => { map.getCanvas().style.cursor = ''; });
   });
-  renderVizyon();
 });
 
 // ---------------- Bölgeler arası akış simülasyonu ----------------

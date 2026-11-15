@@ -279,7 +279,7 @@ async function denizReport(d){
   const finW = finance({kwp: mw * 1000, yieldY: cf * 8760, capex: capexW, opexPct: 0.03, price: 0.08, esc: 0.02, disc: 0.09, life: 25, deg: 0.003});
   const pv = d.site.pvout || 1550, fpv = finance({kwp: 10000, yieldY: pv * 1.07, capex: 750, opexPct: 0.02, price: 0.08, esc: 0.02, disc: 0.09, life: 25});
   const mon = AY.map((_, i) => 1 + 0.25 * Math.cos((i - 0.5) / 12 * 2 * Math.PI)); // kış rüzgârı yüksek
-  const img = await snapshot({center:[d.lng, d.lat], zoom: 7.5, marker:[d.lng, d.lat], show:['bathy','dyetki','dyetki-lbl','wind'], hide:['edas-fill','edas-label','solar']});
+  const img = await snapshot({center:[d.lng, d.lat], zoom: 7.5, marker:[d.lng, d.lat], show:['bathy','dyetki','dyetki-sem','dyetki-lbl','wind'], hide:['edas-fill','edas-label','solar']});
   const det = await snapshot({center:[d.lng, d.lat], zoom: 10, marker:[d.lng, d.lat], basemap:'s2', show:['oim-lines','oim-subs'], hide:['edas-fill','edas-line','edas-label','wind','bathy']});
   unbusy();
   const title = `Deniz Enerjisi Saha Raporu – ${d.lat.toFixed(3)}°K, ${d.lng.toFixed(3)}°D`;
