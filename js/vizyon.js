@@ -62,6 +62,7 @@ ready(async () => {
   map.addSource('akis', {type:'geojson', data:{type:'FeatureCollection', features:[]}});
   map.addLayer({id:'akis-bg', type:'line', source:'akis', layout:{visibility:'none','line-cap':'round'}, paint:{'line-color':'#f2a900','line-opacity':0.25,'line-width':['interpolate',['linear'],['get','twh'],1,3,20,14]}});
   map.addLayer({id:'akis', type:'line', source:'akis', layout:{visibility:'none','line-cap':'butt'}, paint:{'line-color':'#c0392b','line-width':['interpolate',['linear'],['get','twh'],1,2,20,7],'line-dasharray':[0,4,3]}});
+  map.addLayer({id:'akis-lbl', type:'symbol', source:'akis', layout:{visibility:'none','symbol-placement':'line-center','text-field':['get','lbl'],'text-size':['interpolate',['linear'],['zoom'],4,10,7,13],'text-font':['Open Sans Semibold'],'text-offset':[0,-0.9],'text-allow-overlap':false,'text-keep-upright':true}, paint:{'text-color':'#18242E','text-halo-color':'#fff','text-halo-width':1.8}});
   map.addSource('denge', {type:'geojson', data:{type:'FeatureCollection', features:[]}});
   map.addLayer({id:'denge', type:'circle', source:'denge', layout:{visibility:'none'}, paint:{
     'circle-radius':['interpolate',['linear'],['abs',['get','net']],0,4,40,26], 'circle-color':['case',['>',['get','net'],0],'#1f8a4c','#c0392b'], 'circle-opacity':0.75, 'circle-stroke-color':'#fff','circle-stroke-width':1.5}});
@@ -73,9 +74,10 @@ ready(async () => {
   map.addSource('stratejik', {type:'geojson', data:strat});
   map.addLayer({id:'stratejik', type:'symbol', source:'stratejik', layout:{visibility:'visible','icon-image':['concat','ic-',['get','kaynak'],'-',['get','durum']],'icon-size':['interpolate',['linear'],['sqrt',['coalesce',['get','mw'],900]],10,0.7,70,1.6],'icon-allow-overlap':true,
     'text-field':['step',['zoom'],'',5.5,['get','ad']],'text-size':11,'text-font':['Open Sans Semibold'],'text-offset':[0,1.9],'text-anchor':'top','text-optional':true}, paint:{'text-color':'#0f3d5e','text-halo-color':'#fff','text-halo-width':1.6}});
-  Object.assign(A.LAYER_MAP, {lyrSantral:['santral'], lyrStrat:['stratejik'], lyrAkis:['akis','akis-bg','denge','denge-lbl'], lyrTarim:['tarim','sanayi']});
+  Object.assign(A.LAYER_MAP, {lyrSantral:['santral'], lyrStrat:['stratejik'], lyrAkis:['akis','akis-bg','akis-lbl','denge','denge-lbl'], lyrTarim:['tarim','sanayi']});
   renderVizyon();
   A.syncLayerChecks();
+  setTimeout(() => { if ($('#lyrAkis').checked) toggleFlow(true); }, 600);
   // tıklama
   ['santral','stratejik'].forEach(l => {
     map.on('click', l, e => {
@@ -96,7 +98,10 @@ ready(async () => {
 let flowTimer = null, flowData = null;
 function polyArea(g){ const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates; return polys.reduce((s, p) => s + A.ringArea(p[0].slice(0, -1)), 0); }
 function centroidOf(g){ const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates; let best = polys[0], ba = 0; polys.forEach(p => { const a = A.ringArea(p[0]); if (a > ba){ ba = a; best = p; } }); return A.centroid({type:'Polygon', coordinates:best}); }
-function computeFlows(){
+const YERLI = ['hidro','gunes','ruzgar','jeotermal','biyokutle','linyit'], ITHAL = ['dogalgaz','ithal_komur'];
+let flowMode = 'tumu';
+const FLOW_RENK = {tumu:'#B83227', yerli:'#1F7A4C', ithal:'#C2560A'};
+function computeFlows(mode = 'tumu'){
   const R = state.edas.features.map(f => ({f, p: f.properties, c: centroidOf(f.geometry), area: polyArea(f.geometry), gen:{}}));
   // yakıt bazında ulusal üretim (TWh, 2025)
   const nat = Object.fromEntries(Object.entries(URETIM_2025.pay).map(([k, v]) => [k, URETIM_2025.toplam * v / 100]));
@@ -114,8 +119,11 @@ function computeFlows(){
     const tot = R.reduce((s, r) => s + wf(r), 0) || 1;
     R.forEach(r => { r.gen[k] = nat[k] * wf(r) / tot; });
   });
-  const scale = URETIM_2025.talep / R.reduce((s, r) => s + r.p.toplam_twh, 0);
-  R.forEach(r => { r.genT = Object.values(r.gen).reduce((s, v) => s + v, 0); r.cons = r.p.toplam_twh * scale; r.net = r.genT - r.cons; });
+  const keys = mode === 'yerli' ? YERLI : mode === 'ithal' ? ITHAL : Object.keys(nat);
+  const subTot = keys.reduce((s, k) => s + (nat[k] || 0), 0);
+  // tüketim, seçili kaynak grubunun ulusal payıyla ölçeklenir (dengeli akış)
+  const scale = URETIM_2025.talep * (subTot / URETIM_2025.toplam) / R.reduce((s, r) => s + r.p.toplam_twh, 0);
+  R.forEach(r => { r.genT = keys.reduce((s, k) => s + (r.gen[k] || 0), 0); r.cons = r.p.toplam_twh * scale; r.net = r.genT - r.cons; });
   // açgözlü taşıma: fazla veren → en yakın açık veren
   const sur = R.filter(r => r.net > 0).map(r => ({r, v: r.net})), def = R.filter(r => r.net < 0).map(r => ({r, v: -r.net}));
   const dist = (a, b) => Math.hypot((a.c[0] - b.c[0]) * Math.cos(39 * Math.PI / 180), a.c[1] - b.c[1]);
@@ -125,7 +133,7 @@ function computeFlows(){
       if (s.v <= 0.05) return; const q = Math.min(s.v, d.v); s.v -= q; d.v -= q; flows.push({from: s.r, to: d.r, twh: q});
     });
   });
-  return {R, flows};
+  return {R, flows, subTot, mode};
 }
 function arc(a, b, n = 32){
   const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = b[0] - a[0], dy = b[1] - a[1];
@@ -136,18 +144,42 @@ function arc(a, b, n = 32){
 const DASH = [[0,4,3],[0.5,4,2.5],[1,4,2],[1.5,4,1.5],[2,4,1],[2.5,4,0.5],[3,4,0],[0,0.5,3,3.5],[0,1,3,3],[0,1.5,3,2.5],[0,2,3,2],[0,2.5,3,1.5],[0,3,3,1],[0,3.5,3,0.5]];
 function toggleFlow(on){
   if (!on){ clearInterval(flowTimer); flowTimer = null; return; }
-  flowData = computeFlows();
-  map.getSource('akis').setData({type:'FeatureCollection', features: flowData.flows.filter(f => f.twh >= 0.3).map(f => ({type:'Feature', geometry:{type:'LineString', coordinates: arc(f.from.c, f.to.c)}, properties:{twh: +f.twh.toFixed(1), from: f.from.p.edas, to: f.to.p.edas}}))});
+  flowData = computeFlows(flowMode);
+  const kisa = n => n.replace(' EDAŞ', '').replace('Boğaziçi + AYEDAŞ', 'İstanbul');
+  map.getSource('akis').setData({type:'FeatureCollection', features: flowData.flows.filter(f => f.twh >= 0.3).map(f => ({type:'Feature', geometry:{type:'LineString', coordinates: arc(f.from.c, f.to.c)}, properties:{twh: +f.twh.toFixed(1), from: f.from.p.edas, to: f.to.p.edas, lbl: `${kisa(f.from.p.edas)} → ${kisa(f.to.p.edas)}  ${fmt(f.twh, 1)} TWh`}}))});
+  const col = FLOW_RENK[flowMode];
+  map.setPaintProperty('akis', 'line-color', col); map.setPaintProperty('akis-bg', 'line-color', col);
+  // ithal modunda ithalat koridorlarını da göster
+  const ith = document.querySelector('#lyrIthal'); if (ith && (flowMode === 'ithal') !== ith.checked){ ith.checked = flowMode === 'ithal'; ith.dispatchEvent(new Event('change')); }
+  updateFlowCtl();
   map.getSource('denge').setData({type:'FeatureCollection', features: flowData.R.map(r => ({type:'Feature', geometry:{type:'Point', coordinates:r.c}, properties:{net: r.net, neti: Math.round(r.net), edas: r.p.edas}}))});
   let step = 0; clearInterval(flowTimer);
   flowTimer = setInterval(() => { step = (step + 1) % DASH.length; if (map.getLayer('akis')) map.setPaintProperty('akis', 'line-dasharray', DASH[step]); }, 90);
   renderFlowTable();
   if (map.getZoom() > 6.5) map.flyTo({center:[35.2, 39], zoom:5});
 }
+function setFlowMode(m){ flowMode = m; if (!$('#lyrAkis').checked){ $('#lyrAkis').checked = true; A.syncLayerChecks(); } toggleFlow(true); }
+// harita üstü akış denetimi
+const flowCtl = document.createElement('div'); flowCtl.className = 'flowctl';
+flowCtl.innerHTML = `<b>Enerji akışı</b><div class="seg3"><button data-m="tumu">Tümü</button><button data-m="yerli">Yerli</button><button data-m="ithal">İthal</button></div><button class="fc-off" aria-label="Akışı kapat">✕</button><div class="fc-sum"></div>`;
+document.body.appendChild(flowCtl);
+flowCtl.querySelector('.seg3').addEventListener('click', e => { const m = e.target.dataset.m; if (m) setFlowMode(m); });
+flowCtl.querySelector('.fc-off').onclick = () => { $('#lyrAkis').checked = false; $('#lyrAkis').dispatchEvent(new Event('change')); updateFlowCtl(); };
+function updateFlowCtl(){
+  const on = $('#lyrAkis')?.checked; flowCtl.classList.toggle('off', !on);
+  flowCtl.querySelectorAll('.seg3 button').forEach(b => b.classList.toggle('active', b.dataset.m === flowMode));
+  if (on && flowData){
+    const tot = flowData.flows.reduce((s, f) => s + f.twh, 0);
+    const ad = {tumu:'tüm kaynaklar', yerli:'yerli kaynaklar (hidro, güneş, rüzgâr, jeotermal, biyokütle, yerli kömür)', ithal:'ithal yakıtlar (doğal gaz, ithal kömür)'}[flowMode];
+    flowCtl.querySelector('.fc-sum').textContent = `${fmt(flowData.subTot)} TWh üretim · bölgeler arası ${fmt(tot)} TWh aktarım — ${ad}`;
+  }
+}
+window.addEventListener('load', updateFlowCtl);
 function renderFlowTable(){
   if (!flowData) return;
   const R = [...flowData.R].sort((a, b) => b.net - a.net);
-  $('#akisTablo').innerHTML = `<p class="hint">Yeşil: üretimi tüketiminden fazla bölge, kırmızı: açık veren bölge. Oklar fazlanın en yakın açık bölgelere akışını temsil eder.</p>` +
+  setTimeout(() => $('#akisMod')?.addEventListener('click', e => { const m = e.target.dataset.m; if (m) setFlowMode(m); }), 0);
+  $('#akisTablo').innerHTML = `<div class="chips" id="akisMod"><button class="chip ${flowMode==='tumu'?'active':''}" data-m="tumu">Tümü</button><button class="chip ${flowMode==='yerli'?'active':''}" data-m="yerli">Yerli</button><button class="chip ${flowMode==='ithal'?'active':''}" data-m="ithal">İthal</button></div><p class="hint">Yeşil daire: seçili kaynak grubunda üretimi tüketiminden fazla bölge; kırmızı: açık veren bölge. Hareketli çizgiler fazlanın en yakın açık bölgelere aktarımını gösterir.</p>` +
     R.map(r => `<div class="bar ev"><span>${esc(r.p.edas.replace(' EDAŞ', ''))}</span><div class="t"><i style="width:${Math.min(100, Math.abs(r.net) / 45 * 100).toFixed(0)}%;background:${r.net > 0 ? '#1f8a4c' : '#c0392b'}"></i></div><span class="v">${r.net > 0 ? '+' : ''}${fmt(r.net, 1)} TWh</span></div>`).join('') +
     `<small class="muted">Simülasyon: 2025 ulusal üretimi (EPİAŞ) yakıt bazında bölgelere dağıtıldı — termik/hidro/jeotermal WRI santral kapasitesine, güneş alan×ışınıma, rüzgâr alan×v³'e göre; tüketim ELDER 2024 bölge payları. Gerçek hat bazında yük akışı TEİAŞ SCADA/yük akışı verisi gerektirir.</small>`;
 }
@@ -243,7 +275,7 @@ function renderVizyon(){
     <h3>Haritada göster</h3>
     <label class="row"><input type="checkbox" id="lyrSantral" checked> Büyük santraller – kaynak ikonlu, güçle ölçekli</label>
     <label class="row"><input type="checkbox" id="lyrStrat" checked> Stratejik projeler ve ulusal kaynaklar</label>
-    <label class="row"><input type="checkbox" id="lyrAkis"> Bölgeler arası elektrik akışı simülasyonu</label>
+    <label class="row"><input type="checkbox" id="lyrAkis" checked> Bölgeler arası elektrik akışı simülasyonu</label>
     <div id="akisTablo"></div>
     <label class="row"><input type="checkbox" id="lyrTarim"> Tarım ve sanayi alanları (OSM)</label>
     <div class="btnrow"><button id="btnLand" class="btn">Görünümde tarım ve sanayi potansiyeli</button></div>
@@ -257,7 +289,7 @@ function renderVizyon(){
   $$('[id^="sv-"]').forEach(i => i.addEventListener('input', senaryo));
   setPreset('hedef35');
   renderHedefler();
-  ['lyrSantral','lyrStrat','lyrAkis','lyrTarim'].forEach(id => $('#' + id).addEventListener('change', () => { A.syncLayerChecks(); if (id === 'lyrAkis') toggleFlow($('#lyrAkis').checked); }));
+  ['lyrSantral','lyrStrat','lyrAkis','lyrTarim'].forEach(id => $('#' + id).addEventListener('change', () => { A.syncLayerChecks(); if (id === 'lyrAkis'){ toggleFlow($('#lyrAkis').checked); updateFlowCtl(); } }));
   $('#btnLand').onclick = () => { $('#lyrTarim').checked = true; A.syncLayerChecks(); if (map.getZoom() < 9){ map.flyTo({center:[29.94, 40.78], zoom:11}); A.toast('Örnek: Kocaeli sanayi + tarım'); } A.minimizeSheet(); map.once('idle', () => setTimeout(() => { landCalc(); A.openSheet(); A.goTab('vizyon'); }, 400)); };
   $$('.mrow').forEach(r => r.addEventListener('click', () => { const [x, y] = r.dataset.c.split(',').map(Number); map.flyTo({center:[x, y], zoom:7.5}); A.minimizeSheet(); }));
   renderGorevler();
