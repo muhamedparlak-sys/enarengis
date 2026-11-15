@@ -36,7 +36,8 @@ function render(){
   <p class="hint">Kaynaklar: ETKB, EPDK, Ember (2025–2026), ELDER 2024, TÜİK Eylül 2026. Bölgeler arası değerler bu uygulamadaki simülasyondandır.</p>`;
 }
 render();
-const t = setInterval(() => { if (window.ENAREN_VIZ && state.edas && state.santral){ clearInterval(t); render(); } }, 600);
+new MutationObserver(() => { if (!box.isConnected) pane.prepend(box); }).observe(pane, {childList:true});
+const t = setInterval(() => { if (window.ENAREN_VIZ && state.edas && state.santral){ clearInterval(t); if (!box.isConnected) pane.prepend(box); render(); } }, 600);
 box.addEventListener('click', e => { const b = e.target.closest('.gk'); if (!b) return; A.goTab(b.dataset.t); A.openSheet(); });
 })();
 /* Sade açılış: tesis ikonları ülke ölçeğinde gizli, yakınlaşınca görünür */
