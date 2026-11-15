@@ -226,7 +226,7 @@ map.on('click', (e) => {
   if (state.mode === 'draw') return addVertex(e.lngLat);
   if (state.mode) return; // diğer modlar (karşılaştırma vb.) modules.js'de işlenir
 
-  const layers = ['oim-plants','oim-subs','oim-lines','edas-fill'].filter(l => map.getLayer(l) && map.getLayoutProperty(l, 'visibility') !== 'none');
+  const layers = ['oim-plants','oim-subs','oim-lines'].filter(l => map.getLayer(l) && map.getLayoutProperty(l, 'visibility') !== 'none');
   const bb = [[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]];
   const fs = map.queryRenderedFeatures(bb, {layers});
   if (!fs.length) return;
