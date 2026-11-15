@@ -4,7 +4,7 @@
 'use strict';
 const A = window.ENAREN_APP; const { map, fmt } = A;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const RENK = {res_sabit:'#2166ac', res_yuzer:'#7b3294', ges_yuzer:'#E8B21C'};
+const RENK = {res_sabit:'#2166ac', res_yuzer:'#7b3294', ges_yuzer:'#E8B21C', res_orta:'#4fa3c7'};
 // boğaz akıntısı adayları: [ad, lng, lat, hız (m/s, üst akıntı en yüksek), not]
 const AKINTI = [
   ['Çanakkale Boğazı – Nara geçidi', 26.405, 40.19, 2.0, 'Nara önlerinde yüzey akıntısı yaklaşık 4 knot (≈2 m/s); boğazın en dar ve en hızlı kesimi. Yoğun gemi trafiği nedeniyle seyir koridoru dışı kıyı şeridi düşünülmeli.'],
@@ -16,10 +16,10 @@ const AKINTI = [
 const pd = v => 0.5 * 1025 * v ** 3 / 1000; // kW/m²
 function ekle(){
   if (!map.isStyleLoaded() || !map.getLayer('mavivatan-fill')) return setTimeout(ekle, 500);
-  fetch('data/deniz_potansiyel.geojson?v=1').then(r => r.json()).then(fc => {
+  fetch('data/deniz_potansiyel.geojson?v=2').then(r => r.json()).then(fc => {
     window.ENAREN_DPOT = fc;
     map.addSource('dpot', {type:'geojson', data:fc});
-    map.addLayer({id:'dpot', type:'fill', source:'dpot', layout:{visibility:'none'}, paint:{'fill-color':['match', ['get', 'tur'], 'res_sabit', RENK.res_sabit, 'res_yuzer', RENK.res_yuzer, RENK.ges_yuzer], 'fill-opacity':['match', ['get', 'tur'], 'res_yuzer', 0.28, 0.55]}}, 'mavivatan-line');
+    map.addLayer({id:'dpot', type:'fill', source:'dpot', layout:{visibility:'none'}, paint:{'fill-color':['match', ['get', 'tur'], 'res_sabit', RENK.res_sabit, 'res_yuzer', RENK.res_yuzer, 'res_orta', RENK.res_orta, RENK.ges_yuzer], 'fill-opacity':['match', ['get', 'tur'], 'res_yuzer', 0.4, 'res_orta', 0.35, 0.55]}}, 'mavivatan-line');
     const ak = {type:'FeatureCollection', features:AKINTI.map(([ad, x, y, v, n]) => ({type:'Feature', geometry:{type:'Point', coordinates:[x, y]}, properties:{ad, v: v ?? 0, n}}))};
     map.addSource('akinti', {type:'geojson', data:ak});
     map.addLayer({id:'akinti', type:'circle', source:'akinti', layout:{visibility:'none'}, paint:{'circle-radius':['interpolate', ['linear'], ['zoom'], 5, 5, 10, 10], 'circle-color':'#1b9e77', 'circle-stroke-color':'#fff', 'circle-stroke-width':2}});
@@ -29,26 +29,26 @@ function ekle(){
     map.on('click', 'dpot', e => { const p = e.features[0].properties; new maplibregl.Popup({maxWidth:'300px'}).setLngLat(e.lngLat).setHTML(`<b>${esc(p.ad)}</b><br>Mavi Vatan içindeki toplam alan: <b>${fmt(p.km2)} km²</b><br>Kaba kapasite: <b>≈${fmt(p.gw, 1)} GW</b> (${p.yogunluk} MW/km²)<br><small>Ön eleme; seyir yolları, askerî alanlar, kablolar, koruma alanları ve zemin etüdü dikkate alınmadı.</small>`).addTo(map); });
     map.on('click', 'akinti', e => { const p = e.features[0].properties; new maplibregl.Popup({maxWidth:'300px'}).setLngLat(e.lngLat).setHTML(`<b>${esc(p.ad)}</b><br>${p.v ? `En yüksek yüzey akıntısı ≈${fmt(p.v, 1)} m/s → güç yoğunluğu ≈<b>${fmt(pd(p.v), 1)} kW/m²</b> (P = ½ρv³)<br>` : ''}${esc(p.n)}`).addTo(map); });
     panel(fc);
-    return fetch('data/hedef_sahalar.geojson?v=2').then(r => r.json());
+    return fetch('data/hedef_sahalar.geojson?v=3').then(r => r.json());
   }).then(hs => { if (hs) hedefler(hs); });
 }
-const TURAD = {res_sabit:'Deniz üstü RES · sabit temelli', res_yuzer:'Deniz üstü RES · yüzer', ges_yuzer:'Yüzer GES'};
+const TURAD = {res_sabit:'Deniz üstü RES · sabit temelli', res_yuzer:'Deniz üstü RES · yüzer', ges_yuzer:'Yüzer GES', res_orta:'Deniz üstü RES · orta rüzgâr'};
 function hedefler(hs){
   window.ENAREN_HEDEF = hs;
   map.addSource('hedef', {type:'geojson', data:hs});
   const pts = {type:'FeatureCollection', features:hs.features.map(f => ({type:'Feature', geometry:{type:'Point', coordinates:[f.properties.x, f.properties.y]}, properties:f.properties}))};
   map.addSource('hedef-pt', {type:'geojson', data:pts});
-  map.addLayer({id:'hedef-line', type:'line', source:'hedef', layout:{visibility:'none'}, paint:{'line-color':['match', ['get', 'tur'], 'res_sabit', RENK.res_sabit, 'res_yuzer', RENK.res_yuzer, '#a07a00'], 'line-width':2}});
-  map.addLayer({id:'hedef-no', type:'circle', source:'hedef-pt', layout:{visibility:'none'}, paint:{'circle-radius':11, 'circle-color':['match', ['get', 'tur'], 'res_sabit', RENK.res_sabit, 'res_yuzer', RENK.res_yuzer, '#a07a00'], 'circle-stroke-color':'#fff', 'circle-stroke-width':2}});
+  map.addLayer({id:'hedef-line', type:'line', source:'hedef', layout:{visibility:'none'}, paint:{'line-color':['match', ['get', 'tur'], 'res_sabit', RENK.res_sabit, 'res_yuzer', RENK.res_yuzer, 'res_orta', RENK.res_orta, '#a07a00'], 'line-width':2}});
+  map.addLayer({id:'hedef-no', type:'circle', source:'hedef-pt', layout:{visibility:'none'}, paint:{'circle-radius':11, 'circle-color':['match', ['get', 'tur'], 'res_sabit', RENK.res_sabit, 'res_yuzer', RENK.res_yuzer, 'res_orta', RENK.res_orta, '#a07a00'], 'circle-stroke-color':'#fff', 'circle-stroke-width':2}});
   map.addLayer({id:'hedef-no-lbl', type:'symbol', source:'hedef-pt', layout:{visibility:'none', 'text-field':['to-string', ['get', 'sira']], 'text-font':['Open Sans Semibold'], 'text-size':12, 'text-allow-overlap':true}, paint:{'text-color':'#fff'}});
   A.LAYER_MAP.lyrDpot = [...A.LAYER_MAP.lyrDpot, 'hedef-line', 'hedef-no', 'hedef-no-lbl'];
   map.on('click', 'hedef-no', e => popHedef(e.features[0].properties, e.lngLat));
   const s = document.querySelector('#pane-deniz section'); if (!s) return;
   const div = document.createElement('div');
   div.innerHTML = `<h3>Hedef sahalar (öncelik sırasıyla)</h3>
-    <p class="hint">Uygun hücreler bitişik alanlara gruplandı; RES sahaları rüzgâr hızı, sığlık ve kıyıya yakınlığa, yüzer GES sahaları ışınıma göre sıralandı. Bakanlığın YEKA DÜRES-2026 sahalarıyla örtüşenler işaretli.</p>
-    <ol class="hlist">${hs.features.map(f => { const p = f.properties; return `<li data-i="${p.sira}"><span class="hn" style="background:${p.tur === 'res_sabit' ? RENK.res_sabit : p.tur === 'res_yuzer' ? RENK.res_yuzer : '#a07a00'}">${p.sira}</span><span><b>${esc(p.ad)}</b>${p.yeka ? ` <em class="roz" style="background:#1f8a4c">YEKA: ${esc(p.yeka)}</em>` : ''}<small>${TURAD[p.tur]} · ${esc(p.il)} · ${fmt(p.km2)} km² · ≈${fmt(p.gw, 1)} GW · ${p.tur === 'ges_yuzer' ? 'ışınım ' + fmt(p.ghi) + ' kWh/m²' : 'rüzgâr ' + fmt(p.ws, 1) + ' m/s'} · derinlik ${p.dmin}–${p.dmax} m · kıyıya ~${p.dist} km</small></span></li>`; }).join('')}
-      <li data-ak="1"><span class="hn" style="background:#1b9e77">A</span><span><b>Çanakkale Boğazı akıntı pilotu (Nara–Kepez)</b><small>Akıntı türbini · 2–2,5 m/s · güç yoğunluğu 4–8 kW/m² · pilot ölçekte (MW altı – birkaç MW)</small></span></li></ol>`;
+    <p class="hint">Uygun hücreler bitişik alanlara gruplandı; Yalnız bugün ticari olarak uygulanabilir aralıktaki (derinlik ≤300 m, kıyıya ≤50 km) ve en az 120 km²'lik alanlar listelendi; RES sahaları rüzgâr, sığlık ve kıyıya yakınlığa, yüzer GES sahaları ışınıma göre sıralandı. Bakanlığın YEKA DÜRES-2026 sahalarıyla örtüşenler işaretli.</p>
+    <ol class="hlist">${hs.features.map(f => { const p = f.properties; return `<li data-i="${p.sira}"><span class="hn" style="background:${RENK[p.tur] === RENK.ges_yuzer ? '#a07a00' : RENK[p.tur]}">${p.sira}</span><span><b>${esc(p.ad)}</b>${p.yeka ? ` <em class="roz" style="background:#1f8a4c">YEKA: ${esc(p.yeka)}</em>` : ''}${p.sematik ? ` <em class="roz" style="background:#8a6d3b">Ege şematik sınır</em>` : ''}<small>${TURAD[p.tur]} · ${esc(p.il)} · ${fmt(p.km2)} km² · ≈${fmt(p.gw, 1)} GW · ${p.tur === 'ges_yuzer' ? 'ışınım ' + fmt(p.ghi) + ' kWh/m²' : 'rüzgâr ' + fmt(p.ws, 1) + ' m/s'} · derinlik ${p.dmin}–${p.dmax} m · kıyıya ~${p.dist} km</small></span></li>`; }).join('')}
+</ol>`;
   s.appendChild(div);
   div.addEventListener('click', e => { const li = e.target.closest('li'); if (!li) return;
     const cb = document.querySelector('#lyrDpotPanel'); if (cb && !cb.checked){ cb.checked = true; cb.dispatchEvent(new Event('change')); }
@@ -69,9 +69,10 @@ function panel(fc){
       <div><strong style="color:${RENK.res_sabit}">≈${fmt(f('res_sabit').gw)} GW</strong><span>Deniz üstü RES, sabit temelli · ${fmt(f('res_sabit').km2)} km²</span></div>
       <div><strong style="color:${RENK.res_yuzer}">≈${fmt(f('res_yuzer').gw)} GW</strong><span>Deniz üstü RES, yüzer · ${fmt(f('res_yuzer').km2)} km²</span></div>
       <div><strong style="color:#a07a00">≈${fmt(f('ges_yuzer').gw)} GW</strong><span>Yüzer GES (kıyıya yakın) · ${fmt(f('ges_yuzer').km2)} km²</span></div>
-      <div><strong style="color:#1b9e77">${pd(2).toFixed(1)}–${pd(2.5).toFixed(1)} kW/m²</strong><span>Çanakkale Boğazı akıntı gücü (2–2,5 m/s)</span></div></div>
-    <p class="hint"><b>Ölçütler.</b> Sabit temelli RES: 100 m rüzgâr ≥7 m/s, derinlik 5–60 m, kıyıya 3–60 km. Yüzer RES: rüzgâr ≥7 m/s, derinlik 60–1.000 m. Yüzer GES: kıyıya ≤8 km, derinlik ≤50 m, ışınım ≥1.650 kWh/m²·yıl (Karadeniz hariç). Boğazların seyir koridorları dışarıda bırakıldı. Kapasite: RES 4–5 MW/km², GES 20 MW/km² varsayımı.</p>
-    <p class="hint"><b>Neden boğazlar?</b> Çanakkale ve İstanbul boğazlarında akıntı gel-git değil, Karadeniz'den Ege'ye tek yönlü ve süreklidir; bu, akıntı türbinleri için öngörülebilir üretim demektir. Kısıt, dünyanın en yoğun seyir koridorlarından biri olmasıdır.</p>
+      <div><strong style="color:${RENK.res_orta}">≈${fmt(f('res_orta').gw)} GW</strong><span>Karadeniz RES, orta rüzgâr (6,5–7 m/s) · ${fmt(f('res_orta').km2)} km²</span></div></div>
+    <p class="hint"><b>Ölçütler.</b> Sabit temelli RES: 100 m rüzgâr ≥7 m/s, derinlik 5–60 m, kıyıya 3–60 km. Yüzer RES: rüzgâr ≥7 m/s, derinlik 60–300 m (bugün ticari olarak kurulan yüzer santrallerin aralığı), kıyıya ≤50 km. Karadeniz için ikinci öncelik: 6,5–7 m/s. Yüzer GES: kıyıya ≤8 km, derinlik ≤50 m, ışınım ≥1.650 kWh/m²·yıl (Karadeniz hariç). Boğazların seyir koridorları dışarıda bırakıldı. Kapasite: RES 4–5 MW/km², GES 20 MW/km² varsayımı.</p>
+    <p class="hint"><b>Akdeniz ve Karadeniz.</b> Akdeniz kıyımızda 100 m rüzgâr ortalama ~5 m/s ve kıta sahanlığı çok dar; deniz üstü RES için uygun değil, ama korunaklı körfezler (Mersin, İskenderun, Yumurtalık, Taşucu) yüzer GES için en iyi adaylar. Karadeniz'de rüzgâr 7 m/s'yi geçmiyor; yalnız İstanbul–Kıyıköy açıkları orta rüzgârla ikinci öncelik. Karadeniz'in dalga ve fırtına koşulları yüzer GES'i zorlaştırır; yüzer GES için baraj gölleri daha gerçekçidir.</p>
+    <p class="hint"><b>Boğaz akıntısı.</b> Akıntı tek yönlü ve sürekli, ama Nara kesitinin tamamından geçen güç bile en fazla onlarca MW; şebeke ölçeğinde değil, Ar-Ge pilotu ölçeğinde. Haritada bilgi amaçlı noktalar olarak duruyor.</p>
     <p class="hint">Kaynak: EMODnet Bathymetry (2,5 km'ye örneklenmiş), NASA POWER / MERRA-2 rüzgârı, Çanakkale Boğazı akıntı ölçümleri (Türk Boğazları Seyir Güvenliği 2000; Yücel ve Tarhan 2019). Ön elemedir; Copernicus Marine akıntı ve dalga verisiyle derinleştirilebilir.</p>`;
   dz.prepend(s);
   const cb = s.querySelector('#lyrDpotPanel'), main = document.querySelector('#lyrDpot');
