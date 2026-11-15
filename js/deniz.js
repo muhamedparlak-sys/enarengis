@@ -204,3 +204,17 @@ $('#pIl').addEventListener('change', () => {
 $('#pIlce').addEventListener('change', () => { if ($('#pIlce').value) zoomTo(`${txt($('#pIlce'))}, ${txt($('#pIl'))}, Türkiye`, 11); });
 $('#pMah').addEventListener('change', () => { if ($('#pMah').value) zoomTo(`${txt($('#pMah'))}, ${txt($('#pIlce'))}, ${txt($('#pIl'))}, Türkiye`, 15); });
 })();
+// Sınır çizgilerini şebeke hatlarından ayırmak için beyaz zemin (casing) ve kalın çizgi
+(async () => {
+  for (let i = 0; i < 150 && !(map.getLayer('mebsin') && map.getLayer('trsinir') && map.getLayer('dyetki')); i++) await new Promise(r => setTimeout(r, 200));
+  const W = ['interpolate', ['linear'], ['zoom'], 4, 3.2, 8, 4.6];
+  [['dyetki', 'dyetki'], ['mebsin', 'mebsin'], ['trsinir', 'trsinir']].forEach(([id, src]) => {
+    const L = map.getLayer(id); if (!L) return;
+    const f = map.getFilter(id);
+    map.addLayer({id:id + '-case', type:'line', source:src, ...(f ? {filter:f} : {}), layout:{'line-cap':'round', 'line-join':'round'}, paint:{'line-color':'#ffffff', 'line-width':['interpolate', ['linear'], ['zoom'], 4, 6, 8, 8.5], 'line-opacity':0.9}}, id);
+    map.setPaintProperty(id, 'line-width', W);
+  });
+  map.setPaintProperty('dyetki', 'line-color', '#B3001B'); map.setPaintProperty('mebsin', 'line-color', '#B3001B');
+  map.setPaintProperty('dyetki-sem', 'line-color', '#B3001B');
+  A.LAYER_MAP.lyrDyetki = [...new Set([...(A.LAYER_MAP.lyrDyetki || []), 'dyetki-case', 'mebsin-case', 'trsinir-case'])];
+})();
