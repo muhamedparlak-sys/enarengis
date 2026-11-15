@@ -152,9 +152,10 @@ async function showIlce(id){
   state.drill = {...d, level:'ilce', ilce:{id, ad: row[1], geom}, mah:null};
   if (geom){ highlight(geom); map.fitBounds(A.bbox(geom), {padding: 30, duration: 900, maxZoom: 13}); }
   open(`<h3 style="margin-top:6px">${esc(row[1])} (${esc(d.il.properties.il)})</h3>
-    ${geom ? facHtml(geom) : ''}
+    <div id="drIlSan"></div>${geom ? facHtml(geom) : ''}
     <h3>Mahalleler (${row[2].length})</h3><input type="text" id="drMahAra" placeholder="Mahalle ara…" style="margin-bottom:8px">
     <div id="drMah" class="chips">${row[2].map(([k, ad]) => `<button class="chip" data-mah="${k}">${esc(ad)}</button>`).join('')}</div>`);
+  if (geom) setTimeout(() => { if (state.drill?.ilce?.geom === geom) ilAltyapi({geometry: geom}, true); }, 3000);
   $('#drMahAra').addEventListener('input', e => { const q = norm(e.target.value); document.querySelectorAll('#drMah .chip').forEach(c => c.style.display = norm(c.textContent).includes(q) ? '' : 'none'); });
 }
 async function showMah(kod){
@@ -184,8 +185,8 @@ function ilTuketim(f, ed){
     ${R ? `<p class="hint">Bölge dengesi (simülasyon, 2025): üretim ${fmt(R.genT, 1)} TWh, tüketim ${fmt(R.cons, 1)} TWh. ${R.net < 0 ? 'Açık, komşu bölgelerden karşılanıyor: ' + gel.map(x => esc(x.from.p.edas.replace(' EDAŞ', '')) + ' ' + fmt(x.twh, 1) + ' TWh').join(', ') + '.' : 'Bölge fazla veriyor; il, bölge içi üretimle besleniyor.'}</p>` : ''}
     <div id="drIlSan"></div>`;
 }
-function ilAltyapi(f){
-  if (state.drill?.il !== f) return;
+function ilAltyapi(f, ilce){
+  if (!ilce && state.drill?.il !== f) return;
   const g = f.geometry; const cen = gg => { const c = gg.type === 'Point' ? gg.coordinates : (gg.type === 'Polygon' ? gg.coordinates[0] : gg.coordinates[0][0]); if (typeof c[0] === 'number') return c; let x = 0, y = 0; c.forEach(q => { x += q[0]; y += q[1]; }); return [x / c.length, y / c.length]; };
   // sanayi alanları (OSM landuse=industrial)
   let san = [];
@@ -194,13 +195,14 @@ function ilAltyapi(f){
   san.forEach(q => { if (!inGeom(cen(q.geometry), g)) return; const rings = q.geometry.type === 'Polygon' ? [q.geometry.coordinates] : q.geometry.coordinates; const ha = rings.reduce((s, r) => s + A.ringArea(r[0]), 0) / 1e4; topHa += ha; const n = q.properties.name || q.properties['name:tr']; if (n){ (by[n] ||= {ha:0, c:cen(q.geometry)}); by[n].ha += ha; } });
   const top = Object.entries(by).sort((a, b) => b[1].ha - a[1].ha).slice(0, 6);
   const sanEl = document.querySelector('#drIlSan');
-  if (sanEl) sanEl.innerHTML = topHa ? `<h3>Başlıca tüketim alanları</h3><p class="hint">Haritada görünen sanayi alanları (OSM): yaklaşık <b>${fmt(topHa)} ha</b>.</p>${top.length ? `<ul class="flist">${top.map(([n, v]) => `<li data-c="${v.c.join(',')}">${window.ICON('sanayi', 14, '#7b3294', 2)} ${esc(n)} <b>${fmt(v.ha)} ha</b></li>`).join('')}</ul>` : ''}` : '';
+  if (sanEl && !topHa) sanEl.innerHTML = '<p class="hint">Sanayi alanları ilçe düzeyinde, yakınlaşınca listelenir.</p>';
+  if (sanEl && topHa) sanEl.innerHTML = topHa ? `<h3>Başlıca tüketim alanları</h3><p class="hint">Haritada görünen sanayi alanları (OSM): yaklaşık <b>${fmt(topHa)} ha</b>.</p>${top.length ? `<ul class="flist">${top.map(([n, v]) => `<li data-c="${v.c.join(',')}">${window.ICON('sanayi', 14, '#7b3294', 2)} ${esc(n)} <b>${fmt(v.ha)} ha</b></li>`).join('')}</ul>` : ''}` : '';
   // trafo merkezleri (OSM, OpenInfraMap)
   let tm = [];
   try { tm = map.querySourceFeatures('oim', {sourceLayer:'power_substation_point'}); } catch (e) {}
   const kv = q => Math.max(...String(q.properties.voltage || '0').split(/[;,]/).map(v => parseFloat(v) || 0));
   const seen = new Set();
-  const list = tm.filter(q => kv(q) >= 154 && inGeom(q.geometry.coordinates, g)).sort((a, b) => kv(b) - kv(a)).filter(q => { const k = (q.properties.name || '') + kv(q); if (seen.has(k)) return false; seen.add(k); return true; });
+  const list = tm.filter(q => kv(q) >= 154 && (q.properties.area || 0) >= 3000 && inGeom(q.geometry.coordinates, g)).sort((a, b) => kv(b) - kv(a)).filter(q => { const k = (q.properties.name || '') + kv(q); if (seen.has(k)) return false; seen.add(k); return true; });
   const el = document.querySelector('#drIlTm');
   if (el) el.innerHTML = list.length ? `<p class="hint" style="margin-top:8px">İli iletim şebekesine bağlayan trafo merkezleri (154 kV ve üzeri, OSM): <b>${list.length}</b></p><ul class="flist">${list.slice(0, 8).map(q => `<li data-c="${q.geometry.coordinates.join(',')}">${window.ICON('elektrik', 14, '#0E3047', 2)} ${esc(q.properties.name || 'Adsız trafo merkezi')} <b>${fmt(kv(q) / 1000 >= 1 ? kv(q) / 1000 : kv(q))} kV</b></li>`).join('')}</ul>` : '';
 }
