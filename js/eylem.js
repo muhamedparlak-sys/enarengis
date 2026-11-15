@@ -155,7 +155,7 @@ function git(e){
 const YIL = [2027, 2028, 2029, 2030, 2031];
 const pane = document.createElement('div'); pane.className = 'pane'; pane.id = 'pane-eylem';
 document.querySelector('.panes').insertBefore(pane, document.querySelector('#pane-katman'));
-const tab = document.createElement('button'); tab.className = 'tab'; tab.dataset.tab = 'eylem'; tab.textContent = 'Eylem planı';
+const tab = document.createElement('button'); tab.className = 'tab'; tab.dataset.tab = 'eylem'; tab.textContent = 'Eylem planı taslağı';
 document.querySelector('.tabs').insertBefore(tab, document.querySelector('.tab[data-tab="katman"]'));
 tab.addEventListener('click', () => {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === tab));
@@ -182,7 +182,7 @@ function gantt(af){
 }
 let af = 0;
 function render(){
-  pane.innerHTML = `<p class="hint">ENAREN'in 2027–2031 stratejik çerçevesi: <b>3 amaç, 9 hedef, 27 eylem</b>. Bir eyleme dokunun; harita ilgili yere, katmana ya da panele gider. Haritadaki numaralı noktalar o yerdeki eylem sayısını gösterir. Konumlar öneri / aday niteliğindedir.</p>
+  pane.innerHTML = `<p class="ey-taslak">TASLAK · Kurumla netleştirilmemiştir</p><p class="hint">ENAREN için önerilen 2027–2031 stratejik çerçeve taslağı: <b>3 amaç, 9 hedef, 27 eylem</b>. Bir eyleme dokunun; harita ilgili yere, katmana ya da panele gider. Haritadaki numaralı noktalar o yerdeki eylem sayısını gösterir. Konumlar öneri / aday niteliğindedir.</p>
   <div class="ey-kpi"><div><b>3</b><span>amaç</span></div><div><b>9</b><span>hedef</span></div><div><b>27</b><span>eylem</span></div><div><b>${konumlu}</b><span>haritaya bağlı</span></div></div>
   <div class="ey-amac">${AMAC.map(a => `<button class="ey-card${af === a.k ? ' on' : ''}" data-a="${a.k}" style="--c:${a.renk}"><small>Amaç ${a.k}</small><b>${a.ad}</b><ul>${Object.keys(HEDEF).filter(h => h[1] === String(a.k)).map(h => `<li>${h} ${HEDEF[h]}</li>`).join('')}</ul><em>2031: ${a.hedef2031}</em></button>`).join('')}</div>
   <div class="ey-row2"><div><h4>Yıllara göre süren eylem</h4>${yukSvg()}<div class="legend2">${AMAC.map(a => `<span><i style="background:${a.renk}"></i>Amaç ${a.k}</span>`).join('')}</div></div>

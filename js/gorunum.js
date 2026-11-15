@@ -10,7 +10,7 @@ const G = {
   ithalat:{ad:'İthalat', acik:['lyrAkis', 'lyrIthal'], akis:'ithal', not:'İthal yakıtla üretilen elektriğin akışı; boru hatları, LNG, tanker ve kömür rotaları.'},
   deniz:  {ad:'Deniz',   acik:['lyrDpot', 'lyrFilo', 'lyrBaraj'], not:'Mavi Vatan\'da RES ve yüzer GES alanları, hedef sahalar, baraj gölleri ve arama filosu.'},
   proje:  {ad:'Projeler', acik:['lyrStrat', 'lyrSantral'], not:'Mevcut santraller ve süren/planlanan stratejik projeler.'},
-  eylem:  {ad:'Eylem planı', acik:['lyrEylem'], not:'ENAREN 2027–2031 eylem planı: 27 eylemin bağlı olduğu yerler. Ayrıntı ve infografik sol paneldeki Eylem planı bölümünde.'},
+  eylem:  {ad:'Eylem planı taslağı', acik:['lyrEylem'], not:'ENAREN 2027–2031 eylem planı taslağı (öneri): 27 eylemin bağlı olduğu yerler. Ayrıntı ve infografik sol paneldeki Eylem planı taslağı bölümünde.'},
   kisit:  {ad:'Kısıtlar', acik:['lyrKoruma', 'lyrLines', 'lyrDpot'], not:'Koruma alanları (yeşil) ile şebeke ve deniz potansiyelinin çakıştığı yerler. Kültürel sit alanları resmî veriyle eklenmeli.'}
 };
 let aktif = 'denge';

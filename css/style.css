@@ -419,3 +419,5 @@ html.locked body>*:not(#gate):not(script){visibility:hidden}
 .eyp div{margin:6px 0;font-size:12px;line-height:1.35}
 .eyp i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
 @media (max-width:420px){.ey-amac{grid-template-columns:1fr}.ey-row2{grid-template-columns:1fr}}
+
+.ey-taslak{display:inline-block;margin:6px 0 0;padding:2px 8px;border-radius:4px;background:#fbf3e2;color:#8a5d00;font-family:var(--f-head);font-weight:600;font-size:11.5px;letter-spacing:.02em}
