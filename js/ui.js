@@ -7,7 +7,7 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 
 // ---------------- Hamburger menü ----------------
 const MENU = [
-  ['vizyon','🇹🇷','Vizyon','Enerji dengesi, ihracat senaryosu, kaynaklar'],
+  ['vizyon','📊','Genel Bakış','Enerji dengesi, resmî hedefler, kaynaklar'],
   ['katman','🗺','Katmanlar','Altlıklar, tematik ve deniz katmanları'],
   ['analiz','📐','Analiz','Çatı GES, karşılaştırma, bölge sıralaması'],
   ['senaryo','🔌','EV Senaryo','Elektrikli araç dönüşümü, timelapse'],
@@ -51,10 +51,10 @@ setTitle();
 
 // ---------------- Rehber (tur) ----------------
 const STEPS = [
-  {sel:null, t:'Hoş geldiniz 👋', d:'Bu uygulama TENMAK ENAREN için hazırlanmış bir demo: Türkiye\'nin enerji kaynaklarını, şebekesini ve geleceğini tek haritada gösterir. Hedef: <b>enerji ithal eden değil, ihraç eden Türkiye</b>.'},
+  {sel:null, t:'Hoş geldiniz 👋', d:'Bu uygulama TENMAK ENAREN için hazırlanmış bir demo: Türkiye\'nin enerji kaynaklarını, şebekesini, verilerini ve resmî hedeflerini tek haritada gösterir.'},
   {sel:'#btnMenu', t:'Menü', d:'Tüm bölümler buradadır: Vizyon, Katmanlar, Analiz, EV Senaryo, Parsel, Deniz, Raporlar… Bu rehberi de menünün en altından tekrar açabilirsiniz.'},
   {sel:'#map', t:'Harita', d:'İkonlar santralleri gösterir: 💧 hidro, ☀️ güneş, 💨 rüzgâr, ⚫ ithal kömür, 🪨 yerli kömür, 🔥 doğal gaz, ⚛️ nükleer. <b>İkon büyüklüğü kurulu güçle orantılıdır.</b> Bir ikona ya da bölgeye dokunarak bilgi alın.'},
-  {sel:'#pane-vizyon .stack', tab:'vizyon', t:'Enerji dengesi', d:'Türkiye\'nin elektriği hangi kaynaktan geliyor, ne kadarı yerli, ne kadarı ithal? Aşağıdaki senaryo ile 2035 ve 2040 hedeflerinde ihracatçı olup olmadığımızı görün.'},
+  {sel:'#pane-vizyon .stack', tab:'vizyon', t:'Enerji dengesi', d:'Türkiye\'nin elektriği hangi kaynaktan geliyor, ne kadarı yerli, ne kadarı ithal? Resmî hedeflere göre ilerleme ve senaryo aracı aşağıda.'},
   {sel:'#btnParselTop', t:'Parsel ve mahalle', d:'İl → ilçe → mahalle seçin; harita oraya gider. Mahalle için çatı GES önerisi ve ada/parsel sorgusu buradan yapılır.'},
   {sel:'#sheet', tab:'rapor', t:'Raporlar', d:'GES fizibilite, bölge fırsat ve deniz enerjisi raporları; harita ve infografikleriyle otomatik oluşturulur, PDF olarak indirilebilir.'},
   {sel:'#btnLocate', t:'Konumunuz', d:'Bulunduğunuz yere gitmek için. Hazırsınız — iyi keşifler!'}
@@ -97,8 +97,8 @@ function firstRun(){
   let seen = null; try { seen = localStorage.getItem('enaren_tur_v1'); } catch (e) {}
   if (seen) return;
   const m = document.createElement('div'); m.className = 'welcome';
-  m.innerHTML = `<div class="wcard"><div class="wlogo">⚡🇹🇷</div><b>ENAREN Enerji WebGIS'e hoş geldiniz</b>
-    <p>Enerji ithal eden değil, ihraç eden bir Türkiye için kaynaklar, şebeke ve gelecek senaryoları tek haritada.</p>
+  m.innerHTML = `<div class="wcard"><div class="wlogo">⚡</div><b>ENAREN Enerji WebGIS'e hoş geldiniz</b>
+    <p>Türkiye'nin enerji kaynakları, şebekesi, verileri ve resmî hedefleri tek haritada.</p>
     <p>Kısa bir tanıtım turu ister misiniz? (1 dakika)</p>
     <div class="btnrow"><button class="btn primary wyes">Evet, turu başlat</button><button class="btn wno">Şimdilik geç</button></div>
     <small class="muted">Turu daha sonra ☰ menü → Rehber'den açabilirsiniz.</small></div>`;

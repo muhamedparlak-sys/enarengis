@@ -145,7 +145,7 @@ function toggleFlow(on){
 function renderFlowTable(){
   if (!flowData) return;
   const R = [...flowData.R].sort((a, b) => b.net - a.net);
-  $('#akisTablo').innerHTML = `<p class="hint">Yeşil: üretimi tüketiminden fazla (ihracatçı) bölge, kırmızı: açık veren bölge. Oklar fazlanın en yakın açık bölgelere akışını temsil eder.</p>` +
+  $('#akisTablo').innerHTML = `<p class="hint">Yeşil: üretimi tüketiminden fazla bölge, kırmızı: açık veren bölge. Oklar fazlanın en yakın açık bölgelere akışını temsil eder.</p>` +
     R.map(r => `<div class="bar ev"><span>${esc(r.p.edas.replace(' EDAŞ', ''))}</span><div class="t"><i style="width:${Math.min(100, Math.abs(r.net) / 45 * 100).toFixed(0)}%;background:${r.net > 0 ? '#1f8a4c' : '#c0392b'}"></i></div><span class="v">${r.net > 0 ? '+' : ''}${fmt(r.net, 1)} TWh</span></div>`).join('') +
     `<small class="muted">Simülasyon: 2025 ulusal üretimi (EPİAŞ) yakıt bazında bölgelere dağıtıldı — termik/hidro/jeotermal WRI santral kapasitesine, güneş alan×ışınıma, rüzgâr alan×v³'e göre; tüketim ELDER 2024 bölge payları. Gerçek hat bazında yük akışı TEİAŞ SCADA/yük akışı verisi gerektirir.</small>`;
 }
@@ -171,8 +171,7 @@ function landCalc(){
 const CF = {gunes:0.17, ruzgar:0.31, hidro:0.205, jeobiyo:0.62, linyit:0.55, nukleer:0.88};
 const PRESET = {
   bugun:   {gunes:28.2, ruzgar:15.5, hidro:32.3, jeobiyo:4.2, linyit:11.6, nukleer:0,   buyume:0,   yil:2025},
-  hedef35: {gunes:70,   ruzgar:50,   hidro:35,   jeobiyo:6,   linyit:11.6, nukleer:4.8, buyume:3,   yil:2035},
-  vizyon:  {gunes:150,  ruzgar:85,   hidro:38,   jeobiyo:9,   linyit:11.6, nukleer:14.4,buyume:3,   yil:2040}
+  hedef35: {gunes:76.9, ruzgar:43.1, hidro:35,   jeobiyo:6,   linyit:11.6, nukleer:4.8, buyume:3,   yil:2035}
 };
 function senaryo(){
   const v = id => +$('#sv-' + id).value;
@@ -185,8 +184,8 @@ function senaryo(){
     <div class="demand" style="left:${talep / max * 100}%"><span>Talep ${fmt(talep)} TWh</span></div>`;
   const usd = fark * 1e6 * 70 / 1e9; // 70 $/MWh ihracat değeri varsayımı
   $('#svOut').innerHTML = fark >= 0
-    ? `<div class="verdict g">🇹🇷 ${yil}: Yerli kaynaklar talebi <b>${fmt(fark)} TWh</b> aşıyor → elektrik ihracatı potansiyeli ~<b>${fmt(usd, 1)} milyar $/yıl</b> (70 $/MWh). Doğal gaz ve ithal kömür santralleri yedek/dengeleme rolüne çekilir.</div>`
-    : `<div class="verdict ${fark > -60 ? 'o' : 'r'}">${yil}: Yerli kaynaklar talebin <b>%${fmt(yerli / talep * 100)}</b>'ini karşılıyor. Açık <b>${fmt(-fark)} TWh</b> → ithal doğal gaz / kömürle ~<b>${fmt(-usd, 1)} milyar $</b> yakıt faturası.</div>`;
+    ? `<div class="verdict g">${yil}: Yerli kaynaklı üretim talebi <b>${fmt(fark)} TWh</b> aşıyor (talebin %${fmt(yerli / talep * 100)}'i). Fazla; depolama, ihracat veya talep artışıyla değerlendirilebilir.</div>`
+    : `<div class="verdict o">${yil}: Yerli kaynaklı üretim talebin <b>%${fmt(yerli / talep * 100)}</b>'ini karşılıyor; kalan <b>${fmt(-fark)} TWh</b> ithal yakıtlı santrallerden (≈ ${fmt(-usd, 1)} milyar $ değerinde elektrik).</div>`;
   $('#svOut').insertAdjacentHTML('beforeend', `<small class="muted">Kapasite faktörleri: güneş %17, rüzgâr %31, hidro %20,5 (2025 gerçekleşen), nükleer %88. Yüksek güneş/rüzgâr payı depolama (batarya, pompaj, yeşil hidrojen), esneklik ve ara bağlantı kapasitesi gerektirir; bu basit enerji dengesi saatlik dengelemeyi içermez.</small>`);
 }
 
@@ -202,22 +201,22 @@ function renderVizyon(){
   const prim = BIRINCIL_2024.map(([k, p, ith]) => [k, p, ith]);
   const ithalPay = prim.reduce((s, [, p, i]) => s + p * i, 0);
   const kaynaklar = [
-    ['☀️','Güneş','Konya, Karaman, Antalya, GA Anadolu','GES, agrivoltaik, yüzer GES','28,2 GW kurulu','2035: güneş+rüzgâr 120 GW hedefi',[33.5,37.7]],
-    ['💨','Rüzgâr','Ege, Marmara, Trakya, Kuzey Ege denizi','Kara ve açık deniz RES','15,5 GW','Açık deniz RES (Saros, Gökçeada)',[26.5,39.8]],
-    ['💧','Su','Fırat-Dicle, Çoruh, Kızılırmak','Barajlı/akarsu HES, pompaj depolama','32,3 GW','Pompaj depolama ile dengeleme',[38.3,37.5]],
-    ['♨️','Jeotermal','Denizli, Aydın, Manisa','Elektrik + sera/şehir ısıtma','1,8 GW','Isı pompası ve sanayi buharı',[28.8,37.9]],
-    ['🌿','Biyokütle','Tarım ve hayvancılık havzaları','Biyogaz, biyometan','2,4 GW','BEPA atlası ile atıktan enerji',[32.5,39]],
-    ['🪨','Linyit / taşkömürü','Afşin-Elbistan, Soma, Zonguldak','Termik, gazlaştırma','11,6 GW','Geçiş yakıtı; karbon yakalama',[36.95,38.25]],
-    ['🔥','Doğal gaz (yerli)','Karadeniz – Sakarya sahası','Esnek santral, sanayi','Üretimde','İthalatı ikame',[31.4,42.6]],
-    ['🛢️','Petrol (yerli)','Gabar, Şırnak','Ulaşım yakıtı','Üretimde','Elektrifikasyonla talep düşüşü',[42.35,37.55]],
-    ['⚛️','Nükleer','Akkuyu, Sinop, Trakya','Baz yük','Akkuyu 4,8 GW inşa','2050: 20 GW nükleer hedefi',[33.53,36.14]],
-    ['💎','Bor / lityum','Eskişehir, Balıkesir, Kütahya','Batarya, hidrojen depolama','BOREN lityum tesisi','Depolama zinciri yerlileşir',[30.53,39.29]],
-    ['☢️','Toryum / nadir toprak','Eskişehir Beylikova','Gelecek reaktörleri, mıknatıslar','Ar-Ge (NATEN)','Toryum yakıt döngüsü',[31.2,39.68]],
-    ['🌊','Deniz','Karadeniz, Ege, Akdeniz','Açık deniz RES, yüzer GES, akıntı','Ön tarama','Mavi Vatan enerji koridorları',[26.2,39.6]]
+    ['☀️','Güneş','Konya, Karaman, Antalya, GA Anadolu','GES, agrivoltaik, yüzer GES','28,2 GW kurulu','2035: 76,9 GW',[33.5,37.7]],
+    ['💨','Rüzgâr','Ege, Marmara, Trakya, Kuzey Ege denizi','Kara ve açık deniz RES','15,5 GW','2035: 43,1 GW',[26.5,39.8]],
+    ['💧','Su','Fırat-Dicle, Çoruh, Kızılırmak','Barajlı/akarsu HES, pompaj depolama','32,3 GW','—',[38.3,37.5]],
+    ['♨️','Jeotermal','Denizli, Aydın, Manisa','Elektrik + sera/şehir ısıtma','1,8 GW','—',[28.8,37.9]],
+    ['🌿','Biyokütle','Tarım ve hayvancılık havzaları','Biyogaz, biyometan','2,4 GW','—',[32.5,39]],
+    ['🪨','Linyit / taşkömürü','Afşin-Elbistan, Soma, Zonguldak','Termik, gazlaştırma','11,6 GW','—',[36.95,38.25]],
+    ['🔥','Doğal gaz (yerli)','Karadeniz – Sakarya sahası','Esnek santral, sanayi','Üretimde','Üretim artışı (faz 2–3)',[31.4,42.6]],
+    ['🛢️','Petrol (yerli)','Gabar, Şırnak','Ulaşım yakıtı','Üretimde','—',[42.35,37.55]],
+    ['⚛️','Nükleer','Akkuyu, Sinop, Trakya','Baz yük','Akkuyu 4,8 GW inşa','2050: 20 GW',[33.53,36.14]],
+    ['💎','Bor / lityum','Eskişehir, Balıkesir, Kütahya','Batarya, hidrojen depolama','BOREN lityum tesisi','—',[30.53,39.29]],
+    ['☢️','Toryum / nadir toprak','Eskişehir Beylikova','Gelecek reaktörleri, mıknatıslar','Ar-Ge (NATEN)','Ar-Ge',[31.2,39.68]],
+    ['🌊','Deniz','Karadeniz, Ege, Akdeniz','Açık deniz RES, yüzer GES, akıntı','Ön tarama','—',[26.2,39.6]]
   ];
   $('#pane-vizyon').innerHTML = `
-    <div class="manifest"><b>Felsefe: Enerji ithal eden değil, ihraç eden Türkiye.</b>
-      <span>Güneş, rüzgâr, su, jeotermal, linyit, bor, toryum ve denizlerimizle; ithal ettiğimiz her birim enerjinin yerine kendi kaynağımızı koyarak önce kendine yeten, sonra komşularına enerji satan bir Türkiye. ENAREN'in iletim, dağıtım, depolama ve verimlilik görevleri bu dönüşümün omurgasıdır.</span></div>
+    <div class="manifest"><b>Türkiye enerji görünümü</b>
+      <span>Üretim, kurulu güç, ithalat bağımlılığı, kaynaklar ve resmî hedefler — güncel veriler ve kaynaklarıyla.</span></div>
     <h3>Elektrik: 2025 üretimi ${fmt(URETIM_2025.toplam)} TWh · talep ${fmt(URETIM_2025.talep)} TWh</h3>
     ${stackBar(gen, URETIM_2025.toplam, 'TWh')}
     <p class="hint">Yerli kaynaklı üretim: <b>~${fmt(yerliTWh)} TWh (%${fmt(yerliTWh / URETIM_2025.toplam * 100)})</b>. Kalanı ithal kömür ve büyük ölçüde ithal doğal gazla.</p>
@@ -225,17 +224,19 @@ function renderVizyon(){
     ${stackBar(cap, 127.355, 'GW')}
     <h3>Birincil enerji (tüm sektörler, 2024) – ithal payı</h3>
     <div class="stack">${prim.map(([k, p, i]) => `<div class="seg" style="width:${p * i}%;background:${K[k].renk}" title="${K[k].kisa} ithal">${p * i > 7 ? '🚢' : ''}</div>`).join('')}${prim.map(([k, p, i]) => `<div class="seg yerli" style="width:${p * (1 - i)}%;background:${K[k].renk}" title="${K[k].kisa} yerli"></div>`).join('')}</div>
-    <p class="hint">Enerji ihtiyacının yaklaşık <b>%${fmt(ithalPay)}</b>'i ithal (🚢 taralı olmayan kısım); 2025 net enerji ithalatı <b>47,2 milyar $</b>. 2040 hedefi: dışa bağımlılığı %68'den %48'e indirmek.</p>
+    <p class="hint">Birincil enerjinin yaklaşık <b>%${fmt(ithalPay)}</b>'i ithal (koyu kısım); Bakanlık açıklamasına göre dışa bağımlılık %68. 2025 net enerji ithalatı <b>47,2 milyar $</b>.</p>
 
-    <h3>İhracatçı Türkiye senaryosu</h3>
-    <div class="chips" id="svPreset"><button class="chip" data-p="bugun">Bugün</button><button class="chip active" data-p="hedef35">2035 hedefleri</button><button class="chip" data-p="vizyon">Vizyon 2040</button></div>
+    <h3>Resmî hedefler ve ilerleme</h3>
+    <div id="hedefler"></div>
+    <h3>Senaryo aracı: kurulu güç → yerli üretim / talep</h3>
+    <div class="chips" id="svPreset"><button class="chip" data-p="bugun">2025</button><button class="chip active" data-p="hedef35">Bakanlık 2035 hedefi</button></div>
     <div id="svBar" class="svbar"></div><div id="svOut"></div>
     <details><summary>⚙ Kurulu güç (GW) ve talep</summary><div class="grid2">
       <label>Yıl<input type="number" id="sv-yil"></label><label>Talep artışı (%/yıl)<input type="number" id="sv-buyume" step="0.5"></label>
       <label>☀️ Güneş<input type="number" id="sv-gunes" step="5"></label><label>💨 Rüzgâr (kara+deniz)<input type="number" id="sv-ruzgar" step="5"></label>
       <label>💧 Hidro<input type="number" id="sv-hidro" step="1"></label><label>♨️🌿 Jeotermal+biyokütle<input type="number" id="sv-jeobiyo" step="1"></label>
       <label>🪨 Yerli kömür<input type="number" id="sv-linyit" step="1"></label><label>⚛️ Nükleer<input type="number" id="sv-nukleer" step="1.2"></label></div>
-      <p class="hint">2035 hedefi: güneş+rüzgâr 120 GW (bakanlık; güneş/rüzgâr ayrımı varsayım), Akkuyu 4,8 GW. Vizyon 2040: Akkuyu+Sinop+Trakya'nın bir kısmı ve açık deniz RES.</p></details>
+      <p class="hint">Bakanlık 2035 hedefi: 76,9 GW güneş + 43,1 GW rüzgâr (toplam 120 GW); Akkuyu 4,8 GW. Diğer kalemler ve talep artışı kullanıcı varsayımıdır; değerleri değiştirerek kendi senaryonuzu kurabilirsiniz.</p></details>
 
     <h3>Haritada göster</h3>
     <label class="row"><input type="checkbox" id="lyrSantral" checked> Büyük santraller – kaynak ikonlu, güçle ölçekli</label>
@@ -247,16 +248,29 @@ function renderVizyon(){
     <div id="landRes" class="result muted">Bir OSB veya tarım havzasına yakınlaşıp hesaplayın.</div>
     <div class="legend2" style="margin-top:6px">${Object.entries(DURUM).map(([, [l, c]]) => `<span><i style="background:#fff;border:3px solid ${c}"></i>${l}</span>`).join('')}</div>
 
-    <h3>Türkiye'nin kaynakları → enerji</h3>
-    <div class="matrix">${kaynaklar.map(([i, ad, yer, enerji, bugun, vizyon, c]) => `<div class="mrow" data-c="${c.join(',')}"><b>${i} ${ad}</b><span>📍 ${yer}</span><span>⚡ ${enerji}</span><span>📊 ${bugun} → 🎯 ${vizyon}</span></div>`).join('')}</div>
+    <h3>Kaynaklar → enerji türleri</h3>
+    <div class="matrix">${kaynaklar.map(([i, ad, yer, enerji, bugun, vizyon, c]) => `<div class="mrow" data-c="${c.join(',')}"><b>${i} ${ad}</b><span>📍 ${yer}</span><span>⚡ ${enerji}</span><span>Durum: ${bugun} · Plan/hedef: ${vizyon}</span></div>`).join('')}</div>
     <p class="hint">Kaynaklar: ETKB kurulu güç (Eylül 2026), EPİAŞ/SHURA 2025 üretim, ETKB/SHURA birincil enerji 2024, ETKB 2040 yol haritası; santral noktaları WRI Global Power Plant Database (2021, büyük santraller), stratejik proje konumları yaklaşık.</p>`;
   $('#svPreset').addEventListener('click', e => { const k = e.target.dataset.p; if (!k) return; $$('#svPreset .chip').forEach(c => c.classList.toggle('active', c === e.target)); setPreset(k); });
   $$('[id^="sv-"]').forEach(i => i.addEventListener('input', senaryo));
   setPreset('hedef35');
+  renderHedefler();
   ['lyrSantral','lyrStrat','lyrAkis','lyrTarim'].forEach(id => $('#' + id).addEventListener('change', () => { A.syncLayerChecks(); if (id === 'lyrAkis') toggleFlow($('#lyrAkis').checked); }));
   $('#btnLand').onclick = () => { $('#lyrTarim').checked = true; A.syncLayerChecks(); if (map.getZoom() < 9){ map.flyTo({center:[29.94, 40.78], zoom:11}); A.toast('Örnek: Kocaeli sanayi + tarım'); } A.minimizeSheet(); map.once('idle', () => setTimeout(() => { landCalc(); A.openSheet(); A.goTab('vizyon'); }, 400)); };
   $$('.mrow').forEach(r => r.addEventListener('click', () => { const [x, y] = r.dataset.c.split(',').map(Number); map.flyTo({center:[x, y], zoom:7.5}); A.minimizeSheet(); }));
   renderGorevler();
+}
+function renderHedefler(){
+  const H = [
+    ['gunes', 'Güneş kurulu gücü', 28.2, 76.9, 'GW', '2035', 'ETKB (Eyl. 2026 → 2035)'],
+    ['ruzgar', 'Rüzgâr kurulu gücü', 15.5, 43.1, 'GW', '2035', 'ETKB'],
+    ['nukleer', 'Nükleer kurulu güç', 0, 20, 'GW', '2050', 'ETKB; Akkuyu 4,8 GW inşa'],
+    ['dogalgaz', 'Enerjide dışa bağımlılık', 68, 48, '%', '2040', 'ETKB 2040 yol haritası (azaltım)']
+  ];
+  $('#hedefler').innerHTML = H.map(([k, ad, now, hedef, u, yil, src]) => {
+    const azalt = hedef < now, pct = azalt ? Math.max(0, Math.min(100, (100 - now) / (100 - hedef) * 100)) : Math.min(100, now / hedef * 100);
+    return `<div class="goal"><div class="gh"><b>${ad}</b><span>${fmt(now, 1)} ${u} → ${fmt(hedef, 1)} ${u} · ${yil}</span></div><div class="gbar"><i style="width:${pct}%;background:${K[k].renk}"></i></div><small>${src}</small></div>`;
+  }).join('') + `<p class="hint">Diğer açıklanan hedefler: Akkuyu'nun ilk ünitesinde 2026 sonu ilk elektrik; Sinop'tan 2035 öncesi, Trakya'dan 2035 sonrası ilk elektrik öngörüsü.</p>`;
 }
 function setPreset(k){ Object.entries(PRESET[k]).forEach(([f, v]) => { const el = $('#sv-' + f); if (el) el.value = v; }); senaryo(); }
 
