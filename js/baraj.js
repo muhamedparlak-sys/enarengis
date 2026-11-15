@@ -14,6 +14,7 @@ function ekle(){
     map.addLayer({id:'baraj', type:'circle', source:'baraj', layout:{visibility:'none'}, paint:{'circle-radius':['interpolate', ['linear'], ['sqrt', ['get', 'km2']], 2, 4, 28, 22], 'circle-color':['case', ['get', 'icme'], '#9aa5ad', '#E8B21C'], 'circle-opacity':0.8, 'circle-stroke-color':'#0E3047', 'circle-stroke-width':1.5}});
     map.addLayer({id:'baraj-lbl', type:'symbol', source:'baraj', minzoom:6, layout:{visibility:'none', 'text-field':['concat', ['get', 'ad'], '\n', ['to-string', ['get', 'mw5']], ' MW (%5)'], 'text-font':['Open Sans Semibold'], 'text-size':11, 'text-offset':[0, 1.6], 'text-anchor':'top'}, paint:{'text-color':'#5b4500', 'text-halo-color':'#fff', 'text-halo-width':1.6}});
     A.LAYER_MAP.lyrBaraj = ['baraj', 'baraj-lbl'];
+    document.querySelector('#lyrBaraj')?.addEventListener('change', A.syncLayerChecks);
     map.on('click', 'baraj', e => pop(e.features[0].properties, e.lngLat));
     panel();
   });
