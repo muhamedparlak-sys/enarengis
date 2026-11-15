@@ -42,7 +42,14 @@ const head = document.createElement('div'); head.className = 'sheet-head';
 head.innerHTML = `<button class="sh-menu" aria-label="Bölüm seç">☰</button><b id="sheetTitle"></b><button class="sh-toggle" aria-label="Paneli küçült/büyüt">▾</button>`;
 $('.tabs').before(head);
 head.querySelector('.sh-menu').onclick = openDrawer;
-head.querySelector('.sh-toggle').onclick = () => $('#sheetHandle').click();
+head.querySelector('.sh-toggle').onclick = () => {
+  if (innerWidth >= 900){ document.body.classList.toggle('panel-hidden'); setTimeout(() => A.map.resize(), 260); }
+  else $('#sheetHandle').click();
+};
+// masaüstünde panel kapalıyken açma düğmesi
+const reopen = document.createElement('button'); reopen.className = 'panel-reopen'; reopen.textContent = '☰ Paneli aç'; reopen.onclick = () => { document.body.classList.remove('panel-hidden'); setTimeout(() => A.map.resize(), 260); };
+document.body.appendChild(reopen);
+const _open = A.openSheet; A.openSheet = () => { document.body.classList.remove('panel-hidden'); _open(); };
 function setTitle(){ const k = $('.tab.active')?.dataset.tab; const m = MENU.find(x => x[0] === k); $('#sheetTitle').textContent = m ? `${m[1]} ${m[2]}` : ''; }
 $$('.tab').forEach(t => t.addEventListener('click', () => setTimeout(setTitle, 0)));
 // goTab başka modüllerden çağrıldığında da başlığı güncelle
