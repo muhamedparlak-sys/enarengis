@@ -138,7 +138,7 @@ function git(e){
   }
   if (g.edas && state.edas){
     const f = state.edas.features.find(x => x.properties.edas === g.edas);
-    if (f){ A.selectEdas(f.id); map.fitBounds(A.bbox(f.geometry), {padding:50, duration:900}); }
+    if (f){ A.selectEdas(f.id); map.fitBounds(A.bbox(f.geometry), {padding:{top:150, bottom:40, left:40, right:40}, duration:900}); }
     A.minimizeSheet(); return;
   }
   const pts = (g.y || []).map(k => Y[k][1]);
@@ -146,7 +146,7 @@ function git(e){
   if (pts.length === 1){ map.flyTo({center:pts[0], zoom:7}); }
   else if (pts.length > 1){
     const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
-    map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], {padding:90, maxZoom:7, duration:900});
+    map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], {padding:{top:170, bottom:60, left:70, right:70}, maxZoom:7, duration:900});
   }
   A.minimizeSheet();
 }
