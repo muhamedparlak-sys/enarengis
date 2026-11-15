@@ -3,6 +3,7 @@
  */
 (() => {
 'use strict';
+const DATA_V = '6'; // veri güncellenince artırın (önbellek kırıcı)
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('tr-TR', {maximumFractionDigits: d, minimumFractionDigits: d});
@@ -50,7 +51,7 @@ map.addControl(new maplibregl.ScaleControl({unit:'metric'}), 'bottom-left');
 function setVis(id, on){ if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none'); }
 
 map.on('load', async () => {
-  const [edas, il, grid] = await Promise.all(['data/dagitim_bolgeleri.geojson','data/iller.geojson','data/gunes_grid.geojson'].map(u => fetch(u).then(r => r.json())));
+  const [edas, il, grid] = await Promise.all(['data/dagitim_bolgeleri.geojson','data/iller.geojson','data/gunes_grid.geojson'].map(u => fetch(u + '?v=' + DATA_V).then(r => r.json())));
   // bölge ortalama GHI
   const ghiBy = {};
   il.features.forEach(f => { (ghiBy[f.properties.edas] ||= []).push(f.properties.ghi_yil); });
@@ -70,7 +71,7 @@ map.on('load', async () => {
     'fill-color':['interpolate',['linear'],['get','ghi_yil'],1400,'#ffffcc',1600,'#fed976',1750,'#fd8d3c',1900,'#bd0026'], 'fill-opacity':['case',['get','deniz'],0.4,0.55]}});
 
   // Rüzgâr ızgarası (denizler dahil)
-  const wind = await fetch('data/ruzgar_grid.geojson').then(r => r.json());
+  const wind = await fetch('data/ruzgar_grid.geojson?v=' + DATA_V).then(r => r.json());
   map.addSource('wind', {type:'geojson', data:wind});
   map.addLayer({id:'wind', type:'fill', source:'wind', layout:{visibility:'none'}, paint:{
     'fill-color':['interpolate',['linear'],['get','ws50'],2,'#f7fbff',3.5,'#c6dbef',4.5,'#6baed6',5.5,'#2171b5',6.5,'#08306b',7.5,'#3f007d'], 'fill-opacity':0.6}});

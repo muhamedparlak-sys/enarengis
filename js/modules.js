@@ -198,14 +198,14 @@ let ilceData = [], lastParsel = null;
 try { $('#pProxy').value = localStorage.getItem('enaren_tkgm_proxy') || ''; } catch (e) {}
 $('#pProxy').addEventListener('change', () => { try { localStorage.setItem('enaren_tkgm_proxy', $('#pProxy').value.trim()); } catch (e) {} });
 
-fetch('data/tkgm/iller.json').then(r => r.json()).then(list => {
+fetch('data/tkgm/iller.json?v=6').then(r => r.json()).then(list => {
   $('#pIl').innerHTML = '<option value="">— İl seçin —</option>' + list.map(([id, ad]) => `<option value="${id}">${esc(ad)}</option>`).join('');
 });
 $('#pIl').onchange = async () => {
   $('#pIlce').innerHTML = '<option value="">— İlçe seçin —</option>'; $('#pMah').innerHTML = '<option value="">— Mahalle seçin —</option>';
   $('#pIlce').disabled = $('#pMah').disabled = true;
   if (!$('#pIl').value) return;
-  ilceData = await fetch(`data/tkgm/${$('#pIl').value}.json`).then(r => r.json());
+  ilceData = await fetch(`data/tkgm/${$('#pIl').value}.json?v=6`).then(r => r.json());
   $('#pIlce').innerHTML += ilceData.map(([id, ad]) => `<option value="${id}">${esc(ad)}</option>`).join(''); $('#pIlce').disabled = false;
 };
 $('#pIlce').onchange = () => {
