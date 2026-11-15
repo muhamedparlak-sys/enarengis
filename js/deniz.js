@@ -215,7 +215,7 @@ $('#pMah').addEventListener('change', () => { if ($('#pMah').value) zoomTo(`${tx
     map.addLayer({id:id + '-case', type:'line', source:src, ...(f ? {filter:f} : {}), layout:{'line-cap':'round', 'line-join':'round'}, paint:{'line-color':'#ffffff', 'line-width':['interpolate', ['linear'], ['zoom'], 4, 6, 8, 8.5], 'line-opacity':0.9}}, id);
     map.setPaintProperty(id, 'line-width', W);
   });
-  map.setPaintProperty('dyetki', 'line-color', '#B3001B'); map.setPaintProperty('mebsin', 'line-color', '#B3001B');
+  map.setPaintProperty('dyetki', 'line-color', '#B3001B'); if (map.getLayer('mebsin')) map.setPaintProperty('mebsin', 'line-color', '#B3001B');
   map.setPaintProperty('dyetki-sem', 'line-color', '#B3001B');
   A.LAYER_MAP.lyrDyetki = [...new Set([...(A.LAYER_MAP.lyrDyetki || []), 'dyetki-case', 'mebsin-case', 'trsinir-case'])];
 })();

@@ -57,6 +57,8 @@ function etiketle(){
   });
 }
 etiketle();
-new MutationObserver(() => etiketle()).observe(document.querySelector('.panes'), {childList:true, subtree:true});
+const mo = new MutationObserver(() => etiketle());
+Object.keys(PANE).forEach(id => { const el = document.getElementById('pane-' + id); if (el) mo.observe(el, {childList:true}); });
+setTimeout(() => { Object.keys(PANE).forEach(id => { const el = document.getElementById('pane-' + id); if (el) mo.observe(el, {childList:true}); }); etiketle(); }, 3000);
 window.ENAREN_PAYDAS = { ac, P };
 })();
