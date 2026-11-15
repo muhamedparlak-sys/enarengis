@@ -253,7 +253,7 @@ map.on('click', (e) => {
   div.innerHTML = html + '<button class="btn primary">+ Rapora ekle</button>';
   div.querySelector('button').onclick = () => { addReport(item); popup.remove(); };
   if (item.tip === 'bolge' && window.ENAREN_MOD){
-    const b2 = document.createElement('button'); b2.className = 'btn'; b2.style.marginLeft = '6px'; b2.textContent = '📄 Bölge raporu';
+    const b2 = document.createElement('button'); b2.className = 'btn'; b2.style.marginLeft = '6px'; b2.textContent = 'Bölge raporu';
     b2.onclick = () => { popup.remove(); window.ENAREN_REP ? window.ENAREN_REP.bolgeReport(p.edas) : window.ENAREN_MOD.bolgeRaporu(p.edas); };
     div.appendChild(b2);
   }
@@ -416,7 +416,7 @@ $('#btnViewStats').onclick = () => {
       <small class="muted">OpenStreetMap gönüllü verisidir; resmi TEİAŞ/EDAŞ envanteri değildir. Hat uzunlukları görünür karo geometrisinden yaklaşık hesaplanır.</small>`};
     $('#viewStats').classList.remove('muted'); $('#viewStats').innerHTML = state.lastView.html;
     $('#btnViewReport').classList.remove('hidden');
-    if (map.getZoom() < 7) $('#viewStats').insertAdjacentHTML('afterbegin', '<p class="hint">⚠ Düşük yakınlaştırmada küçük öğeler gösterilmez; ayrıntı için yakınlaştırın.</p>');
+    if (map.getZoom() < 7) $('#viewStats').insertAdjacentHTML('afterbegin', '<p class="hint">Düşük yakınlaştırmada küçük öğeler gösterilmez; ayrıntı için yakınlaştırın.</p>');
   }, 400);
 };
 $('#btnViewReport').onclick = () => state.lastView && addReport({tip:'gorunum', baslik:'Görünümdeki enerji altyapısı özeti', html:state.lastView.html});
@@ -522,7 +522,7 @@ $('#btnTestAll').onclick = async () => {
   for (const el of $$('[data-test]')){
     el.textContent = 'test…'; el.className = 'tag';
     const ok = await runTest(el.dataset.test);
-    el.textContent = ok ? '✓ Çalışıyor' : '✗ Yanıt yok'; el.className = 'tag ' + (ok ? 'acik' : 'bozuk');
+    el.textContent = ok ? '✓ Çalışıyor' : 'Yanıt yok'; el.className = 'tag ' + (ok ? 'acik' : 'bozuk');
   }
 };
 window.ENAREN_APP = { map, state, addReport, fmt, setVis, goTab, minimizeSheet, openSheet, whichFeature, selectEdas, bbox, applyMetric, renderLegend, syncLayerChecks, METRICS, LAYER_MAP, setBasemap, edasHtml, centroid, ringArea, toast };

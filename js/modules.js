@@ -76,13 +76,13 @@ $('#evPreset').addEventListener('click', e => {
 ['#evYear','#ev2030','#ev2035','#ev2040','#evGrowth','#evKm','#evCons','#evLoss','#evPeakKw','#evSmartKw','#evLf','#evSmart'].forEach(s => $(s).addEventListener('input', evRender));
 let playTimer = null;
 $('#evPlay').onclick = () => {
-  if (playTimer){ clearInterval(playTimer); playTimer = null; $('#evPlay').textContent = '▶'; return; }
+  if (playTimer){ clearInterval(playTimer); playTimer = null; $('#evPlay').textContent = ''; return; }
   // haritada EV puant katmanını göster
   $('#lyrEdas').checked = true; $('#edasMetric').value = 'ev_puant_pct'; A.syncLayerChecks(); A.applyMetric(); A.renderLegend();
-  $('#evYear').value = 2026; evRender(); $('#evPlay').textContent = '⏸';
+  $('#evYear').value = 2026; evRender(); $('#evPlay').textContent = '';
   playTimer = setInterval(() => {
     const y = +$('#evYear').value + 1;
-    if (y > 2040){ clearInterval(playTimer); playTimer = null; $('#evPlay').textContent = '▶'; return; }
+    if (y > 2040){ clearInterval(playTimer); playTimer = null; $('#evPlay').textContent = ''; return; }
     $('#evYear').value = y; evRender();
   }, 900);
 };

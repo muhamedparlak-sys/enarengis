@@ -68,14 +68,14 @@ async function denizAnaliz(lng, lat){
   const ws = site.ws100, rec = [];
   if (kara) rec.push(['ℹ', 'Nokta karada', 'Kara için Analiz → çatı/arazi GES ve parsel araçlarını kullanın.']);
   else {
-    if (depth != null && depth <= 50 && ws >= 6) rec.push(['🌬', 'Sabit tabanlı açık deniz RES (monopile / jacket)', `Derinlik ~${fmt(depth)} m (≤ 50 m) ve 100 m rüzgâr ~${fmt(ws, 1)} m/s. Kıyıya ${fmt(kiyi, 1)} km — kablo maliyeti ${kiyi < 30 ? 'düşük' : 'yüksek'}.`]);
-    else if (depth != null && depth > 50 && depth <= 1000 && ws >= 6.5) rec.push(['🛟', 'Yüzer açık deniz RES', `Derinlik ~${fmt(depth)} m (50–1000 m bandı) — sabit temel ekonomik değil, yüzer platform (spar / yarı-dalgıç) gerekir.`]);
-    else if (ws != null && ws < 6) rec.push(['➖', 'Rüzgâr zayıf (kaba veri)', `100 m'de ~${fmt(ws, 1)} m/s; açık deniz RES için tipik eşik ≥ 7 m/s. Ölçüm (LiDAR şamandıra) önerilir.`]);
-    if (depth != null && depth > 1000) rec.push(['⚠', 'Çok derin', `~${fmt(depth)} m: mevcut teknolojiyle RES maliyeti çok yüksek.`]);
-    if (kiyi < 5 && depth != null && depth < 60) rec.push(['☀', 'Yüzer GES (korunaklı kıyı / koy)', `Kıyıya ${fmt(kiyi, 1)} km, sığ. Dalga yükü düşük koylarda, balık çiftlikleri ve liman alanlarıyla hibrit yüzer GES düşünülebilir. PV verimi ~${site.pvout ? fmt(site.pvout) : '–'} kWh/kWp (+%5–10 su soğutma etkisi).`]);
-    if (strait) rec.push(['🌊', `Akıntı türbini adayı – ${strait.ad}`, `${strait.akinti}. Deniz trafiği ve askerî/seyir kısıtları nedeniyle yalnızca kıyı kenarı pilotları gerçekçi.`]);
-    if (!strait) rec.push(['🌊', 'Akıntı enerjisi', 'Türkiye denizlerinde gelgit küçük; ekonomik akıntı potansiyeli büyük ölçüde boğazlarla sınırlı. Dalga enerjisi Karadeniz ve Ege açıklarında düşük–orta.']);
-    if (ws >= 6 && site.pvout) rec.push(['🔗', 'Hibrit RES + yüzer GES', 'Aynı sahada RES aralarına yüzer GES: kablo/trafo altyapısı ortak kullanılır, üretim profili dengelenir.']);
+    if (depth != null && depth <= 50 && ws >= 6) rec.push(['', 'Sabit tabanlı açık deniz RES (monopile / jacket)', `Derinlik ~${fmt(depth)} m (≤ 50 m) ve 100 m rüzgâr ~${fmt(ws, 1)} m/s. Kıyıya ${fmt(kiyi, 1)} km — kablo maliyeti ${kiyi < 30 ? 'düşük' : 'yüksek'}.`]);
+    else if (depth != null && depth > 50 && depth <= 1000 && ws >= 6.5) rec.push(['', 'Yüzer açık deniz RES', `Derinlik ~${fmt(depth)} m (50–1000 m bandı) — sabit temel ekonomik değil, yüzer platform (spar / yarı-dalgıç) gerekir.`]);
+    else if (ws != null && ws < 6) rec.push(['', 'Rüzgâr zayıf (kaba veri)', `100 m'de ~${fmt(ws, 1)} m/s; açık deniz RES için tipik eşik ≥ 7 m/s. Ölçüm (LiDAR şamandıra) önerilir.`]);
+    if (depth != null && depth > 1000) rec.push(['', 'Çok derin', `~${fmt(depth)} m: mevcut teknolojiyle RES maliyeti çok yüksek.`]);
+    if (kiyi < 5 && depth != null && depth < 60) rec.push(['', 'Yüzer GES (korunaklı kıyı / koy)', `Kıyıya ${fmt(kiyi, 1)} km, sığ. Dalga yükü düşük koylarda, balık çiftlikleri ve liman alanlarıyla hibrit yüzer GES düşünülebilir. PV verimi ~${site.pvout ? fmt(site.pvout) : '–'} kWh/kWp (+%5–10 su soğutma etkisi).`]);
+    if (strait) rec.push(['', `Akıntı türbini adayı – ${strait.ad}`, `${strait.akinti}. Deniz trafiği ve askerî/seyir kısıtları nedeniyle yalnızca kıyı kenarı pilotları gerçekçi.`]);
+    if (!strait) rec.push(['', 'Akıntı enerjisi', 'Türkiye denizlerinde gelgit küçük; ekonomik akıntı potansiyeli büyük ölçüde boğazlarla sınırlı. Dalga enerjisi Karadeniz ve Ege açıklarında düşük–orta.']);
+    if (ws >= 6 && site.pvout) rec.push(['', 'Hibrit RES + yüzer GES', 'Aynı sahada RES aralarına yüzer GES: kablo/trafo altyapısı ortak kullanılır, üretim profili dengelenir.']);
   }
   const html = `<table class="t">
     <tr><td>Konum</td><td>${lat.toFixed(4)}, ${lng.toFixed(4)}${kara ? ' (kara: ' + esc(kara.properties.il) + ')' : ''}</td></tr>

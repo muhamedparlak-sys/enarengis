@@ -11,14 +11,14 @@ const TR = {gw: 120, twh: 148, talep: 360.9}; // Ember (2023): 70 il uydu analiz
 // ---------------- UI ----------------
 const box = document.createElement('div');
 box.innerHTML = `
-  <details open id="catiTR"><summary>🇹🇷 Türkiye çatı GES – "çatıların %X'i kaplanırsa"</summary>
+  <details open id="catiTR"><summary>Türkiye çatı GES – "çatıların %X'i kaplanırsa"</summary>
     <div class="slider"><span>Kaplama</span><input type="range" id="trPct" min="5" max="100" step="5" value="25"><b id="trPctL">%25</b></div>
     <div id="trRes" class="result"></div>
     <div id="trBars" class="bars"></div>
     <small class="muted">Taban: Türkiye çatılarının teknik potansiyeli ≥120 GW / 148 TWh (Ember 2023, yüksek çözünürlüklü uydu görüntüsü analizi). Bölge dağılımı tüketici sayısı ve ışınımla yaklaşık.</small>
   </details>
-  <details open id="catiMah"><summary>🏘 Mahalle çatı GES önerisi</summary>
-    <p class="hint" id="mahHint">☰ → Parsel'den il, ilçe ve <b>mahalle</b> seçin ya da haritada bir mahalleye yakınlaşıp "Bu görünüm"e basın.</p>
+  <details open id="catiMah"><summary>Mahalle çatı GES önerisi</summary>
+    <p class="hint" id="mahHint">→ Parsel'den il, ilçe ve <b>mahalle</b> seçin ya da haritada bir mahalleye yakınlaşıp "Bu görünüm"e basın.</p>
     <div class="btnrow"><button id="btnMahCalc" class="btn primary">Seçili mahalle için hesapla</button><button id="btnViewCalc" class="btn">Bu görünüm</button></div>
     <div class="slider"><span>Çatı kaplama</span><input type="range" id="mPct" min="5" max="100" step="5" value="30"><b id="mPctL">%30</b></div>
     <div class="grid2">
@@ -28,14 +28,14 @@ box.innerHTML = `
       <label>Yatırım (USD/kWp)<input type="number" id="mCapex" value="700" step="25"></label>
     </div>
     <div id="mahRes" class="result muted">Henüz hesaplanmadı.</div>
-    <div class="btnrow"><button id="btnMahReport" class="btn hidden">+ Rapora ekle</button><button id="btnMahFiz" class="btn hidden">☀ GES fizibilite raporu</button></div>
+    <div class="btnrow"><button id="btnMahReport" class="btn hidden">+ Rapora ekle</button><button id="btnMahFiz" class="btn hidden">GES fizibilite raporu</button></div>
   </details>`;
 const pane = $('#pane-analiz'); pane.prepend(box);
 // eski çizerek hesaplayıcıyı "tek çatı (gelişmiş)" olarak küçült
 const old = [...pane.querySelectorAll('details')].find(d => d.querySelector('#gesResult'));
-if (old){ old.open = false; old.querySelector('summary').textContent = '✏ Tek çatı / nokta hesabı (gelişmiş)'; }
+if (old){ old.open = false; old.querySelector('summary').textContent = 'Tek çatı / nokta hesabı (gelişmiş)'; }
 // Parsel sekmesine kısayol
-$('#parselResult')?.insertAdjacentHTML('beforebegin', `<button id="btnMahFromParsel" class="btn" style="margin:6px 0">☀ Bu mahallenin çatı GES önerisi</button>`);
+$('#parselResult')?.insertAdjacentHTML('beforebegin', `<button id="btnMahFromParsel" class="btn" style="margin:6px 0">Bu mahallenin çatı GES önerisi</button>`);
 
 // ---------------- Türkiye geneli ----------------
 function trCalc(){
@@ -86,7 +86,7 @@ async function footprints(geom){
   return {n, area, cov: Math.max(cov, 0.01)};
 }
 async function calcFor(ad, geom){
-  $('#mahRes').className = 'result'; $('#mahRes').innerHTML = '⏳ Mahalle sınırı, bina izleri ve güneş verisi alınıyor…';
+  $('#mahRes').className = 'result'; $('#mahRes').innerHTML = 'Mahalle sınırı, bina izleri ve güneş verisi alınıyor…';
   A.goTab('analiz'); A.minimizeSheet();
   const alan = polyArea(geom);
   const fp = await footprints(geom);

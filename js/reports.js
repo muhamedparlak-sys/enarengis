@@ -91,9 +91,9 @@ function renderForm(){
   const f = $('#rForm'); f.classList.remove('hidden');
   if (rtype === 'ges'){
     const p = lastPoint();
-    f.innerHTML = `<b>☀ GES Fizibilite – konum</b>
+    f.innerHTML = `<b>GES Fizibilite – konum</b>
       <p class="hint">${p ? `Kullanılacak konum: <b>${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}</b> (${esc(p.ad)}).` : 'Konum yok.'} Farklı bir yer için haritadan seçin.</p>
-      <div class="btnrow"><button class="btn" id="rgPick">📍 Haritadan seç</button></div>
+      <div class="btnrow"><button class="btn" id="rgPick">Haritadan seç</button></div>
       <div class="grid2">
         <label>Tip<select id="rgTip"><option value="arazi">Arazi GES</option><option value="cati">Çatı GES</option></select></label>
         <label>Kurulu güç (kWp)<input type="number" id="rgKwp" value="${Math.round(state.lastGes?.kwp || 1000)}"></label>
@@ -111,15 +111,15 @@ function renderForm(){
     $('#rgGo').onclick = () => gesReport(lastPoint());
   } else if (rtype === 'bolge'){
     const sel = state.edas.features.map(x => x.properties.edas).sort((a, b) => a.localeCompare(b, 'tr'));
-    f.innerHTML = `<b>🗺 Bölge seçin</b><label class="block"><select id="rbEdas">${sel.map(s => `<option>${esc(s)}</option>`).join('')}</select></label>
+    f.innerHTML = `<b>Bölge seçin</b><label class="block"><select id="rbEdas">${sel.map(s => `<option>${esc(s)}</option>`).join('')}</select></label>
       <p class="hint">EV senaryosu sekmesindeki ön ayar ve varsayımlar kullanılır (şu an: ${esc($('#evPreset .chip.active')?.textContent || 'Orta')}).</p>
       <button class="btn primary" id="rbGo">Raporu oluştur</button>`;
     const ed = A.whichFeature(state.edas, [map.getCenter().lng, map.getCenter().lat]); if (ed) $('#rbEdas').value = ed.properties.edas;
     $('#rbGo').onclick = () => bolgeReport($('#rbEdas').value);
   } else if (rtype === 'deniz'){
     const d = state.lastDenizData;
-    f.innerHTML = `<b>🌊 Deniz sahası</b><p class="hint">${d ? `Son analiz edilen nokta: <b>${d.lat.toFixed(3)}, ${d.lng.toFixed(3)}</b>.` : 'Önce bir deniz noktası seçin.'}</p>
-      <div class="btnrow"><button class="btn" id="rdPick">🌊 Denizde nokta seç</button><button class="btn primary" id="rdGo" ${d && !d.kara ? '' : 'disabled'}>Raporu oluştur</button></div>`;
+    f.innerHTML = `<b>Deniz sahası</b><p class="hint">${d ? `Son analiz edilen nokta: <b>${d.lat.toFixed(3)}, ${d.lng.toFixed(3)}</b>.` : 'Önce bir deniz noktası seçin.'}</p>
+      <div class="btnrow"><button class="btn" id="rdPick">Denizde nokta seç</button><button class="btn primary" id="rdGo" ${d && !d.kara ? '' : 'disabled'}>Raporu oluştur</button></div>`;
     $('#rdPick').onclick = () => pickPoint(async ll => { await window.ENAREN_DENIZ.denizAnaliz(ll.lng, ll.lat); A.goTab('rapor'); renderForm(); });
     $('#rdGo').onclick = () => denizReport(state.lastDenizData);
   }
@@ -128,7 +128,7 @@ function pickPoint(cb){
   state.mode = 'rpick'; $('#modeBanner').textContent = 'Rapor için haritada bir nokta seçin'; $('#modeBanner').classList.remove('hidden'); A.minimizeSheet();
   map.once('click', e => { state.mode = null; $('#modeBanner').classList.add('hidden'); A.openSheet(); A.goTab('rapor'); cb(e.lngLat); });
 }
-function busy(t){ $('#rForm').insertAdjacentHTML('beforeend', `<p class="hint" id="rBusy">⏳ ${esc(t)}</p>`); }
+function busy(t){ $('#rForm').insertAdjacentHTML('beforeend', `<p class="hint" id="rBusy">${esc(t)}</p>`); }
 function unbusy(){ $('#rBusy')?.remove(); }
 
 // ---------------- 1) GES FİZİBİLİTE ----------------
@@ -231,14 +231,14 @@ async function bolgeReport(edas){
   const kiyi = /Akdeniz|ADM|GDZ|Uludağ|Trakya|Boğaziçi|Sakarya|Başkent|Yeşilırmak|Çoruh|Toroslar/.test(edas);
   // öneriler (kural tabanlı, önceliklendirilmiş)
   const recs = [];
-  if (p.ghi >= 1650) recs.push([1, '☀ Arazi ve tarımsal GES (agrivoltaik)', `Ortalama ışınım ${fmt(p.ghi)} kWh/m² ile Türkiye ortalamasının (${fmt(avg('ghi'))}) üzerinde; en yüksek il ${esc(ghiBest.il)} (${fmt(ghiMax)}). YEKA ve lisanssız saha havuzu oluşturulabilir.`]);
-  else recs.push([3, '☀ Çatı ve sanayi GES', `Işınım ${fmt(p.ghi)} kWh/m²; büyük arazi GES yerine OSB çatıları ve kamu binaları öncelikli.`]);
-  if (st.ws50max != null && st.ws50max >= 5.5) recs.push([1, '🌬 RES', `Bölgedeki 50 m rüzgâr hızı kaba ızgarada en yüksek ${fmt(st.ws50max, 1)} m/s (ortalama ${fmt(st.ws50, 1)}). Global Wind Atlas / ölçüm direğiyle mikro-saha seçimi önerilir.`]);
-  if (p.kayip >= 10) recs.push([1, '⚡ Kayıp-kaçak ve akıllı şebeke', `Gerçekleşen kayıp oranı %${fmt(p.kayip, 1)} (Türkiye sıralaması ${rank('kayip')}./20). Akıllı sayaç, mekânsal kayıp analizi ve şebeke yenileme en yüksek getirili yatırım.`]);
-  if (e35.ev_puant_pct >= 8) recs.push([2, '🔌 Akıllı şarj ve depolama', `2035'te EV kaynaklı akşam puantı ~${fmt(e35.mw)} MW (tahmini mevcut puantın %${fmt(e35.ev_puant_pct, 1)}'i). Zaman tarifeli/akıllı şarj ve dağıtım trafosu seviyesinde batarya ile ertelenebilir.`]);
-  recs.push([2, '🏘 Yerinde üretim', `EV ek talebini karşılamak için 2035'e kadar ~${fmt(e35.mwp)} MWp, 2040'a kadar ~${fmt(e40.mwp)} MWp çatı GES gerekir.`]);
-  if (kiyi) recs.push([3, '🌊 Deniz enerjisi', 'Kıyı bölgesi: açık deniz RES ve korunaklı koylarda yüzer GES için Deniz sekmesinden saha taraması yapılabilir.']);
-  recs.push([3, '🧭 Veri', 'TUCBS lisanssız GES/RES santral sahaları, YEKA alanları ve EDAŞ bağlantı kayıtlarıyla katman zenginleştirme.']);
+  if (p.ghi >= 1650) recs.push([1, 'Arazi ve tarımsal GES (agrivoltaik)', `Ortalama ışınım ${fmt(p.ghi)} kWh/m² ile Türkiye ortalamasının (${fmt(avg('ghi'))}) üzerinde; en yüksek il ${esc(ghiBest.il)} (${fmt(ghiMax)}). YEKA ve lisanssız saha havuzu oluşturulabilir.`]);
+  else recs.push([3, 'Çatı ve sanayi GES', `Işınım ${fmt(p.ghi)} kWh/m²; büyük arazi GES yerine OSB çatıları ve kamu binaları öncelikli.`]);
+  if (st.ws50max != null && st.ws50max >= 5.5) recs.push([1, 'RES', `Bölgedeki 50 m rüzgâr hızı kaba ızgarada en yüksek ${fmt(st.ws50max, 1)} m/s (ortalama ${fmt(st.ws50, 1)}). Global Wind Atlas / ölçüm direğiyle mikro-saha seçimi önerilir.`]);
+  if (p.kayip >= 10) recs.push([1, 'Kayıp-kaçak ve akıllı şebeke', `Gerçekleşen kayıp oranı %${fmt(p.kayip, 1)} (Türkiye sıralaması ${rank('kayip')}./20). Akıllı sayaç, mekânsal kayıp analizi ve şebeke yenileme en yüksek getirili yatırım.`]);
+  if (e35.ev_puant_pct >= 8) recs.push([2, 'Akıllı şarj ve depolama', `2035'te EV kaynaklı akşam puantı ~${fmt(e35.mw)} MW (tahmini mevcut puantın %${fmt(e35.ev_puant_pct, 1)}'i). Zaman tarifeli/akıllı şarj ve dağıtım trafosu seviyesinde batarya ile ertelenebilir.`]);
+  recs.push([2, 'Yerinde üretim', `EV ek talebini karşılamak için 2035'e kadar ~${fmt(e35.mwp)} MWp, 2040'a kadar ~${fmt(e40.mwp)} MWp çatı GES gerekir.`]);
+  if (kiyi) recs.push([3, 'Deniz enerjisi', 'Kıyı bölgesi: açık deniz RES ve korunaklı koylarda yüzer GES için Deniz sekmesinden saha taraması yapılabilir.']);
+  recs.push([3, 'Veri', 'TUCBS lisanssız GES/RES santral sahaları, YEKA alanları ve EDAŞ bağlantı kayıtlarıyla katman zenginleştirme.']);
   recs.sort((a, b) => a[0] - b[0]);
   const img = await snapshot({bounds: A.bbox(f.geometry), show:['edas-fill','edas-line','oim-lines'], hide:['wind','solar']});
   A.selectEdas(null);

@@ -11,19 +11,19 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&l
 
 // ---------------- Kaynak sözlüğü ----------------
 const K = {
-  hidro:       {ad:'Hidroelektrik (baraj/akarsu)', kisa:'Hidro', renk:'#1f78b4', ikon:'💧', yerli:1},
-  gunes:       {ad:'Güneş', kisa:'Güneş', renk:'#f2a900', ikon:'☀️', yerli:1},
-  ruzgar:      {ad:'Rüzgâr', kisa:'Rüzgâr', renk:'#41b6c4', ikon:'💨', yerli:1},
-  jeotermal:   {ad:'Jeotermal', kisa:'Jeotermal', renk:'#e7298a', ikon:'♨️', yerli:1},
-  biyokutle:   {ad:'Biyokütle / atık', kisa:'Biyokütle', renk:'#33a02c', ikon:'🌿', yerli:1},
-  linyit:      {ad:'Yerli kömür (linyit, taşkömürü, asfaltit)', kisa:'Yerli kömür', renk:'#8c6d31', ikon:'🪨', yerli:1},
-  nukleer:     {ad:'Nükleer', kisa:'Nükleer', renk:'#6a3d9a', ikon:'⚛️', yerli:0.5},
-  dogalgaz:    {ad:'Doğal gaz (%95+ ithal)', kisa:'Doğal gaz', renk:'#d95f02', ikon:'🔥', yerli:0.05},
-  ithal_komur: {ad:'İthal kömür', kisa:'İthal kömür', renk:'#444444', ikon:'⚫', yerli:0},
-  petrol:      {ad:'Petrol / fuel-oil', kisa:'Petrol', renk:'#1a1a1a', ikon:'🛢️', yerli:0.15},
-  dogalgaz_kaynak:{ad:'Yerli doğal gaz', renk:'#d95f02', ikon:'🔥'}, petrol_kaynak:{ad:'Yerli petrol', renk:'#1a1a1a', ikon:'🛢️'},
-  linyit_kaynak:{ad:'Kömür havzası', renk:'#8c6d31', ikon:'⛏️'}, depolama:{ad:'Gaz depolama', renk:'#7570b3', ikon:'🔋'},
-  boru:{ad:'Boru hattı girişi', renk:'#7570b3', ikon:'🧭'}, bor:{ad:'Bor / lityum', renk:'#66a61e', ikon:'💎'}, toryum:{ad:'Toryum / nadir toprak', renk:'#e6ab02', ikon:'☢️'}
+  hidro:       {ad:'Hidroelektrik (baraj/akarsu)', kisa:'Hidro', renk:'#1f78b4', ikon:'', yerli:1},
+  gunes:       {ad:'Güneş', kisa:'Güneş', renk:'#f2a900', ikon:'', yerli:1},
+  ruzgar:      {ad:'Rüzgâr', kisa:'Rüzgâr', renk:'#41b6c4', ikon:'', yerli:1},
+  jeotermal:   {ad:'Jeotermal', kisa:'Jeotermal', renk:'#e7298a', ikon:'', yerli:1},
+  biyokutle:   {ad:'Biyokütle / atık', kisa:'Biyokütle', renk:'#33a02c', ikon:'', yerli:1},
+  linyit:      {ad:'Yerli kömür (linyit, taşkömürü, asfaltit)', kisa:'Yerli kömür', renk:'#8c6d31', ikon:'', yerli:1},
+  nukleer:     {ad:'Nükleer', kisa:'Nükleer', renk:'#6a3d9a', ikon:'', yerli:0.5},
+  dogalgaz:    {ad:'Doğal gaz (%95+ ithal)', kisa:'Doğal gaz', renk:'#d95f02', ikon:'', yerli:0.05},
+  ithal_komur: {ad:'İthal kömür', kisa:'İthal kömür', renk:'#444444', ikon:'', yerli:0},
+  petrol:      {ad:'Petrol / fuel-oil', kisa:'Petrol', renk:'#1a1a1a', ikon:'', yerli:0.15},
+  dogalgaz_kaynak:{ad:'Yerli doğal gaz', renk:'#d95f02', ikon:''}, petrol_kaynak:{ad:'Yerli petrol', renk:'#1a1a1a', ikon:''},
+  linyit_kaynak:{ad:'Kömür havzası', renk:'#8c6d31', ikon:''}, depolama:{ad:'Gaz depolama', renk:'#7570b3', ikon:''},
+  boru:{ad:'Boru hattı girişi', renk:'#7570b3', ikon:''}, bor:{ad:'Bor / lityum', renk:'#66a61e', ikon:''}, toryum:{ad:'Toryum / nadir toprak', renk:'#e6ab02', ikon:''}
 };
 const DURUM = {uretim:['Üretimde','#1f8a4c'], insa:['İnşa / devreye alma','#f2a900'], plan:['Planlama','#7570b3'], ihale:['YEKA ihalesi','#e6550d']};
 
@@ -41,15 +41,17 @@ function makeIcon(id, emoji, color, ring){
   g.fillText(emoji, s / 2, s / 2 + 2);
   if (!map.hasImage(id)) map.addImage(id, g.getImageData(0, 0, s, s), {pixelRatio: 2});
 }
-function addIcons(){
-  Object.entries(K).forEach(([k, v]) => makeIcon('ic-' + k, v.ikon, v.renk));
-  Object.entries(DURUM).forEach(([d, [, col]]) => Object.entries(K).forEach(([k, v]) => makeIcon(`ic-${k}-${d}`, v.ikon, v.renk, col)));
+async function addIcons(){
+  const jobs = [];
+  Object.entries(K).forEach(([k, v]) => jobs.push(window.ICON_MARKER(map, 'ic-' + k, k, v.renk)));
+  Object.entries(DURUM).forEach(([d, [, col]]) => Object.entries(K).forEach(([k, v]) => jobs.push(window.ICON_MARKER(map, `ic-${k}-${d}`, k, v.renk, col))));
+  await Promise.all(jobs);
 }
 
 // ---------------- Katmanlar ----------------
 const ready = (fn) => { const t = setInterval(() => { if (state.edas && map.getSource('ofm') && map.isStyleLoaded()){ clearInterval(t); fn(); } }, 300); };
 ready(async () => {
-  addIcons();
+  await addIcons();
   const [sant, strat] = await Promise.all(['data/santraller.geojson?v=12', 'data/stratejik.geojson?v=12'].map(u => fetch(u).then(r => r.json())));
   state.santral = sant; state.stratejik = strat;
   const size = ['interpolate', ['linear'], ['sqrt', ['coalesce', ['get', 'mw'], 300]], 3, 0.32, 20, 0.6, 40, 0.95, 70, 1.45];
@@ -80,8 +82,8 @@ ready(async () => {
       if (state.mode) return;
       const p = e.features[0].properties, k = K[p.kaynak] || {};
       const html = l === 'santral'
-        ? `<div class="pop"><h5>${k.ikon || ''} ${esc(p.ad)}</h5><table><tr><td>Kaynak</td><td>${esc(k.ad || p.kaynak)}</td></tr><tr><td>Kurulu güç</td><td>${fmt(p.mw)} MW</td></tr>${p.sahip ? `<tr><td>Sahip</td><td>${esc(p.sahip)}</td></tr>` : ''}${p.uretim_gwh ? `<tr><td>Tahmini üretim (2017)</td><td>${fmt(p.uretim_gwh)} GWh</td></tr>` : ''}</table><small class="muted">WRI Global Power Plant Database v1.3 (2021); güncel envanter için EPDK lisans verisi.</small></div>`
-        : `<div class="pop"><h5>${k.ikon || ''} ${esc(p.ad)}</h5><table><tr><td>Durum</td><td>${esc(DURUM[p.durum]?.[0] || p.durum)}</td></tr>${p.mw && p.mw !== 'null' ? `<tr><td>Güç</td><td>${fmt(p.mw)} MW</td></tr>` : ''}</table><p style="margin:6px 0 0;font-size:12.5px">${esc(p.aciklama)}</p></div>`;
+        ? `<div class="pop"><h5>${window.ICON(p.kaynak, 18, k.renk || '#0f3d5e', 2)} ${esc(p.ad)}</h5><table><tr><td>Kaynak</td><td>${esc(k.ad || p.kaynak)}</td></tr><tr><td>Kurulu güç</td><td>${fmt(p.mw)} MW</td></tr>${p.sahip ? `<tr><td>Sahip</td><td>${esc(p.sahip)}</td></tr>` : ''}${p.uretim_gwh ? `<tr><td>Tahmini üretim (2017)</td><td>${fmt(p.uretim_gwh)} GWh</td></tr>` : ''}</table><small class="muted">WRI Global Power Plant Database v1.3 (2021); güncel envanter için EPDK lisans verisi.</small></div>`
+        : `<div class="pop"><h5>${window.ICON(p.kaynak, 18, k.renk || '#0f3d5e', 2)} ${esc(p.ad)}</h5><table><tr><td>Durum</td><td>${esc(DURUM[p.durum]?.[0] || p.durum)}</td></tr>${p.mw && p.mw !== 'null' ? `<tr><td>Güç</td><td>${fmt(p.mw)} MW</td></tr>` : ''}</table><p style="margin:6px 0 0;font-size:12.5px">${esc(p.aciklama)}</p></div>`;
       new maplibregl.Popup({maxWidth:'290px'}).setLngLat(e.lngLat).setHTML(html).addTo(map);
       e.preventDefault?.();
     });
@@ -180,7 +182,7 @@ function senaryo(){
   const yerli = Object.values(gen).reduce((s, x) => s + x, 0), fark = yerli - talep;
   const max = Math.max(talep, yerli) * 1.05;
   const seg = (k, val, col, lbl) => val > 0 ? `<div class="seg" style="width:${val / max * 100}%;background:${col}" title="${lbl}: ${fmt(val)} TWh">${val / max > 0.07 ? lbl : ''}</div>` : '';
-  $('#svBar').innerHTML = `<div class="stack">${seg('hidro', gen.hidro, K.hidro.renk, '💧')}${seg('gunes', gen.gunes, K.gunes.renk, '☀️')}${seg('ruzgar', gen.ruzgar, K.ruzgar.renk, '💨')}${seg('jeo', gen.jeobiyo, K.jeotermal.renk, '♨️🌿')}${seg('linyit', gen.linyit, K.linyit.renk, '🪨')}${seg('nuk', gen.nukleer, K.nukleer.renk, '⚛️')}${fark < 0 ? `<div class="seg gap" style="width:${-fark / max * 100}%">ithal yakıt</div>` : ''}</div>
+  $('#svBar').innerHTML = `<div class="stack">${seg('hidro', gen.hidro, K.hidro.renk, window.ICON('hidro',16,'#fff',2))}${seg('gunes', gen.gunes, K.gunes.renk, window.ICON('gunes',16,'#fff',2))}${seg('ruzgar', gen.ruzgar, K.ruzgar.renk, window.ICON('ruzgar',16,'#fff',2))}${seg('jeo', gen.jeobiyo, K.jeotermal.renk, window.ICON('jeotermal',16,'#fff',2))}${seg('linyit', gen.linyit, K.linyit.renk, window.ICON('linyit',16,'#fff',2))}${seg('nuk', gen.nukleer, K.nukleer.renk, window.ICON('nukleer',16,'#fff',2))}${fark < 0 ? `<div class="seg gap" style="width:${-fark / max * 100}%">ithal yakıt</div>` : ''}</div>
     <div class="demand" style="left:${talep / max * 100}%"><span>Talep ${fmt(talep)} TWh</span></div>`;
   const usd = fark * 1e6 * 70 / 1e9; // 70 $/MWh ihracat değeri varsayımı
   $('#svOut').innerHTML = fark >= 0
@@ -191,7 +193,7 @@ function senaryo(){
 
 // ---------------- Vizyon sekmesi ----------------
 function stackBar(parts, total, unit){
-  return `<div class="stack">${parts.map(([k, v, lbl]) => `<div class="seg" style="width:${v / total * 100}%;background:${(K[k] || {}).renk || k}" title="${esc(lbl)}: ${fmt(v, 1)} ${unit}">${v / total > 0.075 ? (K[k]?.ikon || '') : ''}</div>`).join('')}</div>
+  return `<div class="stack">${parts.map(([k, v, lbl]) => `<div class="seg" style="width:${v / total * 100}%;background:${(K[k] || {}).renk || k}" title="${esc(lbl)}: ${fmt(v, 1)} ${unit}">${v / total > 0.075 && K[k] ? window.ICON(k, 16, '#fff', 2) : ''}</div>`).join('')}</div>
     <div class="legend2">${parts.map(([k, v, lbl]) => `<span><i style="background:${(K[k] || {}).renk || k}"></i>${esc(lbl)} ${fmt(v, 1)}</span>`).join('')}</div>`;
 }
 function renderVizyon(){
@@ -201,18 +203,18 @@ function renderVizyon(){
   const prim = BIRINCIL_2024.map(([k, p, ith]) => [k, p, ith]);
   const ithalPay = prim.reduce((s, [, p, i]) => s + p * i, 0);
   const kaynaklar = [
-    ['☀️','Güneş','Konya, Karaman, Antalya, GA Anadolu','GES, agrivoltaik, yüzer GES','28,2 GW kurulu','2035: 76,9 GW',[33.5,37.7]],
-    ['💨','Rüzgâr','Ege, Marmara, Trakya, Kuzey Ege denizi','Kara ve açık deniz RES','15,5 GW','2035: 43,1 GW',[26.5,39.8]],
-    ['💧','Su','Fırat-Dicle, Çoruh, Kızılırmak','Barajlı/akarsu HES, pompaj depolama','32,3 GW','—',[38.3,37.5]],
-    ['♨️','Jeotermal','Denizli, Aydın, Manisa','Elektrik + sera/şehir ısıtma','1,8 GW','—',[28.8,37.9]],
-    ['🌿','Biyokütle','Tarım ve hayvancılık havzaları','Biyogaz, biyometan','2,4 GW','—',[32.5,39]],
-    ['🪨','Linyit / taşkömürü','Afşin-Elbistan, Soma, Zonguldak','Termik, gazlaştırma','11,6 GW','—',[36.95,38.25]],
-    ['🔥','Doğal gaz (yerli)','Karadeniz – Sakarya sahası','Esnek santral, sanayi','Üretimde','Üretim artışı (faz 2–3)',[31.4,42.6]],
-    ['🛢️','Petrol (yerli)','Gabar, Şırnak','Ulaşım yakıtı','Üretimde','—',[42.35,37.55]],
-    ['⚛️','Nükleer','Akkuyu, Sinop, Trakya','Baz yük','Akkuyu 4,8 GW inşa','2050: 20 GW',[33.53,36.14]],
-    ['💎','Bor / lityum','Eskişehir, Balıkesir, Kütahya','Batarya, hidrojen depolama','BOREN lityum tesisi','—',[30.53,39.29]],
-    ['☢️','Toryum / nadir toprak','Eskişehir Beylikova','Gelecek reaktörleri, mıknatıslar','Ar-Ge (NATEN)','Ar-Ge',[31.2,39.68]],
-    ['🌊','Deniz','Karadeniz, Ege, Akdeniz','Açık deniz RES, yüzer GES, akıntı','Ön tarama','—',[26.2,39.6]]
+    ['gunes','Güneş','Konya, Karaman, Antalya, GA Anadolu','GES, agrivoltaik, yüzer GES','28,2 GW kurulu','2035: 76,9 GW',[33.5,37.7]],
+    ['ruzgar','Rüzgâr','Ege, Marmara, Trakya, Kuzey Ege denizi','Kara ve açık deniz RES','15,5 GW','2035: 43,1 GW',[26.5,39.8]],
+    ['hidro','Su','Fırat-Dicle, Çoruh, Kızılırmak','Barajlı/akarsu HES, pompaj depolama','32,3 GW','—',[38.3,37.5]],
+    ['jeotermal','Jeotermal','Denizli, Aydın, Manisa','Elektrik + sera/şehir ısıtma','1,8 GW','—',[28.8,37.9]],
+    ['biyokutle','Biyokütle','Tarım ve hayvancılık havzaları','Biyogaz, biyometan','2,4 GW','—',[32.5,39]],
+    ['linyit','Linyit / taşkömürü','Afşin-Elbistan, Soma, Zonguldak','Termik, gazlaştırma','11,6 GW','—',[36.95,38.25]],
+    ['dogalgaz','Doğal gaz (yerli)','Karadeniz – Sakarya sahası','Esnek santral, sanayi','Üretimde','Üretim artışı (faz 2–3)',[31.4,42.6]],
+    ['petrol','Petrol (yerli)','Gabar, Şırnak','Ulaşım yakıtı','Üretimde','—',[42.35,37.55]],
+    ['nukleer','Nükleer','Akkuyu, Sinop, Trakya','Baz yük','Akkuyu 4,8 GW inşa','2050: 20 GW',[33.53,36.14]],
+    ['bor','Bor / lityum','Eskişehir, Balıkesir, Kütahya','Batarya, hidrojen depolama','BOREN lityum tesisi','—',[30.53,39.29]],
+    ['toryum','Toryum / nadir toprak','Eskişehir Beylikova','Gelecek reaktörleri, mıknatıslar','Ar-Ge (NATEN)','Ar-Ge',[31.2,39.68]],
+    ['deniz','Deniz','Karadeniz, Ege, Akdeniz','Açık deniz RES, yüzer GES, akıntı','Ön tarama','—',[26.2,39.6]]
   ];
   $('#pane-vizyon').innerHTML = `
     <div class="manifest"><b>Türkiye enerji görünümü</b>
@@ -223,7 +225,7 @@ function renderVizyon(){
     <h3>Kurulu güç: Eylül 2026 · ${fmt(127.4, 1)} GW</h3>
     ${stackBar(cap, 127.355, 'GW')}
     <h3>Birincil enerji (tüm sektörler, 2024) – ithal payı</h3>
-    <div class="stack">${prim.map(([k, p, i]) => `<div class="seg" style="width:${p * i}%;background:${K[k].renk}" title="${K[k].kisa} ithal">${p * i > 7 ? '🚢' : ''}</div>`).join('')}${prim.map(([k, p, i]) => `<div class="seg yerli" style="width:${p * (1 - i)}%;background:${K[k].renk}" title="${K[k].kisa} yerli"></div>`).join('')}</div>
+    <div class="stack">${prim.map(([k, p, i]) => `<div class="seg" style="width:${p * i}%;background:${K[k].renk}" title="${K[k].kisa} ithal"></div>`).join('')}${prim.map(([k, p, i]) => `<div class="seg yerli" style="width:${p * (1 - i)}%;background:${K[k].renk}" title="${K[k].kisa} yerli"></div>`).join('')}</div>
     <p class="hint">Birincil enerjinin yaklaşık <b>%${fmt(ithalPay)}</b>'i ithal (koyu kısım); Bakanlık açıklamasına göre dışa bağımlılık %68. 2025 net enerji ithalatı <b>47,2 milyar $</b>.</p>
 
     <h3>Resmî hedefler ve ilerleme</h3>
@@ -231,25 +233,25 @@ function renderVizyon(){
     <h3>Senaryo aracı: kurulu güç → yerli üretim / talep</h3>
     <div class="chips" id="svPreset"><button class="chip" data-p="bugun">2025</button><button class="chip active" data-p="hedef35">Bakanlık 2035 hedefi</button></div>
     <div id="svBar" class="svbar"></div><div id="svOut"></div>
-    <details><summary>⚙ Kurulu güç (GW) ve talep</summary><div class="grid2">
+    <details><summary>Kurulu güç (GW) ve talep</summary><div class="grid2">
       <label>Yıl<input type="number" id="sv-yil"></label><label>Talep artışı (%/yıl)<input type="number" id="sv-buyume" step="0.5"></label>
-      <label>☀️ Güneş<input type="number" id="sv-gunes" step="5"></label><label>💨 Rüzgâr (kara+deniz)<input type="number" id="sv-ruzgar" step="5"></label>
-      <label>💧 Hidro<input type="number" id="sv-hidro" step="1"></label><label>♨️🌿 Jeotermal+biyokütle<input type="number" id="sv-jeobiyo" step="1"></label>
-      <label>🪨 Yerli kömür<input type="number" id="sv-linyit" step="1"></label><label>⚛️ Nükleer<input type="number" id="sv-nukleer" step="1.2"></label></div>
+      <label>Güneş<input type="number" id="sv-gunes" step="5"></label><label>Rüzgâr (kara+deniz)<input type="number" id="sv-ruzgar" step="5"></label>
+      <label>Hidro<input type="number" id="sv-hidro" step="1"></label><label>Jeotermal + biyokütle<input type="number" id="sv-jeobiyo" step="1"></label>
+      <label>Yerli kömür<input type="number" id="sv-linyit" step="1"></label><label>Nükleer<input type="number" id="sv-nukleer" step="1.2"></label></div>
       <p class="hint">Bakanlık 2035 hedefi: 76,9 GW güneş + 43,1 GW rüzgâr (toplam 120 GW); Akkuyu 4,8 GW. Diğer kalemler ve talep artışı kullanıcı varsayımıdır; değerleri değiştirerek kendi senaryonuzu kurabilirsiniz.</p></details>
 
     <h3>Haritada göster</h3>
     <label class="row"><input type="checkbox" id="lyrSantral" checked> Büyük santraller – kaynak ikonlu, güçle ölçekli</label>
     <label class="row"><input type="checkbox" id="lyrStrat" checked> Stratejik projeler ve ulusal kaynaklar</label>
-    <label class="row"><input type="checkbox" id="lyrAkis"> ⚡ Bölgeler arası elektrik akışı simülasyonu</label>
+    <label class="row"><input type="checkbox" id="lyrAkis"> Bölgeler arası elektrik akışı simülasyonu</label>
     <div id="akisTablo"></div>
     <label class="row"><input type="checkbox" id="lyrTarim"> Tarım ve sanayi alanları (OSM)</label>
-    <div class="btnrow"><button id="btnLand" class="btn">🌾🏭 Görünümde tarım/sanayi potansiyeli</button></div>
+    <div class="btnrow"><button id="btnLand" class="btn">Görünümde tarım ve sanayi potansiyeli</button></div>
     <div id="landRes" class="result muted">Bir OSB veya tarım havzasına yakınlaşıp hesaplayın.</div>
     <div class="legend2" style="margin-top:6px">${Object.entries(DURUM).map(([, [l, c]]) => `<span><i style="background:#fff;border:3px solid ${c}"></i>${l}</span>`).join('')}</div>
 
     <h3>Kaynaklar → enerji türleri</h3>
-    <div class="matrix">${kaynaklar.map(([i, ad, yer, enerji, bugun, vizyon, c]) => `<div class="mrow" data-c="${c.join(',')}"><b>${i} ${ad}</b><span>📍 ${yer}</span><span>⚡ ${enerji}</span><span>Durum: ${bugun} · Plan/hedef: ${vizyon}</span></div>`).join('')}</div>
+    <div class="matrix">${kaynaklar.map(([i, ad, yer, enerji, bugun, vizyon, c]) => `<div class="mrow" data-c="${c.join(',')}"><b>${window.ICON(i, 18, (K[i]||{}).renk || '#0f3d5e', 2)} ${ad}</b><span>${yer}</span><span>${enerji}</span><span>Durum: ${bugun} · Plan/hedef: ${vizyon}</span></div>`).join('')}</div>
     <p class="hint">Kaynaklar: ETKB kurulu güç (Eylül 2026), EPİAŞ/SHURA 2025 üretim, ETKB/SHURA birincil enerji 2024, ETKB 2040 yol haritası; santral noktaları WRI Global Power Plant Database (2021, büyük santraller), stratejik proje konumları yaklaşık.</p>`;
   $('#svPreset').addEventListener('click', e => { const k = e.target.dataset.p; if (!k) return; $$('#svPreset .chip').forEach(c => c.classList.toggle('active', c === e.target)); setPreset(k); });
   $$('[id^="sv-"]').forEach(i => i.addEventListener('input', senaryo));
@@ -288,7 +290,7 @@ const ALTLIK = {
 function renderGorevler(){
   const el = $('#enstituContent'); if (!el) return;
   $$('#enstituContent .duty').forEach(d => {
-    const t = d.querySelector('b')?.textContent; if (ALTLIK[t] && !d.querySelector('.altlik')) d.insertAdjacentHTML('beforeend', `<span class="altlik">🗺 <i>Altlık faydası:</i> ${esc(ALTLIK[t])}</span>`);
+    const t = d.querySelector('b')?.textContent; if (ALTLIK[t] && !d.querySelector('.altlik')) d.insertAdjacentHTML('beforeend', `<span class="altlik"><i>Altlık faydası:</i> ${esc(ALTLIK[t])}</span>`);
   });
 }
 window.ENAREN_VIZ = { computeFlows, senaryo };

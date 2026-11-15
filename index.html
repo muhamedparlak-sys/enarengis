@@ -5,18 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f3d5e">
 <title>ENAREN Enerji WebGIS – Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-<link rel="stylesheet" href="css/style.css?v=18">
+<link rel="stylesheet" href="css/style.css?v=19">
 </head>
 <body>
 <header class="topbar">
   <div class="brand">
-    <strong>ENAREN Enerji WebGIS</strong>
-    <span>demo · iletim · dağıtım · verimlilik</span>
+    <strong>ENAREN</strong>
+    <span>Enerji WebGIS</span>
   </div>
   <div class="top-actions">
-    <button id="btnParselTop" class="pill" title="Parsel sorgu">🔍 Parsel</button>
-    <button id="btnLocate" class="icon" title="Konumum" aria-label="Konumum">◎</button>
+    <button id="btnParselTop" class="pill" title="Parsel sorgu">Parsel</button>
+    <button id="btnLocate" class="icon" title="Konumum" aria-label="Konumum"></button>
   </div>
 </header>
 
@@ -27,7 +29,7 @@
 <section id="sheet" class="sheet">
   <button id="sheetHandle" class="handle" aria-label="Paneli aç/kapat"><span></span></button>
   <nav class="tabs" role="tablist">
-    <button class="tab active" data-tab="vizyon">🇹🇷 Vizyon</button>
+    <button class="tab active" data-tab="vizyon">Vizyon</button>
     <button class="tab" data-tab="katman">Katmanlar</button>
     <button class="tab" data-tab="analiz">Analiz</button>
     <button class="tab" data-tab="senaryo">EV Senaryo</button>
@@ -82,7 +84,7 @@
         <label>Opaklık <input type="range" id="wmsOpacity" min="0.2" max="1" step="0.1" value="0.7"></label>
       </div>
       <details>
-        <summary>➕ Kurumsal / harici WMS ekle</summary>
+        <summary>Kurumsal / harici WMS ekle</summary>
         <p class="hint">TUCBS, TKGM, HGM veya kurum içi servis adresinizi ekleyin (yalnızca bu tarayıcıda, kaydedilmez). Servis CORS'a izin vermelidir.</p>
         <label class="block">Servis adresi<input type="text" id="wmsUrl" placeholder="https://.../wms"></label>
         <label class="block">Katman adı<input type="text" id="wmsLayer" placeholder="ör. ortofoto_2025"></label>
@@ -95,11 +97,11 @@
     <!-- ANALİZ -->
     <div class="pane" id="pane-analiz">
       <details open>
-        <summary>☀ Çatı GES hesaplayıcı</summary>
+        <summary>Çatı GES hesaplayıcı</summary>
         <p class="hint">Haritada bir nokta seçin ya da çatıyı çizin (çizimde uydu altlığı otomatik açılır).</p>
         <div class="btnrow">
-          <button id="btnPickPoint" class="btn">📍 Nokta seç</button>
-          <button id="btnDraw" class="btn">✏ Çatıyı çiz</button>
+          <button id="btnPickPoint" class="btn">Nokta seç</button>
+          <button id="btnDraw" class="btn">Çatıyı çiz</button>
           <button id="btnDrawDone" class="btn hidden">✓ Bitir</button>
         </div>
         <div class="grid2">
@@ -115,14 +117,14 @@
       </details>
 
       <details>
-        <summary>🏘 Ortofoto + bina izi: çatı GES potansiyeli</summary>
+        <summary>Ortofoto + bina izi: çatı GES potansiyeli</summary>
         <p class="hint">Uydu/ortofoto altlığında görünür alandaki tüm binaların çatı izinden toplam GES potansiyelini hesaplar. Herhangi bir mahalleye yakınlaşıp "Hesapla"ya basın.</p>
         <div class="btnrow"><button id="btnBinaDemo" class="btn primary">Demo (Ankara Kızılay)</button><button id="btnBinaCalc" class="btn">Bu görünümde hesapla</button><button id="btnBinaReport" class="btn hidden">+ Rapora ekle</button></div>
         <div id="binaResult" class="result muted">Henüz hesaplanmadı.</div>
       </details>
 
       <details>
-        <summary>🔎 Ekrandaki altyapı özeti</summary>
+        <summary>Ekrandaki altyapı özeti</summary>
         <p class="hint">Haritada görünen alandaki OSM enerji öğelerini sayar (yakınlaştırınca daha ayrıntılı).</p>
         <button id="btnViewStats" class="btn">Görünümü analiz et</button>
         <div id="viewStats" class="result muted"></div>
@@ -130,14 +132,14 @@
       </details>
 
       <details>
-        <summary>📍 Nokta / parsel karşılaştırma (güneş + rüzgâr)</summary>
+        <summary>Nokta / parsel karşılaştırma (güneş + rüzgâr)</summary>
         <p class="hint">Haritada noktalar seçin veya Parsel sekmesinden parsel ekleyin; Global Solar Atlas (≈250 m) ve NASA POWER rüzgâr verisiyle yan yana karşılaştırılır. Denizdeki noktalar (açık deniz rüzgârı) da eklenebilir.</p>
-        <div class="btnrow"><button id="btnCmpPick" class="btn">📍 Nokta ekle</button><button id="btnCmpReport" class="btn primary hidden">+ Rapora ekle</button><button id="btnCmpClear" class="btn ghost hidden" style="margin-top:0">Temizle</button></div>
+        <div class="btnrow"><button id="btnCmpPick" class="btn">Nokta ekle</button><button id="btnCmpReport" class="btn primary hidden">+ Rapora ekle</button><button id="btnCmpClear" class="btn ghost hidden" style="margin-top:0">Temizle</button></div>
         <div id="cmpTable" class="result muted">Henüz nokta yok.</div>
       </details>
 
       <details>
-        <summary>📊 Bölge karşılaştırma</summary>
+        <summary>Bölge karşılaştırma</summary>
         <select id="rankMetric">
           <option value="toplam_twh">Faturalanan tüketim (TWh)</option>
           <option value="kayip">Kayıp oranı (%)</option>
@@ -160,13 +162,13 @@
         <button class="chip" data-p="tam">%100 dönüşüm</button>
       </div>
       <div class="yearbox">
-        <button id="evPlay" class="btn primary" aria-label="Oynat">▶</button>
+        <button id="evPlay" class="btn primary" aria-label="Oynat"></button>
         <input type="range" id="evYear" min="2026" max="2040" step="1" value="2035">
         <strong id="evYearLbl">2035</strong>
       </div>
       <div id="evNat" class="result"></div>
       <details>
-        <summary>⚙ Varsayımlar</summary>
+        <summary>Varsayımlar</summary>
         <div class="grid2">
           <label>EV payı 2030 (%)<input type="number" id="ev2030" value="8" step="0.5"></label>
           <label>EV payı 2035 (%)<input type="number" id="ev2035" value="18" step="0.5"></label>
@@ -201,10 +203,10 @@
       <div id="parselResult" class="result muted">Henüz sorgu yapılmadı.</div>
       <div class="btnrow">
         <button id="btnParselReport" class="btn primary hidden">+ Rapora ekle</button>
-        <button id="btnParselGes" class="btn hidden">☀ Bu parselde GES hesapla</button>
+        <button id="btnParselGes" class="btn hidden">Bu parselde GES hesapla</button>
       </div>
       <details>
-        <summary>⚙ Gelişmiş: proxy adresi</summary>
+        <summary>Gelişmiş: proxy adresi</summary>
         <p class="hint">TKGM limiti aşıldığında kendi proxy'nizi (ör. Cloudflare Worker / Supabase Edge Function, POST {url}) girebilirsiniz. Boş bırakılırsa doğrudan TKGM'ye gidilir.</p>
         <input type="text" id="pProxy" placeholder="https://...">
       </details>
@@ -213,23 +215,23 @@
     <!-- DENİZ -->
     <div class="pane" id="pane-deniz">
       <p class="hint">Türkiye'nin deniz yetki alanlarında (Mavi Vatan) açık deniz RES, yüzer GES ve akıntı enerjisi ön taraması. Denizde bir nokta seçin: derinlik (EMODnet), rüzgâr (NASA POWER), güneş (Global Solar Atlas), kıyı ve trafo mesafesi ile teknoloji önerisi üretilir.</p>
-      <div class="btnrow"><button id="btnDenizPick" class="btn primary">🌊 Denizde nokta seç</button><button id="btnDenizReport" class="btn hidden">+ Rapora ekle</button></div>
+      <div class="btnrow"><button id="btnDenizPick" class="btn primary">Denizde nokta seç</button><button id="btnDenizReport" class="btn hidden">+ Rapora ekle</button></div>
       <div id="denizResult" class="result muted">Henüz nokta seçilmedi.</div>
       <h3>Çözüm seçenekleri</h3>
-      <div class="duty"><b>🌬 Sabit tabanlı açık deniz RES</b><span>0–50 m derinlik, ≥ 7 m/s rüzgâr. Kuzey Ege (Gökçeada–Bozcaada açıkları), Saros, Marmara'nın batısı ve Karadeniz'in sığ batı kıyısı ön plana çıkar.</span></div>
-      <div class="duty"><b>🛟 Yüzer RES</b><span>50–1000 m derinlik. Akdeniz ve Ege'nin derin kesimleri; teknoloji olgunlaşıyor, birim maliyet sabit tabanlının ~1,5 katı.</span></div>
-      <div class="duty"><b>☀ Yüzer GES</b><span>Korunaklı koylar, liman içleri, balık çiftliği alanları ve baraj gölleri. Su soğutması verimi %5–10 artırır; dalga ve tuzluluk mühendislik gerektirir.</span></div>
-      <div class="duty"><b>🌊 Akıntı enerjisi</b><span>Gelgit küçük olduğu için potansiyel büyük ölçüde İstanbul ve Çanakkale boğazlarındaki sürekli akıntılarda; seyir güvenliği nedeniyle kıyı kenarı pilotlarıyla sınırlı.</span></div>
-      <div class="duty"><b>🔗 Hibrit ve depolama</b><span>RES + yüzer GES aynı sahada, ortak kablo/trafo; kıyıda yeşil hidrojen veya batarya ile dengeleme.</span></div>
+      <div class="duty"><b>Sabit tabanlı açık deniz RES</b><span>0–50 m derinlik, ≥ 7 m/s rüzgâr. Kuzey Ege (Gökçeada–Bozcaada açıkları), Saros, Marmara'nın batısı ve Karadeniz'in sığ batı kıyısı ön plana çıkar.</span></div>
+      <div class="duty"><b>Yüzer RES</b><span>50–1000 m derinlik. Akdeniz ve Ege'nin derin kesimleri; teknoloji olgunlaşıyor, birim maliyet sabit tabanlının ~1,5 katı.</span></div>
+      <div class="duty"><b>Yüzer GES</b><span>Korunaklı koylar, liman içleri, balık çiftliği alanları ve baraj gölleri. Su soğutması verimi %5–10 artırır; dalga ve tuzluluk mühendislik gerektirir.</span></div>
+      <div class="duty"><b>Akıntı enerjisi</b><span>Gelgit küçük olduğu için potansiyel büyük ölçüde İstanbul ve Çanakkale boğazlarındaki sürekli akıntılarda; seyir güvenliği nedeniyle kıyı kenarı pilotlarıyla sınırlı.</span></div>
+      <div class="duty"><b>Hibrit ve depolama</b><span>RES + yüzer GES aynı sahada, ortak kablo/trafo; kıyıda yeşil hidrojen veya batarya ile dengeleme.</span></div>
       <p class="hint"><b>Sınırlar hakkında:</b> Kırmızı hat, Türkiye'nin BM'ye bildirdiği (A/74/550) ve imzaladığı anlaşmalardaki (KKTC 2011, Libya 2019) resmî koordinatlardan çizilir; komşu ülkelerce itiraz edilmektedir. Ege'de kıta sahanlığı/MEB sınırlandırması yapılmamıştır ve resmî koordinat yayımlanmadığı için çizilmemiştir. Mavi MEB katmanı Marine Regions'ın uluslararası derlemesidir ve Türkiye'nin tutumunu tam yansıtmaz. Kaynak derleme: imer.av.tr.</p>
     </div>
 
     <!-- RAPOR -->
     <div class="pane" id="pane-rapor">
       <h3>Tip raporlar (otomatik harita + infografik)</h3>
-      <div class="rtype" data-r="ges"><b>☀ GES Fizibilite Raporu</b><span>Bir nokta, parsel ya da çatı için üretim, yatırım maliyeti, LCOE, geri ödeme, NPV/IRR ve CO₂. Veri: Global Solar Atlas + NASA POWER.</span></div>
-      <div class="rtype" data-r="bolge"><b>🗺 Bölge Yeni Nesil Enerji Fırsat Raporu</b><span>Dağıtım bölgesi için tüketim, kayıp, güneş/rüzgâr kaynağı, EV dönüşümü şebeke etkisi ve önceliklendirilmiş öneriler.</span></div>
-      <div class="rtype" data-r="deniz"><b>🌊 Deniz Enerjisi Saha Raporu</b><span>Denizde seçilen saha için derinlik, rüzgâr, teknoloji önerisi, örnek 100 MW RES ve 10 MWp yüzer GES ekonomisi.</span></div>
+      <div class="rtype" data-r="ges"><b>GES Fizibilite Raporu</b><span>Bir nokta, parsel ya da çatı için üretim, yatırım maliyeti, LCOE, geri ödeme, NPV/IRR ve CO₂. Veri: Global Solar Atlas + NASA POWER.</span></div>
+      <div class="rtype" data-r="bolge"><b>Bölge Yeni Nesil Enerji Fırsat Raporu</b><span>Dağıtım bölgesi için tüketim, kayıp, güneş/rüzgâr kaynağı, EV dönüşümü şebeke etkisi ve önceliklendirilmiş öneriler.</span></div>
+      <div class="rtype" data-r="deniz"><b>Deniz Enerjisi Saha Raporu</b><span>Denizde seçilen saha için derinlik, rüzgâr, teknoloji önerisi, örnek 100 MW RES ve 10 MWp yüzer GES ekonomisi.</span></div>
 
       <div id="rForm" class="result hidden"></div>
 
@@ -237,9 +239,9 @@
       <label class="block">Rapor başlığı<input type="text" id="repTitle" value="Bölgesel Enerji Ön Değerlendirmesi"></label>
       <label class="block">Not / değerlendirme<textarea id="repNote" rows="3" placeholder="Kısa değerlendirmenizi yazın…"></textarea></label>
       <div class="btnrow">
-        <button id="btnSnap" class="btn">🗺 Harita görüntüsü ekle</button>
-        <button id="btnPrint" class="btn primary">⬇ PDF / Yazdır</button>
-        <button id="btnShare" class="btn">🔗 Bağlantı</button>
+        <button id="btnSnap" class="btn">Harita görüntüsü ekle</button>
+        <button id="btnPrint" class="btn primary">PDF / Yazdır</button>
+        <button id="btnShare" class="btn">Bağlantı</button>
       </div>
       <div id="repItems" class="rep-items"><p class="muted">Rapor boş. Analiz sekmesinden ya da haritadaki bilgi kutularından öğe ekleyin.</p></div>
       <button id="btnClear" class="btn ghost">Raporu temizle</button>
@@ -263,7 +265,7 @@
 
 <!-- Tip rapor görüntüleyici -->
 <div id="rView" class="rview hidden">
-  <div class="rview-bar"><button id="rvClose" class="btn">✕ Kapat</button><button id="rvPrint" class="btn primary">⬇ PDF / Yazdır</button><button id="rvAdd" class="btn">+ Sepete ekle</button></div>
+  <div class="rview-bar"><button id="rvClose" class="btn">✕ Kapat</button><button id="rvPrint" class="btn primary">PDF / Yazdır</button><button id="rvAdd" class="btn">+ Sepete ekle</button></div>
   <div id="rvBody" class="rdoc"></div>
 </div>
 
@@ -271,14 +273,15 @@
 <div id="printArea" class="print-area"></div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="js/content.js?v=18"></script>
-<script src="js/app.js?v=18"></script>
-<script src="js/modules.js?v=18"></script>
-<script src="js/deniz.js?v=18"></script>
-<script src="js/reports.js?v=18"></script>
-<script src="js/vizyon.js?v=18"></script>
-<script src="js/ui.js?v=18"></script>
-<script src="js/cati.js?v=18"></script>
-<script src="js/ithalat.js?v=18"></script>
+<script src="js/icons.js?v=19"></script>
+<script src="js/content.js?v=19"></script>
+<script src="js/app.js?v=19"></script>
+<script src="js/modules.js?v=19"></script>
+<script src="js/deniz.js?v=19"></script>
+<script src="js/reports.js?v=19"></script>
+<script src="js/vizyon.js?v=19"></script>
+<script src="js/ui.js?v=19"></script>
+<script src="js/cati.js?v=19"></script>
+<script src="js/ithalat.js?v=19"></script>
 </body>
 </html>
