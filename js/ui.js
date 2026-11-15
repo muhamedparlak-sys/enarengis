@@ -22,6 +22,7 @@ const GRUP = [
   ['Simülasyon', [
     ['senaryo','ev','Elektrikli araç senaryosu','Talep ve akşam puantı, 2026–2040']]],
   ['Projeler ve raporlar', [
+    ['eylem','analiz','Eylem planı 2027–2031','3 amaç, 9 hedef, 27 eylem haritada'],
     ['projeler','rapor','Projeler ve beklentiler','2026–2053 zaman çizelgesi'],
     ['rapor','rapor','Tip raporlar','GES, bölge ve deniz raporları']]],
   ['Hakkında', [

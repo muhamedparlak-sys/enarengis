@@ -384,3 +384,38 @@ html.locked body>*:not(#gate):not(script){visibility:hidden}
  .pdt tr{border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:6px 8px;background:#fff}
  .pdt td{border:0;padding:3px 0}.pdt td:not(:first-child)::before{content:attr(data-l) ': ';font-weight:600;color:var(--ink)}
 }
+/* ---- Eylem planı 2027–2031 ---- */
+.ey-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 10px}
+.ey-kpi div{background:#f3f6fa;border-radius:8px;padding:8px 6px;text-align:center}
+.ey-kpi b{display:block;font-family:var(--f-head);font-size:24px;line-height:1;color:var(--navy)}
+.ey-kpi span{font-size:11.5px;color:var(--muted)}
+.ey-amac{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.ey-card{all:unset;box-sizing:border-box;cursor:pointer;border:1px solid var(--line);border-top:4px solid var(--c);border-radius:8px;padding:8px;background:#fff;font-size:11.5px;line-height:1.35;color:var(--ink)}
+.ey-card.on{background:color-mix(in srgb,var(--c) 10%,#fff);outline:2px solid var(--c)}
+.ey-card small{color:var(--muted)}
+.ey-card b{display:block;font-family:var(--f-head);font-size:13.5px;margin:1px 0 4px}
+.ey-card ul{margin:0;padding-left:14px}
+.ey-card em{display:block;margin-top:6px;font-style:normal;font-weight:600;color:var(--c)}
+.ey-row2{display:grid;grid-template-columns:1.1fr 1fr;gap:10px;margin-bottom:8px}
+.ey-row2 h4{margin:0 0 4px;font-family:var(--f-head);font-size:13px}
+.ey-yuk{width:100%;height:auto}
+.ey-yuk .t-n{font-size:11px;font-weight:700;fill:var(--ink)}
+.ey-yuk .t-y{font-size:10.5px;fill:var(--muted)}
+.ey-bag{display:grid;grid-template-columns:52px 1fr 22px;align-items:center;gap:6px;font-size:12px;margin:5px 0}
+.ey-bag i{height:10px;border-radius:5px;background:var(--navy);opacity:.8}
+.ey-bag b{text-align:right}
+.ey-f{margin:6px 0 8px}
+.ey-gantt{border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:12px}
+.eg-head,.eg-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(5,34px);align-items:center}
+.eg-head{background:#f3f6fa;font-size:10.5px;color:var(--muted);padding:4px 6px;position:sticky;top:0}
+.eg-head span{text-align:center}
+.eg-grp{padding:6px 8px;font-family:var(--f-head);font-weight:600;color:#fff;background:var(--c)}
+.eg-h{padding:4px 8px;font-size:11px;font-weight:600;color:var(--muted);background:#fafbfc;border-top:1px solid var(--line)}
+.eg-row{all:unset;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) repeat(5,34px);align-items:center;width:100%;padding:5px 6px;border-top:1px solid #eef1f4;cursor:pointer;background-image:linear-gradient(90deg,transparent calc(100% - 170px),transparent calc(100% - 170px));}
+.eg-row:hover{background:#f6f9fc}
+.eg-l{grid-column:1;padding-right:6px;line-height:1.3}
+.eg-l small{display:block;color:var(--muted);font-size:10.5px}
+.eg-bar{grid-row:1;height:10px;border-radius:5px;margin:0 2px}
+.eyp div{margin:6px 0;font-size:12px;line-height:1.35}
+.eyp i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+@media (max-width:420px){.ey-amac{grid-template-columns:1fr}.ey-row2{grid-template-columns:1fr}}

@@ -3,13 +3,14 @@
 (() => {
 'use strict';
 const A = window.ENAREN_APP;
-const YONETILEN = ['lyrLines', 'lyrSubs', 'lyrFilo', 'lyrSantral', 'lyrStrat', 'lyrAkis', 'lyrIthal', 'lyrDpot', 'lyrBaraj', 'lyrKoruma'];
+const YONETILEN = ['lyrLines', 'lyrSubs', 'lyrFilo', 'lyrSantral', 'lyrStrat', 'lyrAkis', 'lyrIthal', 'lyrDpot', 'lyrBaraj', 'lyrKoruma', 'lyrEylem'];
 const G = {
   denge:  {ad:'Denge',   acik:['lyrAkis'], akis:'tumu', not:'Bölgeler arası elektrik akışı ve hangi bölgenin verici, hangisinin alıcı olduğu.'},
   sebeke: {ad:'Şebeke',  acik:['lyrLines', 'lyrSubs', 'lyrSantral'], not:'İletim hatları, trafo merkezleri ve santraller (gerçek güzergâhlar, OSM).'},
   ithalat:{ad:'İthalat', acik:['lyrAkis', 'lyrIthal'], akis:'ithal', not:'İthal yakıtla üretilen elektriğin akışı; boru hatları, LNG, tanker ve kömür rotaları.'},
   deniz:  {ad:'Deniz',   acik:['lyrDpot', 'lyrFilo', 'lyrBaraj'], not:'Mavi Vatan\'da RES ve yüzer GES alanları, hedef sahalar, baraj gölleri ve arama filosu.'},
   proje:  {ad:'Projeler', acik:['lyrStrat', 'lyrSantral'], not:'Mevcut santraller ve süren/planlanan stratejik projeler.'},
+  eylem:  {ad:'Eylem planı', acik:['lyrEylem'], not:'ENAREN 2027–2031 eylem planı: 27 eylemin bağlı olduğu yerler. Ayrıntı ve infografik sol paneldeki Eylem planı bölümünde.'},
   kisit:  {ad:'Kısıtlar', acik:['lyrKoruma', 'lyrLines', 'lyrDpot'], not:'Koruma alanları (yeşil) ile şebeke ve deniz potansiyelinin çakıştığı yerler. Kültürel sit alanları resmî veriyle eklenmeli.'}
 };
 let aktif = 'denge';
@@ -19,10 +20,12 @@ function uygula(k){
   // panel içi eş kutucuklar
   const dp = document.getElementById('lyrDpotPanel'); if (dp) dp.checked = g.acik.includes('lyrDpot');
   const bp = document.getElementById('lyrBarajP'); if (bp) bp.checked = g.acik.includes('lyrBaraj');
+  const ep = document.getElementById('eyHarita'); if (ep) ep.checked = g.acik.includes('lyrEylem');
   A.syncLayerChecks();
   const V = window.ENAREN_VIZ;
   if (g.akis && V?.setFlowMode) V.setFlowMode(g.akis); else if (V?.toggleFlow) V.toggleFlow(false);
-  if (k === 'deniz') A.map.flyTo({center:[31.5, 38.6], zoom:4.8});
+  if (k === 'eylem'){ A.goTab('eylem'); A.openSheet(); A.map.flyTo({center:[34.5, 38.9], zoom:5}); }
+  else if (k === 'deniz') A.map.flyTo({center:[31.5, 38.6], zoom:4.8});
   else if (A.map.getZoom() > 6.5) A.map.flyTo({center:[35.2, 39], zoom:5});
   ciz();
 }
