@@ -131,7 +131,7 @@ $('#basemaps').addEventListener('click', e => { const k = e.target.dataset.k; if
 
 // ---------- Katman kutuları ----------
 const LAYER_MAP = {
-  lyrEdas:['edas-fill','edas-line','edas-label'], lyrIl:['il-line','il-label'], lyrSolar:['solar'],
+  lyrEdas:['edas-fill','edas-line','edas-label'], lyrIl:['il-line','il-label'], lyrSolar:['solar'], lyrWind:['wind','wind-sea'],
   lyrLines:['oim-lines'], lyrSubs:['oim-subs'], lyrPlants:['oim-plants'], lyrSolarHeat:['oim-solarheat'],
   lyrCorine:['wms-corine'], lyrGepa:['wms-gepa']
 };
