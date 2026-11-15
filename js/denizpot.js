@@ -29,7 +29,35 @@ function ekle(){
     map.on('click', 'dpot', e => { const p = e.features[0].properties; new maplibregl.Popup({maxWidth:'300px'}).setLngLat(e.lngLat).setHTML(`<b>${esc(p.ad)}</b><br>Mavi Vatan içindeki toplam alan: <b>${fmt(p.km2)} km²</b><br>Kaba kapasite: <b>≈${fmt(p.gw, 1)} GW</b> (${p.yogunluk} MW/km²)<br><small>Ön eleme; seyir yolları, askerî alanlar, kablolar, koruma alanları ve zemin etüdü dikkate alınmadı.</small>`).addTo(map); });
     map.on('click', 'akinti', e => { const p = e.features[0].properties; new maplibregl.Popup({maxWidth:'300px'}).setLngLat(e.lngLat).setHTML(`<b>${esc(p.ad)}</b><br>${p.v ? `En yüksek yüzey akıntısı ≈${fmt(p.v, 1)} m/s → güç yoğunluğu ≈<b>${fmt(pd(p.v), 1)} kW/m²</b> (P = ½ρv³)<br>` : ''}${esc(p.n)}`).addTo(map); });
     panel(fc);
-  });
+    return fetch('data/hedef_sahalar.geojson?v=1').then(r => r.json());
+  }).then(hs => { if (hs) hedefler(hs); });
+}
+const TURAD = {res_sabit:'Deniz üstü RES · sabit temelli', res_yuzer:'Deniz üstü RES · yüzer', ges_yuzer:'Yüzer GES'};
+function hedefler(hs){
+  window.ENAREN_HEDEF = hs;
+  map.addSource('hedef', {type:'geojson', data:hs});
+  const pts = {type:'FeatureCollection', features:hs.features.map(f => ({type:'Feature', geometry:{type:'Point', coordinates:[f.properties.x, f.properties.y]}, properties:f.properties}))};
+  map.addSource('hedef-pt', {type:'geojson', data:pts});
+  map.addLayer({id:'hedef-line', type:'line', source:'hedef', layout:{visibility:'none'}, paint:{'line-color':['match', ['get', 'tur'], 'res_sabit', RENK.res_sabit, 'res_yuzer', RENK.res_yuzer, '#a07a00'], 'line-width':2}});
+  map.addLayer({id:'hedef-no', type:'circle', source:'hedef-pt', layout:{visibility:'none'}, paint:{'circle-radius':11, 'circle-color':['match', ['get', 'tur'], 'res_sabit', RENK.res_sabit, 'res_yuzer', RENK.res_yuzer, '#a07a00'], 'circle-stroke-color':'#fff', 'circle-stroke-width':2}});
+  map.addLayer({id:'hedef-no-lbl', type:'symbol', source:'hedef-pt', layout:{visibility:'none', 'text-field':['to-string', ['get', 'sira']], 'text-font':['Open Sans Semibold'], 'text-size':12, 'text-allow-overlap':true}, paint:{'text-color':'#fff'}});
+  A.LAYER_MAP.lyrDpot = [...A.LAYER_MAP.lyrDpot, 'hedef-line', 'hedef-no', 'hedef-no-lbl'];
+  map.on('click', 'hedef-no', e => popHedef(e.features[0].properties, e.lngLat));
+  const s = document.querySelector('#pane-deniz section'); if (!s) return;
+  const div = document.createElement('div');
+  div.innerHTML = `<h3>Hedef sahalar (öncelik sırasıyla)</h3>
+    <p class="hint">Uygun hücreler bitişik alanlara gruplandı; RES sahaları rüzgâr hızı, sığlık ve kıyıya yakınlığa, yüzer GES sahaları ışınıma göre sıralandı. Bakanlığın YEKA DÜRES-2026 sahalarıyla örtüşenler işaretli.</p>
+    <ol class="hlist">${hs.features.map(f => { const p = f.properties; return `<li data-i="${p.sira}"><span class="hn" style="background:${p.tur === 'res_sabit' ? RENK.res_sabit : p.tur === 'res_yuzer' ? RENK.res_yuzer : '#a07a00'}">${p.sira}</span><span><b>${esc(p.ad)}</b>${p.yeka ? ` <em class="roz" style="background:#1f8a4c">YEKA: ${esc(p.yeka)}</em>` : ''}<small>${TURAD[p.tur]} · ${esc(p.il)} · ${fmt(p.km2)} km² · ≈${fmt(p.gw, 1)} GW · ${p.tur === 'ges_yuzer' ? 'ışınım ' + fmt(p.ghi) + ' kWh/m²' : 'rüzgâr ' + fmt(p.ws, 1) + ' m/s'} · derinlik ${p.dmin}–${p.dmax} m · kıyıya ~${p.dist} km</small></span></li>`; }).join('')}
+      <li data-ak="1"><span class="hn" style="background:#1b9e77">A</span><span><b>Çanakkale Boğazı akıntı pilotu (Nara–Kepez)</b><small>Akıntı türbini · 2–2,5 m/s · güç yoğunluğu 4–8 kW/m² · pilot ölçekte (MW altı – birkaç MW)</small></span></li></ol>`;
+  s.appendChild(div);
+  div.addEventListener('click', e => { const li = e.target.closest('li'); if (!li) return;
+    const cb = document.querySelector('#lyrDpotPanel'); if (cb && !cb.checked){ cb.checked = true; cb.dispatchEvent(new Event('change')); }
+    if (li.dataset.ak){ map.flyTo({center:[26.39, 40.15], zoom:10}); A.minimizeSheet(); return; }
+    const p = hs.features.find(f => String(f.properties.sira) === li.dataset.i).properties;
+    map.flyTo({center:[p.x, p.y], zoom: p.km2 > 5000 ? 6 : 8.5}); A.minimizeSheet(); setTimeout(() => popHedef(p, [p.x, p.y]), 1200); });
+}
+function popHedef(p, ll){
+  new maplibregl.Popup({maxWidth:'310px'}).setLngLat(ll).setHTML(`<b>${p.sira}. ${esc(p.ad)}</b><br><small>${TURAD[p.tur]} · ${esc(p.il)} açıkları</small><br>Alan ${fmt(p.km2)} km² · kaba kapasite ≈<b>${fmt(p.gw, 1)} GW</b><br>${p.tur === 'ges_yuzer' ? 'Işınım ' + fmt(p.ghi) + ' kWh/m²·yıl' : '100 m rüzgâr ≈' + fmt(p.ws, 1) + ' m/s'} · derinlik ${p.dmin}–${p.dmax} m · kıyıya ~${p.dist} km${p.yeka ? `<br><b style="color:#1f8a4c">YEKA DÜRES-2026 sahasıyla örtüşüyor: ${esc(p.yeka)}</b>` : ''}<br><small>Ön eleme; seyir, askerî alan, kablo, koruma ve zemin etüdü ayrıca gerekir.</small>`).addTo(map);
 }
 function panel(fc){
   const dz = document.querySelector('#pane-deniz'); if (!dz) return;
@@ -47,7 +75,7 @@ function panel(fc){
     <p class="hint">Kaynak: EMODnet Bathymetry (2,5 km'ye örneklenmiş), NASA POWER / MERRA-2 rüzgârı, Çanakkale Boğazı akıntı ölçümleri (Türk Boğazları Seyir Güvenliği 2000; Yücel ve Tarhan 2019). Ön elemedir; Copernicus Marine akıntı ve dalga verisiyle derinleştirilebilir.</p>`;
   dz.prepend(s);
   const cb = s.querySelector('#lyrDpotPanel'), main = document.querySelector('#lyrDpot');
-  cb.addEventListener('change', () => { if (main){ main.checked = cb.checked; } ['dpot', 'akinti', 'akinti-lbl'].forEach(l => map.setLayoutProperty(l, 'visibility', cb.checked ? 'visible' : 'none')); if (cb.checked){ map.flyTo({center:[30.5, 38.5], zoom:4.8}); A.minimizeSheet(); } });
+  cb.addEventListener('change', () => { if (main){ main.checked = cb.checked; } A.LAYER_MAP.lyrDpot.forEach(l => map.getLayer(l) && map.setLayoutProperty(l, 'visibility', cb.checked ? 'visible' : 'none')); if (cb.checked){ map.flyTo({center:[30.5, 38.5], zoom:4.8}); A.minimizeSheet(); } });
 }
 ekle();
 })();
