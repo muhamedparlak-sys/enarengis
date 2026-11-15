@@ -181,3 +181,15 @@ pane.addEventListener('click', e => {
 function exit(){ state.drill = null; A.selectEdas(null); dimOthers(null); highlight(null); map.flyTo({center:[35.2, 39], zoom:5}); open(''); renderHome(); }
 window.ENAREN_DRILL = { showEdas, showIl, exit };
 })();
+/* ENAREN yazısı: ana sayfaya dön (Türkiye görünümü + Genel Bakış) */
+(() => {
+  const b = document.querySelector('.brand'); if (!b) return;
+  b.style.cursor = 'pointer'; b.setAttribute('role', 'link'); b.setAttribute('tabindex', '0'); b.title = 'Ana sayfaya dön';
+  const home = () => {
+    const A = window.ENAREN_APP; const D = window.ENAREN_DRILL;
+    if (D && A.state.drill) D.exit(); else A.map.flyTo({center:[35.2, 39], zoom:5, bearing:0, pitch:0});
+    A.goTab('vizyon'); A.openSheet();
+  };
+  b.addEventListener('click', home);
+  b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); home(); } });
+})();
