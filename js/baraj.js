@@ -37,6 +37,16 @@ function panel(){
       <div><strong>${fmt(t.hidro / 1000, 1)} GW</strong><span>bu göllerdeki HES bağlantı gücü (hibrit için hazır şebeke)</span></div><div><strong>≈${fmt(gw / 120 * 100)}%</strong><span>2035 güneş + rüzgâr hedefine (120 GW) katkı</span></div></div>
       <ol class="hlist">${D.baraj.slice(0, 12).map((b, i) => `<li data-i="${i}"><span class="hn" style="background:${b.icme ? '#9aa5ad' : '#a07a00'}">${i + 1}</span><span><b>${esc(b.ad)}</b><small>${fmt(b.km2, 1)} km² · %${oran}: ${fmt(b['mw' + oran])} MWp · ${fmt(b['twh' + oran], 2)} TWh/yıl${b.hidro_mw ? ` · HES ${fmt(b.hidro_mw)} MW` : ''}</small></span></li>`).join('')}</ol>
       <p class="hint"><b>Neden baraj gölleri?</b> Dalga yok, kıyıya ve şebekeye yakın; HES'in şalt sahası ve iletim hattı kullanılabilir. GES gündüz üretirken HES suyunu akşam puantına saklayabilir. Panel gölgesi buharlaşmayı azaltır; su yüzeyi panelleri serinletir.</p>
+      <div class="lit"><b>Mevcut çalışmalar ve uygulamalar</b>
+        <ul>
+          <li><b>Kuzova Yüzer GES (DSİ, Keban):</b> Türkiye'nin ilk yüzer GES'i, 1 MW; yılda ~1,8 GWh, tarımsal sulama için.</li>
+          <li><b>Demirköprü Yüzer GES (Manisa):</b> YEKA kapsamında verilen ilk yüzer GES önlisansı; büyük ölçekli ilk proje.</li>
+          <li><b>DSİ yönetmeliği:</b> baraj, suni göl ve kanal yüzeyleri yüzer GES için kiralanabiliyor; belediyeler ve sulama birlikleri de kurabiliyor.</li>
+          <li><b>Ember (2024):</b> beş büyük EÜAŞ barajında %10 kaplamayla 17 GW, yalnız Atatürk'te 7,7 GW. Türkiye'de henüz hibrit (HES + yüzer GES) bir santral yok.</li>
+          <li><b>Kulat ve diğ. (2023), Renewable Energy:</b> uygun rezervuarların %10'u kaplanırsa yılda 125 TWh, ülke talebinin ~%40'ı.</li>
+          <li><b>DSİ tahmini:</b> baraj tipi HES göllerinde 53 GW yüzer GES potansiyeli.</li>
+        </ul>
+        <span>Bu sayfadaki hesap aynı mertebede: aynı beş gölde %10 kaplamada ≈14 GW (Atatürk ≈6,2 GW). Daha temkinli, çünkü km² başına 80 MWp alındı.</span></div>
       <p class="hint">Hesap: göl alanları OpenStreetMap'ten; kaplanan alanda 80 MWp/km², yıllık üretim ışınımın %86'sı (kWh/kWp). Uluslararası uygulamada barajlarda %1–10 kaplama oranları kullanılıyor. İçme suyu barajları (gri) toplama dahil edilmedi. Göl seviyesi değişimi, ekoloji ve su hakları saha bazında incelenmelidir.</p>`;
     s.querySelector('#lyrBarajP').addEventListener('change', e => { goster(e.target.checked); if (e.target.checked){ map.flyTo({center:[36.5, 38.8], zoom:5.2}); A.minimizeSheet(); } });
     s.querySelector('#barajOran').addEventListener('click', e => { const o = e.target.dataset.o; if (o){ oran = +o; ciz(); } });

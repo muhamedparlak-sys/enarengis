@@ -73,6 +73,13 @@ function panel(fc){
     <p class="hint"><b>Ölçütler.</b> Sabit temelli RES: 100 m rüzgâr ≥7 m/s, derinlik 5–60 m, kıyıya 3–60 km. Yüzer RES: rüzgâr ≥7 m/s, derinlik 60–300 m (bugün ticari olarak kurulan yüzer santrallerin aralığı), kıyıya ≤50 km. Karadeniz için ikinci öncelik: 6,5–7 m/s. Yüzer GES: kıyıya ≤8 km, derinlik ≤50 m, ışınım ≥1.650 kWh/m²·yıl (Karadeniz hariç). Boğazların seyir koridorları dışarıda bırakıldı. Kapasite: RES 4–5 MW/km², GES 20 MW/km² varsayımı.</p>
     <p class="hint"><b>Akdeniz ve Karadeniz.</b> Akdeniz kıyımızda 100 m rüzgâr ortalama ~5 m/s ve kıta sahanlığı çok dar; deniz üstü RES için uygun değil, ama korunaklı körfezler (Mersin, İskenderun, Yumurtalık, Taşucu) yüzer GES için en iyi adaylar. Karadeniz'de rüzgâr 7 m/s'yi geçmiyor; yalnız İstanbul–Kıyıköy açıkları orta rüzgârla ikinci öncelik. Karadeniz'in dalga ve fırtına koşulları yüzer GES'i zorlaştırır; yüzer GES için baraj gölleri daha gerçekçidir.</p>
     <p class="hint"><b>Boğaz akıntısı.</b> Akıntı tek yönlü ve sürekli, ama Nara kesitinin tamamından geçen güç bile en fazla onlarca MW; şebeke ölçeğinde değil, Ar-Ge pilotu ölçeğinde. Haritada bilgi amaçlı noktalar olarak duruyor.</p>
+    <div class="lit"><b>Mevcut çalışmalar ve resmî adımlar</b>
+      <ul>
+        <li><b>Dünya Bankası – ETKB, Türkiye Deniz Üstü Rüzgâr Yol Haritası:</b> karasularında ~75 GW teknik potansiyel, büyük bölümü Ege ve Marmara'da; 2035'e kadar ~5 GW senaryosu.</li>
+        <li><b>YEKA DÜRES-2026:</b> Türkiye'nin ilk deniz üstü rüzgâr yarışması, 1.000 MW; sahalar Saros, Gökçeada, Bozcaada ve Edremit açıkları. Tavan 11, taban 7 $-cent/kWh (taslak).</li>
+        <li><b>Çanakkale Boğazı akıntısı:</b> Kepez Burnu'nda özel sektör Ar-Ge sahası; Yücel ve Tarhan (2019) 5 kW'lık türbin denemesi, 2,5 m/s'ye kadar akıntı ölçümü.</li>
+      </ul>
+      <span>Bu sayfanın ilk sıradaki sabit temelli RES sahaları YEKA DÜRES-2026 alanlarıyla örtüşüyor. Bulunan toplamın Dünya Bankası rakamından yüksek olmasının nedeni, karasularıyla sınırlı kalmayıp Mavi Vatan'ın tamamına bakılması ve seyir, askerî alan gibi dışlamaların yapılmamasıdır.</span></div>
     <p class="hint">Kaynak: EMODnet Bathymetry (2,5 km'ye örneklenmiş), NASA POWER / MERRA-2 rüzgârı, Çanakkale Boğazı akıntı ölçümleri (Türk Boğazları Seyir Güvenliği 2000; Yücel ve Tarhan 2019). Ön elemedir; Copernicus Marine akıntı ve dalga verisiyle derinleştirilebilir.</p>`;
   dz.prepend(s);
   fetch('data/mavi_vatan_tavan.json?v=1').then(r => r.json()).then(t => {
