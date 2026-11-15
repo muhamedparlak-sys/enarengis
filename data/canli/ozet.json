@@ -1,0 +1,41 @@
+{
+ "guncelleme": "2026-11-15T11:41:29.754494+03:00",
+ "durum": {
+  "elektrik_uretim": {
+   "ok": true,
+   "kayit": 35
+  },
+  "elektrik_tuketim": {
+   "ok": true,
+   "kayit": 35
+  },
+  "elektrik_tahmin": {
+   "ok": true,
+   "kayit": 48
+  },
+  "elektrik_ptf": {
+   "ok": false,
+   "hata": "400 {\"status\":\"400 BAD_REQUEST\",\"correlationId\":\"fa213dd1-ea15-4fb3-b314-2abcdad60a22\",\"spanIds\":\"(electricity-service)37347\",\"hostName\":\"*********.50\",\"clientIp\":\"172.172.237.66\",\"userName\":\"muhammedparlak@outlook.com\",\"successMessage\":null,\"errors\":[{\"errorCode\":\"(BUS)SEF1124\",\"errorMessage\":\"2026-11-"
+  },
+  "gaz_giris_gercek": {
+   "ok": true,
+   "kayit": 6
+  },
+  "gaz_cikis_gercek": {
+   "ok": true,
+   "kayit": 6
+  },
+  "gaz_max_giris": {
+   "ok": true,
+   "kayit": 7
+  },
+  "gaz_depo_aktarim": {
+   "ok": true,
+   "kayit": 6
+  },
+  "gaz_sistem_stok": {
+   "ok": true,
+   "kayit": 6
+  }
+ }
+}
