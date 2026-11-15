@@ -46,7 +46,7 @@ waitReady(async () => {
   // kara sınırı
   const sinir = await fetch('data/tr_sinir.geojson?v=18').then(r => r.json());
   map.addSource('trsinir', {type:'geojson', data:sinir});
-  map.addLayer({id:'trsinir', type:'line', source:'trsinir', layout:{visibility:'none'}, paint:{'line-color':'#0f3d5e','line-width':2.2}}, 'dyetki');
+  map.addLayer({id:'trsinir', type:'line', source:'trsinir', layout:{visibility:'visible','line-join':'round'}, paint:{'line-color':'#0f3d5e','line-width':['interpolate',['linear'],['zoom'],4,1.6,8,2.6]}}, 'dyetki');
   // OSM boru hatları (OpenInfraMap)
   map.addLayer({id:'boru-osm', type:'line', source:'oim', 'source-layer':'petroleum_pipeline', layout:{visibility:'none'}, paint:{
     'line-color':['match',['get','substance'],'gas','#d95f02','oil','#1a1a1a','#8a5a00'], 'line-width':['interpolate',['linear'],['zoom'],5,1,10,2.5], 'line-opacity':0.8}}, 'santral');
