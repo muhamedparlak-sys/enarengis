@@ -94,7 +94,7 @@ function ekle(){
   const renk = ['match', ['get', 'a'], 1, AMAC[0].renk, 2, AMAC[1].renk, AMAC[2].renk];
   map.addLayer({id:'eylem-halo', type:'circle', source:'eylem', layout:{visibility:'none'}, paint:{'circle-radius':['+', 13, ['*', 2, ['get', 'n']]], 'circle-color':renk, 'circle-opacity':0.18}});
   map.addLayer({id:'eylem-pt', type:'circle', source:'eylem', layout:{visibility:'none'}, paint:{'circle-radius':['+', 8, ['get', 'n']], 'circle-color':renk, 'circle-stroke-color':'#fff', 'circle-stroke-width':2}});
-  map.addLayer({id:'eylem-n', type:'symbol', source:'eylem', layout:{visibility:'none', 'text-field':['to-string', ['get', 'n']], 'text-font':['Open Sans Bold'], 'text-size':11, 'text-allow-overlap':true}, paint:{'text-color':'#fff'}});
+  map.addLayer({id:'eylem-n', type:'symbol', source:'eylem', layout:{visibility:'none', 'text-field':['to-string', ['get', 'n']], 'text-font':['Open Sans Semibold'], 'text-size':11, 'text-allow-overlap':true}, paint:{'text-color':'#fff'}});
   map.addLayer({id:'eylem-lbl', type:'symbol', source:'eylem', layout:{visibility:'none', 'text-field':['get', 'kodlar'], 'text-font':['Open Sans Semibold'], 'text-size':10.5, 'text-offset':[0, 1.6], 'text-anchor':'top', 'text-max-width':14}, paint:{'text-color':'#1d2430', 'text-halo-color':'#fff', 'text-halo-width':1.6}});
   A.LAYER_MAP.lyrEylem = ['eylem-halo', 'eylem-pt', 'eylem-n', 'eylem-lbl'];
   map.on('click', 'eylem-pt', e => {
