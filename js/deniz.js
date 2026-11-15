@@ -32,15 +32,14 @@ whenReady(async () => {
   map.addSource('ofm', {type:'vector', url:'https://tiles.openfreemap.org/planet', attribution:'Bina izleri © OpenStreetMap katkıcıları, OpenFreeMap'});
   await waitStyle();
   map.addLayer({id:'bina', type:'fill', source:'ofm', 'source-layer':'building', minzoom:14, layout:{visibility:'none'}, paint:{'fill-color':'#f2a900','fill-opacity':0.35,'fill-outline-color':'#c0392b'}});
-  ['lyrBathy','lyrMeb','lyrDyetki','lyrBina'].forEach(id => A.LAYER_MAP[id] && $('#' + id).addEventListener('change', A.syncLayerChecks));
+  ['lyrBathy','lyrDyetki','lyrBina'].forEach(id => A.LAYER_MAP[id] && $('#' + id).addEventListener('change', A.syncLayerChecks));
   A.syncLayerChecks();
 });
-Object.assign(A.LAYER_MAP, {lyrBathy:['bathy'], lyrMeb:['meb-fill','meb-line'], lyrDyetki:['dyetki','dyetki-sem','dyetki-lbl'], lyrBina:['bina']});
-// MEB poligonu ve komşu ülkelerle deniz sınırları (Marine Regions, depoya alınmış statik kopya)
+Object.assign(A.LAYER_MAP, {lyrBathy:['bathy'], lyrDyetki:['dyetki','dyetki-sem','dyetki-lbl'], lyrBina:['bina']});
+// Karadeniz: Türkiye'nin taraf olduğu antlaşmalarla belirlenmiş deniz sınırları (koordinatlar Marine Regions derlemesinden)
 (async () => {
   for (let i = 0; i < 100 && !map.getSource('meb'); i++) await new Promise(r => setTimeout(r, 200));
-  const [eez, sin] = await Promise.all(['data/meb.geojson?v=1', 'data/meb_sinir.geojson?v=1'].map(u => fetch(u).then(r => r.json())));
-  map.getSource('meb').setData(eez);
+  const sin = await fetch('data/meb_sinir.geojson?v=2').then(r => r.json());
   map.addSource('mebsin', {type:'geojson', data:sin});
   map.addLayer({id:'mebsin', type:'line', source:'mebsin', layout:{'line-cap':'round'}, paint:{'line-color':['match', ['get', 'tip'], 'antlasma', '#c0392b', '#c0392b'], 'line-width':['interpolate', ['linear'], ['zoom'], 4, 2, 8, 3.2], 'line-dasharray':['literal', [1, 0]]}, filter:['==', ['get', 'tip'], 'antlasma']});
   map.addLayer({id:'mebsin-acik', type:'line', source:'mebsin', paint:{'line-color':'#c0392b', 'line-width':['interpolate', ['linear'], ['zoom'], 4, 1.8, 8, 2.8], 'line-dasharray':[2, 1.5]}, filter:['!=', ['get', 'tip'], 'antlasma']});
