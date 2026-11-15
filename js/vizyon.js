@@ -151,7 +151,7 @@ function toggleFlow(on){
   const col = FLOW_RENK[flowMode];
   map.setPaintProperty('akis', 'line-color', col); map.setPaintProperty('akis-bg', 'line-color', col);
   // ithal modunda ithalat koridorlarını da göster
-  const ith = document.querySelector('#lyrIthal'); if (ith && (flowMode === 'ithal') !== ith.checked){ ith.checked = flowMode === 'ithal'; ith.dispatchEvent(new Event('change')); }
+  const ith = document.querySelector('#lyrIthal'); const want = on && flowMode !== 'yerli'; if (ith && want !== ith.checked){ ith.checked = want; ith.dispatchEvent(new Event('change')); }
   updateFlowCtl();
   map.getSource('denge').setData({type:'FeatureCollection', features: flowData.R.map(r => ({type:'Feature', geometry:{type:'Point', coordinates:r.c}, properties:{net: r.net, neti: Math.round(r.net), edas: r.p.edas}}))});
   let step = 0; clearInterval(flowTimer);

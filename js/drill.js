@@ -41,6 +41,22 @@ ready(() => {
     showEdas(f);
   });
   renderHome();
+  // ---------- yer adları: bölge, il, ilçe merkezi, mahalle/köy ----------
+  map.setLayoutProperty('edas-label', 'text-size', ['interpolate', ['linear'], ['zoom'], 4, 11, 7, 15]);
+  map.setLayerZoomRange('edas-label', 4, 7.5);
+  map.setPaintProperty('edas-label', 'text-halo-width', 2);
+  const halo = {'text-halo-color':'#fff', 'text-halo-width':1.6};
+  map.addLayer({id:'ad-il-line', type:'line', source:'il', minzoom:5.5, paint:{'line-color':'#0E3047', 'line-opacity':0.35, 'line-width':0.8, 'line-dasharray':[3, 2]}});
+  map.addLayer({id:'ad-il', type:'symbol', source:'il', minzoom:5.8, maxzoom:10, layout:{'text-field':['upcase', ['get', 'il']], 'text-size':['interpolate', ['linear'], ['zoom'], 6, 10, 9, 14], 'text-letter-spacing':0.06, 'text-font':['Open Sans Semibold']}, paint:{'text-color':'#0E3047', ...halo}});
+  const nm = ['coalesce', ['get', 'name:tr'], ['get', 'name'], ['get', 'name:latin']];
+  const addPlaces = () => {
+    if (!map.getSource('ofm')) return setTimeout(addPlaces, 400);
+    map.addLayer({id:'ad-ilce', type:'symbol', source:'ofm', 'source-layer':'place', minzoom:7.5, filter:['in', ['get', 'class'], ['literal', ['city', 'town']]], layout:{'text-field':nm, 'text-size':['interpolate', ['linear'], ['zoom'], 8, 11, 12, 14], 'text-font':['Open Sans Semibold']}, paint:{'text-color':'#18242E', ...halo}});
+    map.addLayer({id:'ad-mah', type:'symbol', source:'ofm', 'source-layer':'place', minzoom:11, filter:['in', ['get', 'class'], ['literal', ['village', 'suburb', 'quarter', 'neighbourhood', 'hamlet']]], layout:{'text-field':nm, 'text-size':11.5, 'text-font':['Open Sans Regular']}, paint:{'text-color':'#3d4f5c', ...halo}});
+    Object.assign(A.LAYER_MAP, {lyrAdlar:['ad-il-line', 'ad-il', 'ad-ilce', 'ad-mah']});
+    $('#lyrAdlar').addEventListener('change', A.syncLayerChecks);
+  };
+  addPlaces();
 });
 
 // ---------- yardımcılar ----------
