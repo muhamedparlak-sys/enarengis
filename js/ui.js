@@ -6,24 +6,31 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 
 // ---------------- Hamburger menü ----------------
-const MENU = [
-  ['vizyon','genel','Genel Bakış','Enerji dengesi, resmî hedefler, kaynaklar'],
-  ['bolge','parsel','Bölge gezgini','Bölge → il → ilçe → mahalle, tesisler ve akış'],
-  ['ithalat','akis','İthalat ve bağımlılık','Tür, ülke ve kanal kırılımı'],
-  ['projeler','rapor','Projeler','Süren ve gelecek projeler, beklentiler'],
-  ['katman','katman','Katmanlar','Altlıklar, tematik ve deniz katmanları'],
-  ['analiz','analiz','Analiz','Çatı GES, karşılaştırma, bölge sıralaması'],
-  ['senaryo','ev','EV Senaryo','Elektrikli araç dönüşümü, timelapse'],
-  ['parsel','parsel','Parsel','İl → ilçe → mahalle → ada/parsel'],
-  ['deniz','deniz','Deniz','Mavi Vatan, açık deniz RES, yüzer GES'],
-  ['rapor','rapor','Raporlar','Tip raporlar ve rapor sepeti'],
-  ['enstitu','enstitu','Enstitü','ENAREN görevleri ve altlık faydası'],
-  ['kaynak','kaynak','Kaynaklar','Veri servisleri ve canlı test']
+const GRUP = [
+  ['Genel bakış', [
+    ['vizyon','genel','Göstergeler ve enerji dengesi','Bağımlılık, hedefler, kaynak karışımı'],
+    ['ithalat','akis','İthalat ve bağımlılık','Tür, ülke ve kanal kırılımı']]],
+  ['Harita', [
+    ['katman','katman','Harita katmanları','Altlık, üretim, şebeke, ithalat, deniz']]],
+  ['Yerinde analiz', [
+    ['bolge','parsel','Bölge gezgini','Bölge › il › ilçe › mahalle'],
+    ['parsel','ara','Ada / parsel sorgusu','TKGM parsel ve yerinde potansiyel'],
+    ['analiz','analiz','Saha analizi','Çatı GES, nokta karşılaştırma, sıralama'],
+    ['deniz','deniz','Deniz alanları','Açık deniz RES, yüzer GES, filo']]],
+  ['Simülasyon', [
+    ['senaryo','ev','Elektrikli araç senaryosu','Talep ve akşam puantı, 2026–2040']]],
+  ['Projeler ve raporlar', [
+    ['projeler','rapor','Projeler ve beklentiler','2026–2053 zaman çizelgesi'],
+    ['rapor','rapor','Tip raporlar','GES, bölge ve deniz raporları']]],
+  ['Hakkında', [
+    ['enstitu','enstitu','Enstitü ve görevler','ENAREN görevleri, altlık faydası'],
+    ['kaynak','kaynak','Veri kaynakları','Servisler ve canlı test']]]
 ];
+const MENU = GRUP.flatMap(g => g[1]);
 const drawer = document.createElement('aside');
 drawer.id = 'drawer'; drawer.className = 'drawer'; drawer.setAttribute('aria-hidden', 'true');
 drawer.innerHTML = `<div class="drawer-head"><b>ENAREN Enerji WebGIS</b><button class="dclose" aria-label="Menüyü kapat">✕</button></div>
-  <nav>${MENU.map(([k, i, t, d]) => `<button class="ditem" data-k="${k}"><span class="di">${window.ICON(i, 22)}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('')}
+  <nav>${GRUP.map(([g, items]) => `<div class="dgrp">${g}</div>` + items.map(([k, i, t, d]) => `<button class="ditem" data-k="${k}"><span class="di">${window.ICON(i, 20)}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('')).join('')}
   <hr><button class="ditem" data-k="__tur"><span class="di">${window.ICON('rehber', 22)}</span><span><b>Rehber / tur</b><small>Uygulamayı adım adım tanıt</small></span></button></nav>`;
 const scrim = document.createElement('div'); scrim.className = 'scrim hidden';
 document.body.append(scrim, drawer);
