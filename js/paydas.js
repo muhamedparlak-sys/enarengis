@@ -24,6 +24,8 @@ const P = {
   UAB:    ['UAB / Kıyı Emniyeti', 'Ulaştırma ve Altyapı Bakanlığı, Kıyı Emniyeti GM', 'Deniz', 'Seyir koridorları, Türk Boğazları trafik verisi, limanlar', 'Seyir yollarının dışlanması; boğaz akıntısı pilotu için izin süreci'],
   MGM:    ['MGM', 'Meteoroloji Genel Müdürlüğü', 'İklim', 'Rüzgâr ve ışınım ölçümleri, iklim projeksiyonları', 'Uydu verisinin yer ölçümleriyle doğrulanması'],
   CSB:    ['ÇŞİDB / TUCBS', 'Çevre, Şehircilik ve İklim Değişikliği Bakanlığı (CBS GM)', 'Mekânsal veri', 'TUCBS katmanları: YEKA, lisanssız sahalar, İHA ortofotoları, koruma alanları', 'Kapalı katmanların servis olarak bağlanması; ortofotodan çatı GES tespiti'],
+  KTB:    ['KTB', 'Kültür ve Turizm Bakanlığı (Kültür Varlıkları ve Müzeler GM)', 'Koruma', 'Kültürel ve arkeolojik sit alanları, tescilli yapılar', 'Sit alanlarının kısıt katmanı olarak bağlanması; tesis yer seçiminde erken eleme'],
+  DKMP:   ['DKMP / TVKGM', 'Doğa Koruma ve Milli Parklar GM; Tabiat Varlıklarını Koruma GM', 'Koruma', 'Milli parklar, tabiat parkları, sulak alanlar, Özel Çevre Koruma Bölgeleri (Saros, Gökova, Fethiye-Göcek vb.)', 'Resmî koruma alanı sınırları; deniz üstü RES ve yüzer GES için dışlama alanları'],
   TKGM:   ['TKGM', 'Tapu ve Kadastro Genel Müdürlüğü', 'Mekânsal veri', 'Parsel ve kadastro, MEGSİS', 'Parsel bazında saha uygunluğu (bağlı, günlük sorgu limitli)'],
   TUIK:   ['TÜİK', 'Türkiye İstatistik Kurumu', 'İstatistik', 'Nüfus, taşıt, sanayi ve enerji istatistikleri', 'İl ve ilçe bazında talep tahmini girdileri'],
   YEREL:  ['Belediyeler ve sulama birlikleri', 'Yerel yönetimler, OSB\'ler, sulama birlikleri', 'Yerel', 'Kamu binaları, OSB çatıları, gölet ve kanal yüzeyleri', 'Çatı ve yüzer GES pilotları; mahalle ölçeğinde uygulama'],
@@ -32,8 +34,8 @@ const P = {
 };
 const PANE = {
   vizyon:['ETKB','EPDK','EPIAS','TUIK'], canli:['EPIAS','TEIAS','BOTAS'], ithalat:['BOTAS','ETKB','EPDK','TPAO'],
-  katman:['TEIAS','CSB','MTA','EDAS'], bolge:['EDAS','TEIAS','TUIK'], parsel:['TKGM','YEREL'], analiz:['YEREL','MGM','EDAS','CSB'],
-  deniz:['SHODB','UAB','TPAO','MTA','DSI','EUAS','MGM'], senaryo:['EDAS','EPDK','TUIK'], projeler:['ETKB','EUAS','NUK','TPAO','BOTAS','ETI'],
+  katman:['TEIAS','CSB','KTB','DKMP','MTA','EDAS'], bolge:['EDAS','TEIAS','TUIK'], parsel:['TKGM','YEREL'], analiz:['YEREL','MGM','EDAS','CSB'],
+  deniz:['SHODB','UAB','DKMP','TPAO','MTA','DSI','EUAS','MGM'], senaryo:['EDAS','EPDK','TUIK'], projeler:['ETKB','EUAS','NUK','TPAO','BOTAS','ETI','KTB'],
   rapor:['ETKB','EDAS'], enstitu:['TENMAK','AKAD']
 };
 // Paydaşlar bölümü

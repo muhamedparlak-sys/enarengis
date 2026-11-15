@@ -3,13 +3,14 @@
 (() => {
 'use strict';
 const A = window.ENAREN_APP;
-const YONETILEN = ['lyrLines', 'lyrSubs', 'lyrFilo', 'lyrSantral', 'lyrStrat', 'lyrAkis', 'lyrIthal', 'lyrDpot', 'lyrBaraj'];
+const YONETILEN = ['lyrLines', 'lyrSubs', 'lyrFilo', 'lyrSantral', 'lyrStrat', 'lyrAkis', 'lyrIthal', 'lyrDpot', 'lyrBaraj', 'lyrKoruma'];
 const G = {
   denge:  {ad:'Denge',   acik:['lyrAkis'], akis:'tumu', not:'Bölgeler arası elektrik akışı ve hangi bölgenin verici, hangisinin alıcı olduğu.'},
   sebeke: {ad:'Şebeke',  acik:['lyrLines', 'lyrSubs', 'lyrSantral'], not:'İletim hatları, trafo merkezleri ve santraller (gerçek güzergâhlar, OSM).'},
   ithalat:{ad:'İthalat', acik:['lyrAkis', 'lyrIthal'], akis:'ithal', not:'İthal yakıtla üretilen elektriğin akışı; boru hatları, LNG, tanker ve kömür rotaları.'},
   deniz:  {ad:'Deniz',   acik:['lyrDpot', 'lyrFilo', 'lyrBaraj'], not:'Mavi Vatan\'da RES ve yüzer GES alanları, hedef sahalar, baraj gölleri ve arama filosu.'},
-  proje:  {ad:'Projeler', acik:['lyrStrat', 'lyrSantral'], not:'Mevcut santraller ve süren/planlanan stratejik projeler.'}
+  proje:  {ad:'Projeler', acik:['lyrStrat', 'lyrSantral'], not:'Mevcut santraller ve süren/planlanan stratejik projeler.'},
+  kisit:  {ad:'Kısıtlar', acik:['lyrKoruma', 'lyrLines', 'lyrDpot'], not:'Koruma alanları (yeşil) ile şebeke ve deniz potansiyelinin çakıştığı yerler. Kültürel sit alanları resmî veriyle eklenmeli.'}
 };
 let aktif = 'denge';
 function uygula(k){
