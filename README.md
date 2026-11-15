@@ -10,7 +10,9 @@ Amaç: enstitünün **iletim, dağıtım, depolama ve verimlilik** görevlerine 
 | Sekme | İçerik |
 |---|---|
 | Katmanlar | 4 altlık (sade, OSM, yüksek çözünürlüklü uydu, Sentinel-2 2023) · 21 dağıtım bölgesi tematik haritası (tüketim, kayıp, tüketici, tüketici başına tüketim) · il sınırları · güneş ışınımı · OSM iletim/dağıtım hatları (gerilime göre), trafo merkezleri, santraller, güneş kurulum yoğunluğu · CORINE ve GEPA WMS |
-| Analiz | Çatı GES hesaplayıcı (nokta seç / çatıyı çiz → NASA POWER ışınımı → kWp, kWh, hane eşdeğeri, CO₂) · ekrandaki altyapı özeti · 21 bölge karşılaştırma |
+| Analiz | Çatı GES hesaplayıcı (nokta seç / çatıyı çiz → NASA POWER ışınımı → kWp, kWh, hane eşdeğeri, CO₂) · nokta/parsel karşılaştırma (güneş + rüzgâr, denizler dahil) · ekrandaki altyapı özeti · 21 bölge karşılaştırma |
+| EV Senaryo | Fosil yakıttan elektriğe geçişte 2026–2040 yıl kaydırıcısı ve ▶ timelapse: bölge bölge ek tüketim (TWh), akşam şarj puantı (MW, % tahmini puant), akıllı şarj etkisi, karşılamak için gereken çatı GES (MWp). Düşük/Orta/Yüksek/%100 ön ayarları, tüm varsayımlar düzenlenebilir |
+| Parsel | TKGM il → ilçe → mahalle → ada/parsel sorgusu (81 il, 973 ilçe, 49.741 mahalle listesi yerleşik) → parsel haritada, Global Solar Atlas ışınım/PV verimi, rüzgâr, en yakın trafo, arazi GES kapasitesi |
 | Rapor | Bilgi kutularından, analizlerden ve harita görüntülerinden rapor derleme → PDF/yazdır · görünüm bağlantısı paylaşma |
 | Enstitü | Görev tanımı, durum notları, önerilen pilot projeler |
 | Kaynaklar | Ulusal ve uluslararası servis kataloğu, erişim durumu, canlı servis testi |
@@ -19,7 +21,10 @@ Amaç: enstitünün **iletim, dağıtım, depolama ve verimlilik** görevlerine 
 
 - **Dağıtım bölgeleri:** ELDER Elektrik Dağıtım Sektör Raporu 2024 (EPDK 2024 Elektrik Piyasası Gelişim Raporu verisi) — faturalanan tüketim, tüketici sayısı, gerçekleşen kayıp oranı. Bölge sınırları il düzeyinde yaklaşıktır; İstanbul'daki Boğaziçi EDAŞ ve AYEDAŞ birleşik gösterilir.
 - **İl sınırları:** [cihadturhan/tr-geojson](https://github.com/cihadturhan/tr-geojson)
-- **Güneş ışınımı:** NASA POWER, ALLSKY_SFC_SW_DWN, 2001–2025 klimatolojisi (1° ızgara; nokta sorgusu hesaplayıcıda canlı)
+- **Araç verisi:** TÜİK Motorlu Kara Taşıtları Eylül 2026 (il bazında taşıt; otomobil = ulusal oranla), elektrikli otomobil stoku 486.359 (Eylül 2026)
+- **Parsel:** TKGM MEGSİS API (tarayıcıdan doğrudan; IP başına günlük limit). İl/ilçe/mahalle listeleri `arsandan-bot` statik verisinden
+- **Nokta ışınım:** Global Solar Atlas API (Solargis, ≈250 m)
+- **Güneş ışınımı:** NASA POWER, ALLSKY_SFC_SW_DWN, 2001–2025 klimatolojisi (1° güneş, 0,5° rüzgâr 50 m; çevre denizler dahil)
 - **Enerji altyapısı:** OpenStreetMap / OpenInfraMap vektör karoları (gönüllü veri, resmi envanter değildir)
 - **WMS:** Copernicus CORINE 2018 (EEA), ETKB GEPA (TUCBS Public API — 15.11.2026 itibarıyla arka uç hatası veriyor; uygulama canlı kontrol eder)
 - **Altlıklar:** CARTO, OpenStreetMap, Esri World Imagery, EOX Sentinel-2 cloudless 2023 (CC BY 4.0, ticari olmayan kullanım)
