@@ -23,6 +23,7 @@ function pop(b, ll){
   const mw = b['mw' + oran], twh = b['twh' + oran];
   new maplibregl.Popup({maxWidth:'300px'}).setLngLat(ll).setHTML(`<b>${esc(b.ad)}</b><br>Göl alanı ${fmt(b.km2, 1)} km² · ışınım ${fmt(b.ghi)} kWh/m²<br>%${oran} kaplama: <b>${fmt(mw)} MWp</b>, yılda ≈<b>${fmt(twh, 2)} TWh</b>${b.hidro_mw ? `<br>Mevcut HES: ${esc(b.hidro)} ${fmt(b.hidro_mw)} MW → aynı şalt sahası ve iletim hattı ile hibrit çalışma` : ''}${b.icme === true || b.icme === 'true' ? '<br><b>İçme suyu kaynağı:</b> su kalitesi değerlendirmesi önce gerekir.' : ''}`).addTo(map);
 }
+function goster(on){ const m = document.querySelector('#lyrBaraj'); if (m) m.checked = on; const p = document.querySelector('#lyrBarajP'); if (p) p.checked = on; if (m) A.syncLayerChecks(); else ['baraj', 'baraj-lbl'].forEach(l => map.setLayoutProperty(l, 'visibility', on ? 'visible' : 'none')); }
 function panel(){
   const dz = document.querySelector('#pane-deniz'); if (!dz) return;
   const s = document.createElement('section'); s.id = 'barajSec';
@@ -37,9 +38,9 @@ function panel(){
       <ol class="hlist">${D.baraj.slice(0, 12).map((b, i) => `<li data-i="${i}"><span class="hn" style="background:${b.icme ? '#9aa5ad' : '#a07a00'}">${i + 1}</span><span><b>${esc(b.ad)}</b><small>${fmt(b.km2, 1)} km² · %${oran}: ${fmt(b['mw' + oran])} MWp · ${fmt(b['twh' + oran], 2)} TWh/yıl${b.hidro_mw ? ` · HES ${fmt(b.hidro_mw)} MW` : ''}</small></span></li>`).join('')}</ol>
       <p class="hint"><b>Neden baraj gölleri?</b> Dalga yok, kıyıya ve şebekeye yakın; HES'in şalt sahası ve iletim hattı kullanılabilir. GES gündüz üretirken HES suyunu akşam puantına saklayabilir. Panel gölgesi buharlaşmayı azaltır; su yüzeyi panelleri serinletir.</p>
       <p class="hint">Hesap: göl alanları OpenStreetMap'ten; kaplanan alanda 80 MWp/km², yıllık üretim ışınımın %86'sı (kWh/kWp). Uluslararası uygulamada barajlarda %1–10 kaplama oranları kullanılıyor. İçme suyu barajları (gri) toplama dahil edilmedi. Göl seviyesi değişimi, ekoloji ve su hakları saha bazında incelenmelidir.</p>`;
-    s.querySelector('#lyrBarajP').addEventListener('change', e => { ['baraj', 'baraj-lbl'].forEach(l => map.setLayoutProperty(l, 'visibility', e.target.checked ? 'visible' : 'none')); if (e.target.checked){ map.flyTo({center:[36.5, 38.8], zoom:5.2}); A.minimizeSheet(); } });
+    s.querySelector('#lyrBarajP').addEventListener('change', e => { goster(e.target.checked); if (e.target.checked){ map.flyTo({center:[36.5, 38.8], zoom:5.2}); A.minimizeSheet(); } });
     s.querySelector('#barajOran').addEventListener('click', e => { const o = e.target.dataset.o; if (o){ oran = +o; ciz(); } });
-    s.querySelector('.hlist').addEventListener('click', e => { const li = e.target.closest('li'); if (!li) return; const b = D.baraj[+li.dataset.i]; ['baraj', 'baraj-lbl'].forEach(l => map.setLayoutProperty(l, 'visibility', 'visible')); map.flyTo({center:[b.x, b.y], zoom:9}); A.minimizeSheet(); setTimeout(() => pop(b, [b.x, b.y]), 1200); });
+    s.querySelector('.hlist').addEventListener('click', e => { const li = e.target.closest('li'); if (!li) return; const b = D.baraj[+li.dataset.i]; goster(true); map.flyTo({center:[b.x, b.y], zoom:9}); A.minimizeSheet(); setTimeout(() => pop(b, [b.x, b.y]), 1200); });
   };
   ciz();
 }
