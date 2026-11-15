@@ -65,6 +65,12 @@ ELDER["Boğaziçi + AYEDAŞ"] = (
     round(b[0] + a[0], 2), round(b[1] + a[1], 2), round(b[2] + a[2], 2), tot_cons,
     round((b[4] * b[0] + a[4] * a[0]) / (b[0] + a[0]), 2))
 
+# TÜİK Motorlu Kara Taşıtları, Eylül 2026 — il bazında trafiğe kayıtlı toplam taşıt
+TASIT = {"İstanbul":6499506,"Ankara":3152567,"İzmir":2185457,"Antalya":1751229,"Bursa":1391832,"Konya":1036228,"Adana":994457,"Mersin":928245,"Manisa":877995,"Muğla":798204,"Gaziantep":792517,"Hatay":731753,"Balıkesir":723947,"Aydın":697479,"Kocaeli":672490,"Denizli":610541,"Samsun":561782,"Kayseri":544346,"Sakarya":454091,"Eskişehir":410828,"Tekirdağ":402798,"Kahramanmaraş":369117,"Çanakkale":355606,"Şanlıurfa":354734,"Afyon":345012,"Trabzon":306759,"Kütahya":295332,"Tokat":264022,"Malatya":260401,"Isparta":257094,"Osmaniye":254170,"Çorum":234451,"Sivas":227049,"Zonguldak":218130,"Edirne":217307,"Ordu":217028,"Diyarbakır":200525,"Uşak":200061,"Burdur":193499,"Aksaray":192796,"Elazığ":186061,"Kırklareli":186039,"Nevşehir":182230,"Kastamonu":179659,"Amasya":170435,"Düzce":169464,"Adıyaman":168627,"Bolu":163525,"Niğde":160045,"Erzurum":159731,"Yozgat":143889,"Giresun":130254,"Karaman":123994,"Mardin":118177,"Rize":113053,"Yalova":105502,"Van":100373,"Bilecik":100281,"Kırşehir":93784,"Kırıkkale":92146,"Karabük":89068,"Sinop":89063,"Erzincan":87410,"Çankırı":78567,"Batman":73219,"Kilis":72644,"Bartın":72485,"Kars":56929,"Artvin":52428,"Muş":44489,"Şırnak":42371,"Iğdır":40637,"Ağrı":39100,"Gümüşhane":34492,"Siirt":32145,"Bitlis":31886,"Bingöl":27295,"Ardahan":23016,"Bayburt":21996,"Tunceli":14902,"Hakkari":12439}
+OTO_ORAN = 18115875 / 35065235  # Eylül 2026 ulusal otomobil / toplam taşıt
+assert len(TASIT) == 81, len(TASIT)
+print("taşıt toplamı", sum(TASIT.values()))
+
 il_to_edas = {il: e for e, ils in EDAS.items() for il in ils}
 
 il = json.load(open(f"{RAW}/il.json"))
@@ -95,7 +101,8 @@ for f in il["features"]:
     ghi = round(sum(inside) / len(inside), 2)
     il_feats.append({"type": "Feature", "geometry": mapping(g_s), "properties": {
         "il": name if name != "Afyon" else "Afyonkarahisar", "edas": il_to_edas[name],
-        "ghi_gun": ghi, "ghi_yil": round(ghi * 365)}})
+        "ghi_gun": ghi, "ghi_yil": round(ghi * 365),
+        "tasit": TASIT[name], "otomobil": round(TASIT[name] * OTO_ORAN)}})
 
 edas_feats = []
 for e, ils in EDAS.items():
@@ -104,7 +111,8 @@ for e, ils in EDAS.items():
     edas_feats.append({"type": "Feature", "geometry": mapping(g), "properties": {
         "edas": e, "iller": ", ".join("Afyonkarahisar" if i == "Afyon" else i for i in ils),
         "dagitim_twh": d[0], "toplam_twh": d[1], "pay": d[2], "tuketici": d[3], "kayip": d[4],
-        "kwh_kisi": round(d[0] * 1e9 / d[3])}})
+        "kwh_kisi": round(d[0] * 1e9 / d[3]),
+        "tasit": sum(TASIT[i] for i in ils), "otomobil": round(sum(TASIT[i] for i in ils) * OTO_ORAN)}})
 
 tr = unary_union(list(geoms.values()))
 grid = []
@@ -129,3 +137,34 @@ dump("dagitim_bolgeleri.geojson", rnd(edas_feats))
 dump("gunes_grid.geojson", rnd(grid))
 print("il", len(il_feats), "edas", len(edas_feats), "grid", len(grid))
 print("GHI aralığı", min(f["properties"]["ghi_gun"] for f in il_feats), max(f["properties"]["ghi_gun"] for f in il_feats))
+
+# --- Denizleri de kapsayan güneş (1°) ve rüzgâr (0,5°) ızgaraları: raw/g_<PARAM>_<lon>.json ---
+import glob, os
+def grid_from(param, half):
+    feats = []
+    seen = set()
+    for f in sorted(glob.glob(f"{RAW}/g_{param}_*.json")):
+        for ft in json.load(open(f)).get("features", []):
+            x, y = [round(c, 3) for c in ft["geometry"]["coordinates"][:2]]
+            v = ft["properties"]["parameter"][param]["ANN"]
+            if v is None or v < 0 or (x, y) in seen:
+                continue
+            seen.add((x, y))
+            cell = box(x - half, y - half, x + half, y + half)
+            kara = cell.intersection(tr).area / cell.area
+            props = {"deniz": kara < 0.05, "kara_orani": round(kara, 2)}
+            if param == "WS50M":
+                props.update({"ws50": round(v, 2), "wpd": round(0.5 * 1.225 * v ** 3 * 1.91)})
+            else:
+                props.update({"ghi_gun": round(v, 2), "ghi_yil": round(v * 365)})
+            feats.append({"type": "Feature", "geometry": mapping(cell), "properties": props})
+    return feats
+
+if glob.glob(f"{RAW}/g_ALLSKY_SFC_SW_DWN_*.json"):
+    g = grid_from("ALLSKY_SFC_SW_DWN", 0.5)
+    dump("gunes_grid.geojson", rnd(g))
+    w = grid_from("WS50M", 0.25)
+    dump("ruzgar_grid.geojson", rnd(w))
+    print("güneş ızgarası", len(g), "deniz", sum(f["properties"]["deniz"] for f in g),
+          "| rüzgâr ızgarası", len(w), "deniz", sum(f["properties"]["deniz"] for f in w),
+          "| WS50 aralığı", min(f["properties"]["ws50"] for f in w), max(f["properties"]["ws50"] for f in w))

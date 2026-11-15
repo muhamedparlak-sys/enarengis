@@ -22,6 +22,8 @@ window.ENAREN = {
     ["Bölge enerji paneli", "21 dağıtım bölgesinde tüketim, kayıp ve tüketici yoğunluğunu güneş potansiyeli ve şebeke altyapısıyla aynı ekranda gösterme (bu demo)."],
     ["Çatı GES yaygınlık haritası", "Ortofoto + makine öğrenmesi ile PV paneli / sıcak su kolektörü / boş uygun çatı ayrımı; EDAŞ bağlantı kayıtlarıyla karşılaştırma."],
     ["Depolama yer seçimi", "Yenilenebilir bolluğu + tüketim yoğunluğu + trafo bağlanabilir kapasitesi ile batarya depolama aday alanları."],
+    ["EV dönüşümü şebeke etkisi", "İl bazında otomobil parkı + senaryo ile bölge bölge ek tüketim ve akşam şarj puantı; akıllı şarj ve çatı GES ile dengeleme (EV Senaryo sekmesi)."],
+    ["Parsel bazlı yerinde üretim", "TKGM parseli + Global Solar Atlas + rüzgâr + trafo mesafesi ile mahalle/parsel karşılaştırması; denizler dahil rüzgâr ön taraması."],
     ["Kayıp-kaçak mekânsal analizi", "Bölge düzeyindeki kayıp oranını il/ilçe ölçeğine indirip hedefli verimlilik önerileri."]
   ],
   kaynaklar: [
@@ -40,7 +42,9 @@ window.ENAREN = {
     {ad:"CORINE Arazi Örtüsü 2018 (WMS)", kurum:"Copernicus / EEA", tip:"uluslararasi", erisim:"acik", url:"https://image.discomap.eea.europa.eu/arcgis/services/Corine/CLC2018_WM/MapServer/WMSServer", not:"GES/RES yer seçiminde arazi kısıtı.", test:"corine"},
     {ad:"OpenStreetMap / OpenInfraMap", kurum:"OSM topluluğu", tip:"uluslararasi", erisim:"acik", url:"https://openinframap.org", not:"Enerji hatları, trafo merkezleri, santraller ve güneş kurulum yoğunluğu (vektör karo). Gönüllü veri — resmi değil.", test:"oim"},
     {ad:"NASA POWER API", kurum:"NASA", tip:"uluslararasi", erisim:"acik", url:"https://power.larc.nasa.gov", not:"Nokta/bölge bazında güneş ışınımı (2001–2025 klimatoloji). Demodaki güneş katmanı ve çatı GES hesaplayıcı bunu kullanıyor.", test:"power"},
-    {ad:"Global Solar Atlas", kurum:"Dünya Bankası / ESMAP", tip:"uluslararasi", erisim:"acik", url:"https://globalsolaratlas.info", not:"250 m GHI/PVOUT GeoTIFF indirme; GEPA erişilemezse yedek."},
+    {ad:"Global Solar Atlas (nokta API)", kurum:"Dünya Bankası / ESMAP – Solargis", tip:"uluslararasi", erisim:"acik", url:"https://globalsolaratlas.info", not:"≈250 m GHI, DNI, PV özgül verim, optimum eğim. Parsel ve nokta karşılaştırmasında canlı kullanılıyor; GeoTIFF olarak da indirilebilir.", test:"gsa"},
+    {ad:"TÜİK Motorlu Kara Taşıtları", kurum:"TÜİK", tip:"ulusal", erisim:"acik", url:"https://data.tuik.gov.tr", not:"İl bazında taşıt/otomobil ve elektrikli otomobil sayıları; EV senaryosunun tabanı (Eylül 2026)."},
+    {ad:"TKGM Parsel Sorgu (MEGSİS API)", kurum:"Tapu ve Kadastro GM", tip:"ulusal", erisim:"acik", url:"https://parselsorgu.tkgm.gov.tr", not:"İl/ilçe/mahalle/ada/parsel geometrisi; IP başına günlük sorgu limiti var. Parsel sekmesinde kullanılıyor.", test:"tkgm"},
     {ad:"Global Wind Atlas", kurum:"DTU / Dünya Bankası", tip:"uluslararasi", erisim:"acik", url:"https://globalwindatlas.info", not:"250 m rüzgâr hızı/güç yoğunluğu GeoTIFF."},
     {ad:"PVGIS", kurum:"AB JRC", tip:"uluslararasi", erisim:"acik", url:"https://re.jrc.ec.europa.eu/pvg_tools/", not:"Ayrıntılı PV üretim simülasyonu (API tarayıcıdan doğrudan çağrılamaz; sunucu tarafında kullanılmalı)."},
     {ad:"Google / Microsoft açık bina izleri", kurum:"Google, Microsoft", tip:"uluslararasi", erisim:"acik", url:"https://sites.research.google/open-buildings/", not:"Bina poligonları; çatı alanı ve potansiyel hesabı için."}

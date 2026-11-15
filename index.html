@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f3d5e">
 <title>ENAREN Enerji WebGIS – Demo</title>
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-<link rel="stylesheet" href="css/style.css?v=4">
+<link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
 <header class="topbar">
@@ -26,6 +26,8 @@
   <nav class="tabs" role="tablist">
     <button class="tab active" data-tab="katman">Katmanlar</button>
     <button class="tab" data-tab="analiz">Analiz</button>
+    <button class="tab" data-tab="senaryo">EV Senaryo</button>
+    <button class="tab" data-tab="parsel">Parsel</button>
     <button class="tab" data-tab="rapor">Rapor <b id="reportCount" class="badge hidden">0</b></button>
     <button class="tab" data-tab="enstitu">Enstitü</button>
     <button class="tab" data-tab="kaynak">Kaynaklar</button>
@@ -45,10 +47,14 @@
           <option value="kayip">Kayıp oranı (%)</option>
           <option value="tuketici">Tüketici sayısı</option>
           <option value="kwh_kisi">Tüketici başına dağıtım tüketimi (kWh)</option>
+          <option value="otomobil">Otomobil sayısı (2026)</option>
+          <option value="ev_pct">EV ek tüketimi (% mevcut) – senaryo yılı</option>
+          <option value="ev_puant_pct">EV ek akşam puantı (% tahmini puant) – senaryo yılı</option>
         </select>
       </div>
       <label class="row"><input type="checkbox" id="lyrIl"> İl sınırları</label>
-      <label class="row"><input type="checkbox" id="lyrSolar"> Güneş ışınımı (NASA POWER, 1°)</label>
+      <label class="row"><input type="checkbox" id="lyrSolar"> Güneş ışınımı – kara + denizler (NASA POWER, 1°)</label>
+      <label class="row"><input type="checkbox" id="lyrWind"> Rüzgâr hızı 50 m – kara + denizler (NASA POWER, 0,5°)</label>
 
       <h3>Enerji altyapısı (OpenStreetMap)</h3>
       <label class="row"><input type="checkbox" id="lyrLines" checked> İletim / dağıtım hatları</label>
@@ -96,6 +102,13 @@
       </details>
 
       <details>
+        <summary>📍 Nokta / parsel karşılaştırma (güneş + rüzgâr)</summary>
+        <p class="hint">Haritada noktalar seçin veya Parsel sekmesinden parsel ekleyin; Global Solar Atlas (≈250 m) ve NASA POWER rüzgâr verisiyle yan yana karşılaştırılır. Denizdeki noktalar (açık deniz rüzgârı) da eklenebilir.</p>
+        <div class="btnrow"><button id="btnCmpPick" class="btn">📍 Nokta ekle</button><button id="btnCmpReport" class="btn primary hidden">+ Rapora ekle</button><button id="btnCmpClear" class="btn ghost hidden" style="margin-top:0">Temizle</button></div>
+        <div id="cmpTable" class="result muted">Henüz nokta yok.</div>
+      </details>
+
+      <details>
         <summary>📊 Bölge karşılaştırma</summary>
         <select id="rankMetric">
           <option value="toplam_twh">Faturalanan tüketim (TWh)</option>
@@ -106,6 +119,66 @@
         </select>
         <div id="rankList" class="bars"></div>
         <button id="btnRankReport" class="btn primary">+ Rapora ekle</button>
+      </details>
+    </div>
+
+    <!-- EV SENARYO -->
+    <div class="pane" id="pane-senaryo">
+      <p class="hint">Fosil yakıtlı otomobillerin elektriğe geçişinde her dağıtım bölgesinin ek elektrik ihtiyacı ve akşam şarj puantı. Başlangıç: Eylül 2026, 486 bin EV (otomobil parkının %2,7'si).</p>
+      <div class="chips" id="evPreset">
+        <button class="chip" data-p="dusuk">Düşük</button>
+        <button class="chip active" data-p="orta">Orta</button>
+        <button class="chip" data-p="yuksek">Yüksek</button>
+        <button class="chip" data-p="tam">%100 dönüşüm</button>
+      </div>
+      <div class="yearbox">
+        <button id="evPlay" class="btn primary" aria-label="Oynat">▶</button>
+        <input type="range" id="evYear" min="2026" max="2040" step="1" value="2035">
+        <strong id="evYearLbl">2035</strong>
+      </div>
+      <div id="evNat" class="result"></div>
+      <details>
+        <summary>⚙ Varsayımlar</summary>
+        <div class="grid2">
+          <label>EV payı 2030 (%)<input type="number" id="ev2030" value="8" step="0.5"></label>
+          <label>EV payı 2035 (%)<input type="number" id="ev2035" value="18" step="0.5"></label>
+          <label>EV payı 2040 (%)<input type="number" id="ev2040" value="32" step="0.5"></label>
+          <label>Otomobil parkı artışı (%/yıl)<input type="number" id="evGrowth" value="2.5" step="0.1"></label>
+          <label>Yıllık km / araç<input type="number" id="evKm" value="12000" step="500"></label>
+          <label>Tüketim (kWh/100 km)<input type="number" id="evCons" value="17" step="0.5"></label>
+          <label>Şarj kaybı (%)<input type="number" id="evLoss" value="10" step="1"></label>
+          <label>Akşam eşzamanlı yük (kW/EV)<input type="number" id="evPeakKw" value="0.8" step="0.05"></label>
+          <label>Akıllı şarj ile (kW/EV)<input type="number" id="evSmartKw" value="0.3" step="0.05"></label>
+          <label>Şebeke yük faktörü<input type="number" id="evLf" value="0.65" step="0.01"></label>
+        </div>
+        <p class="hint">EV payı ülke geneli, tüm illere eşit uygulanır (büyükşehirlerde gerçekte daha yüksektir). Mevcut puant = yıllık tüketim ÷ 8760 ÷ yük faktörü ile tahmin edilir; gerçek bölge puantı EDAŞ'tan alınmalıdır.</p>
+      </details>
+      <label class="row"><input type="checkbox" id="evSmart"> Akıllı şarj senaryosu (puantı kaydır)</label>
+      <h3>Bölgeler – seçili yıl</h3>
+      <div id="evTable" class="bars"></div>
+      <button id="btnEvReport" class="btn primary">+ Senaryoyu rapora ekle</button>
+    </div>
+
+    <!-- PARSEL -->
+    <div class="pane" id="pane-parsel">
+      <p class="hint">TKGM parsel sorgusu (il → ilçe → mahalle → ada/parsel). Sorgu doğrudan telefonunuzdan TKGM'ye gider; TKGM IP başına günlük sorgu limiti uygular.</p>
+      <label class="block">İl<select id="pIl"><option value="">— İl seçin —</option></select></label>
+      <label class="block">İlçe<select id="pIlce" disabled><option value="">— İlçe seçin —</option></select></label>
+      <label class="block">Mahalle / köy<select id="pMah" disabled><option value="">— Mahalle seçin —</option></select></label>
+      <div class="grid2">
+        <label>Ada<input type="text" id="pAda" inputmode="numeric" placeholder="örn. 1234"></label>
+        <label>Parsel<input type="text" id="pParsel" inputmode="numeric" placeholder="örn. 5"></label>
+      </div>
+      <div class="btnrow"><button id="btnParsel" class="btn primary">Parseli getir</button></div>
+      <div id="parselResult" class="result muted">Henüz sorgu yapılmadı.</div>
+      <div class="btnrow">
+        <button id="btnParselReport" class="btn primary hidden">+ Rapora ekle</button>
+        <button id="btnParselGes" class="btn hidden">☀ Bu parselde GES hesapla</button>
+      </div>
+      <details>
+        <summary>⚙ Gelişmiş: proxy adresi</summary>
+        <p class="hint">TKGM limiti aşıldığında kendi proxy'nizi (ör. Cloudflare Worker / Supabase Edge Function, POST {url}) girebilirsiniz. Boş bırakılırsa doğrudan TKGM'ye gidilir.</p>
+        <input type="text" id="pProxy" placeholder="https://...">
       </details>
     </div>
 
@@ -142,7 +215,8 @@
 <div id="printArea" class="print-area"></div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="js/content.js?v=4"></script>
-<script src="js/app.js?v=4"></script>
+<script src="js/content.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
+<script src="js/modules.js?v=5"></script>
 </body>
 </html>

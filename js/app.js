@@ -24,6 +24,9 @@ const METRICS = {
   kayip:      {ad:'Kayıp oranı', birim:'%', d:1, ramp:['#fff5eb','#fdae6b','#e6550d','#7f2704']},
   tuketici:   {ad:'Tüketici sayısı', birim:'', d:0, ramp:['#f2f0f7','#bcbddc','#807dba','#3f007d']},
   kwh_kisi:   {ad:'Tüketici başına dağıtım tüketimi', birim:'kWh', d:0, ramp:['#f7fcf5','#a1d99b','#41ab5d','#00441b']},
+  otomobil:   {ad:'Otomobil sayısı (Eyl. 2026)', birim:'', d:0, ramp:['#f7f4f9','#c994c7','#dd1c77','#67001f']},
+  ev_pct:     {ad:'EV ek tüketimi', birim:'% mevcut', d:1, ramp:['#ffffe5','#fec44f','#ec7014','#8c2d04']},
+  ev_puant_pct:{ad:'EV ek akşam puantı', birim:'% tahmini puant', d:1, ramp:['#fff7f3','#fa9fb5','#dd3497','#49006a']},
   ghi:        {ad:'Ortalama güneş ışınımı', birim:'kWh/m²·yıl', d:0, ramp:['#ffffcc','#fed976','#fd8d3c','#bd0026']}
 };
 
@@ -64,7 +67,14 @@ map.on('load', async () => {
   // Güneş ızgarası
   map.addSource('solar', {type:'geojson', data:grid});
   map.addLayer({id:'solar', type:'fill', source:'solar', layout:{visibility:'none'}, paint:{
-    'fill-color':['interpolate',['linear'],['get','ghi_yil'],1400,'#ffffcc',1600,'#fed976',1750,'#fd8d3c',1900,'#bd0026'], 'fill-opacity':0.55}});
+    'fill-color':['interpolate',['linear'],['get','ghi_yil'],1400,'#ffffcc',1600,'#fed976',1750,'#fd8d3c',1900,'#bd0026'], 'fill-opacity':['case',['get','deniz'],0.4,0.55]}});
+
+  // Rüzgâr ızgarası (denizler dahil)
+  const wind = await fetch('data/ruzgar_grid.geojson').then(r => r.json());
+  map.addSource('wind', {type:'geojson', data:wind});
+  map.addLayer({id:'wind', type:'fill', source:'wind', layout:{visibility:'none'}, paint:{
+    'fill-color':['interpolate',['linear'],['get','ws50'],2,'#f7fbff',3.5,'#c6dbef',4.5,'#6baed6',5.5,'#2171b5',6.5,'#08306b',7.5,'#3f007d'], 'fill-opacity':0.6}});
+  map.addLayer({id:'wind-sea', type:'line', source:'wind', filter:['==',['get','deniz'],true], layout:{visibility:'none'}, paint:{'line-color':'#ffffff','line-width':0.3,'line-opacity':0.5}});
 
   // Dağıtım bölgeleri
   map.addSource('edas', {type:'geojson', data:edas});
@@ -152,6 +162,7 @@ function renderLegend(){
     const key = $('#edasMetric').value, m = METRICS[key], b = state.breaks || breaks(key);
     parts.push(`<div class="lt">${m.ad}${m.birim ? ' (' + m.birim + ')' : ''}</div><div class="ramp" style="background:linear-gradient(90deg,${m.ramp.join(',')})"></div><div class="lab"><span>${fmt(b[0], m.d)}</span><span>${fmt(b[3], m.d)}</span></div>`);
   }
+  if ($('#lyrWind').checked) parts.push(`<div class="lt" style="margin-top:6px">50 m rüzgâr hızı (m/s)</div><div class="ramp" style="background:linear-gradient(90deg,#f7fbff,#6baed6,#2171b5,#08306b,#3f007d)"></div><div class="lab"><span>2</span><span>7,5+</span></div>`);
   if ($('#lyrSolar').checked) parts.push(`<div class="lt" style="margin-top:6px">Güneş ışınımı (kWh/m²·yıl)</div><div class="ramp" style="background:linear-gradient(90deg,#ffffcc,#fed976,#fd8d3c,#bd0026)"></div><div class="lab"><span>1.400</span><span>1.900</span></div>`);
   if ($('#lyrLines').checked) parts.push(`<div class="lt" style="margin-top:6px">Hat gerilimi</div>
     <div><i class="sw" style="background:#c0392b"></i>380–400 kV</div><div><i class="sw" style="background:#e6550d"></i>200–300 kV</div>
@@ -212,6 +223,7 @@ const VAL_LABEL = {solar:'Güneş', wind:'Rüzgâr', hydro:'Hidro', gas:'Doğalg
 map.on('click', (e) => {
   if (state.mode === 'point') return setGesPoint(e.lngLat);
   if (state.mode === 'draw') return addVertex(e.lngLat);
+  if (state.mode) return; // diğer modlar (karşılaştırma vb.) modules.js'de işlenir
 
   const layers = ['oim-plants','oim-subs','oim-lines','edas-fill'].filter(l => map.getLayer(l) && map.getLayoutProperty(l, 'visibility') !== 'none');
   const bb = [[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]];
@@ -239,6 +251,11 @@ map.on('click', (e) => {
   const div = document.createElement('div');
   div.innerHTML = html + '<button class="btn primary">+ Rapora ekle</button>';
   div.querySelector('button').onclick = () => { addReport(item); popup.remove(); };
+  if (item.tip === 'bolge' && window.ENAREN_MOD){
+    const b2 = document.createElement('button'); b2.className = 'btn'; b2.style.marginLeft = '6px'; b2.textContent = '📄 Bölge raporu';
+    b2.onclick = () => { popup.remove(); window.ENAREN_MOD.bolgeRaporu(p.edas); };
+    div.appendChild(b2);
+  }
   const popup = new maplibregl.Popup({maxWidth:'290px'}).setLngLat(e.lngLat).setDOMContent(div).addTo(map);
 });
 map.on('mousemove', (e) => {
@@ -494,6 +511,8 @@ const TESTS = {
   eox: () => testImg('https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2023_3857/default/g/6/24/38.jpg'),
   corine: () => testImg(wmsUrl(CORINE_WMS, '12').replace('{bbox-epsg-3857}', '3600000,4700000,3700000,4800000')),
   oim: () => fetch('https://openinframap.org/tiles/6/38/24.pbf').then(r => r.ok),
+  gsa: () => fetch('https://api.globalsolaratlas.info/data/lta?loc=39.92,32.85').then(r => r.ok),
+  tkgm: () => fetch('https://cbsapi.tkgm.gov.tr/megsiswebapi.v3.1/api/idariYapi/ilceListe/28').then(r => r.status === 200 || r.status === 403),
   power: () => fetch('https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=32.85&latitude=39.93&format=JSON').then(r => r.ok)
 };
 function testImg(u){ return new Promise(ok => { const i = new Image(); const t = setTimeout(() => ok(false), 12000); i.onload = () => { clearTimeout(t); ok(i.width > 0); }; i.onerror = () => { clearTimeout(t); ok(false); }; i.src = u; }); }
@@ -505,6 +524,7 @@ $('#btnTestAll').onclick = async () => {
     el.textContent = ok ? '✓ Çalışıyor' : '✗ Yanıt yok'; el.className = 'tag ' + (ok ? 'acik' : 'bozuk');
   }
 };
+window.ENAREN_APP = { map, state, addReport, fmt, setVis, goTab, minimizeSheet, openSheet, whichFeature, selectEdas, bbox, applyMetric, renderLegend, syncLayerChecks, METRICS, LAYER_MAP, setBasemap, edasHtml, centroid, ringArea, toast };
 async function checkGepa(){
   const ok = await runTest('gepa');
   const s = $('#gepaStatus'); s.textContent = ok ? 'erişilebilir' : 'erişilemiyor'; s.className = 'status ' + (ok ? 'ok' : 'bad');
