@@ -115,12 +115,18 @@ $('#btnBinaDemo').onclick = () => {
   map.once('idle', () => setTimeout(binaHesap, 400));
 };
 function binaHesap(){
+  // Karo geometrileri görünür alanın dışına taşar: yalnızca merkezi ekranda olan bina parçalarını say
   const fs = map.queryRenderedFeatures({layers:['bina']});
-  const seen = new Set(); let n = 0, area = 0;
+  const b = map.getBounds(), seen = new Set(); let n = 0, area = 0;
   fs.forEach(f => {
-    const k = f.id ?? JSON.stringify(f.geometry.coordinates[0]?.[0]); if (seen.has(k)) return; seen.add(k);
     const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [];
-    polys.forEach(p => { area += A.ringArea(p[0].slice(0, -1)); }); n++;
+    polys.forEach(p => {
+      const ring = p[0].slice(0, -1); if (ring.length < 3) return;
+      const cx = ring.reduce((s, q) => s + q[0], 0) / ring.length, cy = ring.reduce((s, q) => s + q[1], 0) / ring.length;
+      if (!b.contains([cx, cy])) return;
+      const k = cx.toFixed(6) + ',' + cy.toFixed(6); if (seen.has(k)) return; seen.add(k);
+      area += A.ringArea(ring); n++;
+    });
   });
   const c = map.getCenter();
   const use = 0.45, kwpm2 = 0.2; // düz/eğimli karma çatı, engeller ve aralık payı
