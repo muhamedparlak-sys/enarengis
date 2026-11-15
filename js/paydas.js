@@ -6,37 +6,62 @@ const A = window.ENAREN_APP;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // [kısa ad, tam ad, grup, elindeki veri / yetki, ENAREN ile işbirliği konusu]
 const P = {
-  ETKB:   ['ETKB', 'Enerji ve Tabii Kaynaklar Bakanlığı (EİGM)', 'Politika', 'Enerji politikası, hedefler, YEKA yarışmaları, enerji istatistikleri', 'Hedef ve senaryo varsayımlarının doğrulanması; YEKA saha ön elemesine bilimsel destek'],
-  EPDK:   ['EPDK', 'Enerji Piyasası Düzenleme Kurumu', 'Düzenleyici', 'Lisans ve önlisanslar, piyasa raporları, dağıtım kayıp-kaçak verisi', 'Lisanslı tesis konumları; il ve bölge bazında sektörel tüketim'],
-  EPIAS:  ['EPİAŞ', 'Enerji Piyasaları İşletme A.Ş.', 'Piyasa', 'Gerçek zamanlı üretim ve tüketim, fiyatlar, doğal gaz iletim verisi', 'Canlı veri bağlantısı (kuruldu); santral bazında üretim verisine erişim'],
-  TEIAS:  ['TEİAŞ', 'Türkiye Elektrik İletim A.Ş.', 'Şebeke', 'İletim hatları, trafo merkezleri, bağlantı kapasiteleri, yük akışı', 'Gerçek şebeke modeliyle bölgeler arası akış; yeni RES ve GES için bağlantı noktası analizi'],
-  EDAS:   ['TEDAŞ / EDAŞ\'lar', 'TEDAŞ ve 21 elektrik dağıtım şirketi', 'Şebeke', 'Dağıtım şebekesi (OG/AG), abone ve tüketim, kayıp oranları', 'İl, ilçe ve mahalle bazında tüketim; çatı GES ve EV şarj yükü analizi'],
-  EUAS:   ['EÜAŞ', 'Elektrik Üretim A.Ş.', 'Üretim', 'Kamu santralleri; Atatürk, Keban, Karakaya, Ilısu, Birecik HES\'leri', 'HES + yüzer GES hibrit pilotu; işletme verisiyle üretim tamamlayıcılığı'],
-  DSI:    ['DSİ', 'Devlet Su İşleri Genel Müdürlüğü', 'Su', 'Baraj gölleri, su seviyeleri, yüzer GES kiralama yetkisi, Kuzova Yüzer GES', 'Baraj göllerinde yüzer GES saha seçimi; su seviyesi ve buharlaşma verisi'],
-  BOTAS:  ['BOTAŞ', 'Boru Hatları ile Petrol Taşıma A.Ş.', 'Doğal gaz', 'Doğal gaz iletim şebekesi, LNG terminalleri, yer altı depolama, ithalat sözleşmeleri', 'Gaz arz güvenliği göstergeleri; depolama ve LNG kapasite senaryoları'],
-  TPAO:   ['TPAO', 'Türkiye Petrolleri A.O.', 'Arama-üretim', 'Sondaj ve sismik filo, Sakarya gaz sahası, Gabar petrolü', 'Deniz alanı kullanım çakışmaları; deniz üstü RES ile platform altyapısının ortak kullanımı'],
-  MTA:    ['MTA', 'Maden Tetkik ve Arama Genel Müdürlüğü', 'Yer bilimleri', 'Jeotermal kaynak envanteri, maden ve kömür sahaları, jeoloji haritaları, Oruç Reis sismik gemisi', 'Jeotermal potansiyel katmanı; deniz tabanı jeolojisi ve zemin verisi'],
-  ETI:    ['Eti Maden', 'Eti Maden İşletmeleri (bor, lityum)', 'Hammadde', 'Bor rezervleri, Bandırma lityum üretimi, kritik mineraller', 'Batarya ve depolama hammaddesi; yerli depolama değer zinciri'],
-  TKI:    ['TKİ', 'Türkiye Kömür İşletmeleri', 'Üretim', 'Linyit sahaları ve üretimi', 'Kömür sahalarının dönüşümü; maden sahalarında GES ve depolama'],
-  NUK:    ['Akkuyu / NGS', 'Akkuyu Nükleer A.Ş. ve Nükleer Enerji Proje Uygulama', 'Üretim', 'Nükleer santral projeleri (Akkuyu, Sinop, Trakya), SMR', 'Nükleer kapasitenin şebeke ve senaryo modellerine dahil edilmesi'],
-  TENMAK: ['TENMAK enstitüleri', 'TENMAK (NÜKEN, BOREN, NATEN ve diğerleri)', 'Araştırma', 'Nükleer, bor ve nadir toprak elementleri araştırmaları', 'Kurum içi ortak projeler; bor tabanlı depolama, nükleer senaryolar'],
-  SHODB:  ['SHODB', 'Seyir, Hidrografi ve Oşinografi Dairesi', 'Deniz', 'Resmî batimetri, deniz haritaları, askerî ve tatbikat alanları', 'Deniz üstü RES ve yüzer GES için kesin dışlama alanları ve yüksek çözünürlüklü derinlik'],
-  UAB:    ['UAB / Kıyı Emniyeti', 'Ulaştırma ve Altyapı Bakanlığı, Kıyı Emniyeti GM', 'Deniz', 'Seyir koridorları, Türk Boğazları trafik verisi, limanlar', 'Seyir yollarının dışlanması; boğaz akıntısı pilotu için izin süreci'],
-  MGM:    ['MGM', 'Meteoroloji Genel Müdürlüğü', 'İklim', 'Rüzgâr ve ışınım ölçümleri, iklim projeksiyonları', 'Uydu verisinin yer ölçümleriyle doğrulanması'],
-  CSB:    ['ÇŞİDB / TUCBS', 'Çevre, Şehircilik ve İklim Değişikliği Bakanlığı (CBS GM)', 'Mekânsal veri', 'TUCBS katmanları: YEKA, lisanssız sahalar, İHA ortofotoları, koruma alanları', 'Kapalı katmanların servis olarak bağlanması; ortofotodan çatı GES tespiti'],
-  KTB:    ['KTB', 'Kültür ve Turizm Bakanlığı (Kültür Varlıkları ve Müzeler GM)', 'Koruma', 'Kültürel ve arkeolojik sit alanları, tescilli yapılar', 'Sit alanlarının kısıt katmanı olarak bağlanması; tesis yer seçiminde erken eleme'],
-  DKMP:   ['DKMP / TVKGM', 'Doğa Koruma ve Milli Parklar GM; Tabiat Varlıklarını Koruma GM', 'Koruma', 'Milli parklar, tabiat parkları, sulak alanlar, Özel Çevre Koruma Bölgeleri (Saros, Gökova, Fethiye-Göcek vb.)', 'Resmî koruma alanı sınırları; deniz üstü RES ve yüzer GES için dışlama alanları'],
-  TKGM:   ['TKGM', 'Tapu ve Kadastro Genel Müdürlüğü', 'Mekânsal veri', 'Parsel ve kadastro, MEGSİS', 'Parsel bazında saha uygunluğu (bağlı, günlük sorgu limitli)'],
-  TUIK:   ['TÜİK', 'Türkiye İstatistik Kurumu', 'İstatistik', 'Nüfus, taşıt, sanayi ve enerji istatistikleri', 'İl ve ilçe bazında talep tahmini girdileri'],
-  YEREL:  ['Belediyeler ve sulama birlikleri', 'Yerel yönetimler, OSB\'ler, sulama birlikleri', 'Yerel', 'Kamu binaları, OSB çatıları, gölet ve kanal yüzeyleri', 'Çatı ve yüzer GES pilotları; mahalle ölçeğinde uygulama'],
-  AKAD:   ['Üniversiteler', 'İTÜ, ODTÜ, ÇOMÜ, Uludağ ve diğerleri', 'Araştırma', 'Akıntı, rüzgâr, yüzer GES ve şebeke çalışmaları', 'Ortak proje ve tez; boğaz akıntısı ve yüzer GES literatürü'],
-  ULUS:   ['Uluslararası', 'Dünya Bankası, Ember, IEA, ENTSO-E', 'Uluslararası', 'Deniz üstü rüzgâr yol haritası, bağımsız analizler, Avrupa şebeke verisi', 'Yöntem karşılaştırması ve finansman; komşu ülke ve Avrupa bağlantıları']
+  // Politika ve düzenleme
+  ETKB:   ['ETKB (EİGM)', 'Enerji ve Tabii Kaynaklar Bakanlığı, Enerji İşleri GM', 'Politika ve düzenleme', 'Enerji politikası, hedefler, YEKA yarışmaları, enerji istatistikleri', 'Hedef ve senaryo varsayımları; YEKA saha ön elemesine bilimsel destek'],
+  EPDK:   ['EPDK', 'Enerji Piyasası Düzenleme Kurumu', 'Politika ve düzenleme', 'Lisans ve önlisanslar, piyasa raporları, kayıp-kaçak verisi', 'Lisanslı tesis konumları; il ve bölge bazında sektörel tüketim'],
+  SBB:    ['SBB / Kalkınma ajansları', 'Strateji ve Bütçe Başkanlığı, 26 kalkınma ajansı', 'Politika ve düzenleme', 'Bölgesel plan ve destek programları', 'Bölgesel enerji projelerine finansman; il ölçeğinde pilotlar'],
+  // Piyasa ve şebeke
+  EPIAS:  ['EPİAŞ', 'Enerji Piyasaları İşletme A.Ş.', 'Piyasa ve iletim', 'Gerçek zamanlı üretim ve tüketim, fiyatlar, gaz iletim verisi', 'Canlı veri bağlantısı (kuruldu); santral bazında üretim'],
+  TEIAS:  ['TEİAŞ', 'Türkiye Elektrik İletim A.Ş.', 'Piyasa ve iletim', 'İletim hatları, trafo merkezleri, bağlantı kapasiteleri, yük akışı', 'Gerçek şebeke modeliyle akış; yeni RES ve GES için bağlantı noktası'],
+  BOTAS:  ['BOTAŞ', 'Boru Hatları ile Petrol Taşıma A.Ş.', 'Piyasa ve iletim', 'Gaz iletim şebekesi, LNG, yer altı depolama, ithalat sözleşmeleri', 'Gaz arz güvenliği göstergeleri; depolama ve LNG senaryoları'],
+  // Dağıtıcılar
+  EDAS:   ['TEDAŞ ve 21 EDAŞ', 'TEDAŞ ve elektrik dağıtım şirketleri', 'Dağıtıcılar', 'Dağıtım şebekesi (OG/AG), abone ve tüketim, kayıp oranları', 'İl/ilçe/mahalle tüketimi; çatı GES ve EV şarj yükü; katı hal transformatörü pilot sahası'],
+  GDZ:    ['Gaz dağıtım şirketleri', 'Şehir içi doğal gaz dağıtıcıları (İGDAŞ, Başkentgaz vb.)', 'Dağıtıcılar', 'Şehir içi gaz şebekesi ve abone tüketimi', 'Isınmada elektrifikasyon ve ısı pompası senaryoları'],
+  // Üreticiler
+  EUAS:   ['EÜAŞ', 'Elektrik Üretim A.Ş.', 'Üreticiler', 'Kamu santralleri; Atatürk, Keban, Karakaya, Ilısu, Birecik HES\'leri', 'HES + yüzer GES hibrit pilotu; redoks akış bataryası çalışması'],
+  NUK:    ['Akkuyu / NGS', 'Akkuyu Nükleer A.Ş. ve nükleer projeler', 'Üreticiler', 'Akkuyu, Sinop, Trakya, SMR planları', 'Nükleer kapasitenin şebeke ve senaryo modellerine dahil edilmesi'],
+  TKI:    ['TKİ', 'Türkiye Kömür İşletmeleri', 'Üreticiler', 'Linyit sahaları ve üretimi', 'Kömür sahalarının dönüşümü; maden sahalarında GES ve depolama'],
+  URD:    ['Üretici birlikleri', 'EÜD, TÜREB, GÜNDER, GENSED, JESDER', 'Üreticiler', 'Özel santral portföyü, sektör verisi, yatırım planları', 'Yatırımcı ihtiyacına göre saha ve bağlantı analizleri'],
+  TPAO:   ['TPAO', 'Türkiye Petrolleri A.O.', 'Üreticiler', 'Sondaj ve sismik filo, Sakarya gazı, Gabar petrolü', 'Deniz alanı çakışmaları; platform altyapısının deniz üstü RES ile ortak kullanımı'],
+  // Büyük tüketiciler
+  OSB:    ['OSB\'ler (OSBÜK)', 'Organize sanayi bölgeleri ve üst kuruluşu', 'Büyük tüketiciler', 'Sanayi tüketimi, çatı ve arazi alanları; bazıları dağıtım lisanslı', 'OSB çatı GES ve depolama pilotları; sanayi yük profilleri'],
+  AGIR:   ['Ağır sanayi', 'Demir-çelik, çimento (TÇMB), kimya, cam üreticileri', 'Büyük tüketiciler', 'Yoğun ve sürekli elektrik ile gaz tüketimi', 'Verimlilik, atık ısı ve elektrifikasyon; karbon düzenlemesine uyum'],
+  TCDD:   ['TCDD ve raylı sistemler', 'TCDD, metro işletmeleri', 'Büyük tüketiciler', 'Elektrikli hat ve cer gücü tüketimi', 'Ray güzergâhında GES; şebeke yükü'],
+  DSIS:   ['Sulama birlikleri ve DSİ pompajı', 'Tarımsal sulama pompaj istasyonları', 'Büyük tüketiciler', 'Yaz puantında yüksek tarımsal tüketim', 'Sulama GES\'i ve yüzer GES (Kuzova örneği)'],
+  // Yerli araç-gereç üreticileri
+  TEMSAN: ['TEMSAN', 'Türkiye Elektromekanik Sanayi A.Ş. (ETKB ilgili kuruluşu)', 'Yerli ekipman üreticileri', 'Türbin, jeneratör, HES elektromekanik ekipmanı', 'Yerli türbin ve jeneratör; test altyapısı ortaklığı'],
+  ASEL:   ['ASELSAN ve ASPİLSAN', 'Yerli rüzgâr türbini (%80 yerlilik) ve batarya hücresi', 'Yerli ekipman üreticileri', 'Rüzgâr türbini ve güç elektroniği; LFP hücre üretim yatırımı', 'Batarya ve güç elektroniğinde dışa bağımlılığı azaltan ortak Ar-Ge'],
+  EMSAD:  ['EMSAD', 'Elektromekanik Sanayicileri Derneği (transformatör, kablo, şalt)', 'Yerli ekipman üreticileri', 'Transformatör ve şalt üretimi; güçlü ihracatçı sektör', 'Katı hal transformatörü projesinde sanayi ortağı ve test'],
+  PILDER: ['PİLDER ve GENSED üreticileri', 'Pil/batarya ve güneş paneli üreticileri', 'Yerli ekipman üreticileri', 'Batarya paketleme ve hücre; panel montajı ve hücre yatırımları', 'Hücre ve wafer gibi en çok ithal edilen kalemlerde yerlileştirme'],
+  ETI:    ['Eti Maden', 'Eti Maden İşletmeleri (bor, lityum)', 'Yerli ekipman üreticileri', 'Bor rezervleri, Bandırma lityum üretimi, kritik mineraller', 'Batarya hammaddesi; yerli depolama değer zinciri'],
+  // Kaynak ve yer bilimleri
+  MTA:    ['MTA', 'Maden Tetkik ve Arama GM', 'Kaynak ve yer bilimleri', 'Jeotermal envanter, maden ve kömür sahaları, jeoloji, Oruç Reis sismik gemisi', 'Jeotermal potansiyel katmanı; deniz tabanı jeolojisi'],
+  DSI:    ['DSİ', 'Devlet Su İşleri GM', 'Kaynak ve yer bilimleri', 'Baraj gölleri, su seviyeleri, yüzer GES kiralama yetkisi', 'Baraj göllerinde yüzer GES saha seçimi; buharlaşma verisi'],
+  MGM:    ['MGM', 'Meteoroloji GM', 'Kaynak ve yer bilimleri', 'Rüzgâr ve ışınım ölçümleri, iklim projeksiyonları', 'Uydu verisinin yer ölçümleriyle doğrulanması'],
+  SHODB:  ['SHODB', 'Seyir, Hidrografi ve Oşinografi Dairesi', 'Kaynak ve yer bilimleri', 'Resmî batimetri ve deniz haritaları', 'Deniz üstü RES ve yüzer GES için yüksek çözünürlüklü derinlik'],
+  // Sınırlılıklar: koruma ve izin
+  KVMGM:  ['Kültür Varlıkları ve Müzeler GM', 'Kültür ve Turizm Bakanlığı', 'Sınırlılıklar (koruma ve izin)', 'Kültürel ve arkeolojik sit alanları, tescilli yapılar', 'Sit alanlarının kısıt katmanı; tesis yer seçiminde erken eleme'],
+  TVKGM:  ['Tabiat Varlıklarını Koruma GM', 'Çevre, Şehircilik ve İklim Değişikliği Bakanlığı', 'Sınırlılıklar (koruma ve izin)', 'Doğal sit alanları, Özel Çevre Koruma Bölgeleri (Saros, Gökova, Marmara vb.)', 'ÖÇKB sınırları; deniz üstü RES ve yüzer GES dışlama alanları'],
+  DKMP:   ['Doğa Koruma ve Milli Parklar GM', 'Tarım ve Orman Bakanlığı', 'Sınırlılıklar (koruma ve izin)', 'Milli parklar, tabiat parkları, sulak alanlar, yaban hayatı sahaları', 'Resmî koruma sınırları; kuş göç yolları (RES için kritik)'],
+  OGM:    ['Orman GM', 'Tarım ve Orman Bakanlığı', 'Sınırlılıklar (koruma ve izin)', 'Orman alanları ve izinleri', 'RES ve iletim hattı güzergâhlarında orman izni ön değerlendirmesi'],
+  CED:    ['ÇED ve Mekânsal Planlama', 'ÇŞİDB ÇED İzin ve Denetim GM; Mekânsal Planlama GM', 'Sınırlılıklar (koruma ve izin)', 'ÇED kararları, çevre düzeni planları', 'Planlı alanlarla çakışma; ÇED süreçlerinin hızlandırılması'],
+  MSB:    ['MSB ve hava/deniz otoriteleri', 'MSB, SHGM, Kıyı Emniyeti GM (UAB)', 'Sınırlılıklar (koruma ve izin)', 'Askerî alanlar, radar ve hava sahası kısıtları, seyir koridorları', 'RES türbinlerinin radar/uçuş etkisi; deniz sahalarında seyir ve tatbikat dışlaması'],
+  // Mekânsal veri ve istatistik
+  CSB:    ['TUCBS', 'ÇŞİDB Coğrafi Bilgi Sistemleri GM', 'Mekânsal veri ve istatistik', 'YEKA, lisanssız sahalar, İHA ortofotoları, koruma alanları katmanları', 'Kapalı katmanların servis olarak bağlanması; ortofotodan çatı GES tespiti'],
+  TKGM:   ['TKGM', 'Tapu ve Kadastro GM', 'Mekânsal veri ve istatistik', 'Parsel ve kadastro, MEGSİS', 'Parsel bazında saha uygunluğu (bağlı)'],
+  TUIK:   ['TÜİK', 'Türkiye İstatistik Kurumu', 'Mekânsal veri ve istatistik', 'Nüfus, taşıt, sanayi, dış ticaret (GTİP) istatistikleri', 'Talep tahmini; ekipman ithalatı ve dışa bağımlılık analizi'],
+  // Araştırma
+  TENMAK: ['TENMAK enstitüleri', 'NÜKEN, BOREN, NATEN, TEMEN', 'Araştırma', 'Nükleer, bor, nadir toprak, temiz enerji (hidrojen, geri dönüşüm)', 'Batarya geri dönüşümü, bor tabanlı depolama, hidrojen; kurum içi ortak projeler'],
+  TUBITAK:['TÜBİTAK MAM Enerji', 'TÜBİTAK Marmara Araştırma Merkezi Enerji Enstitüsü', 'Araştırma', 'Enerji teknolojileri Ar-Ge ve test altyapısı', 'Ortak test ve doğrulama; proje çağrıları'],
+  AKAD:   ['Üniversiteler', 'İTÜ, ODTÜ, ÇOMÜ, Uludağ ve diğerleri', 'Araştırma', 'Akıntı, rüzgâr, yüzer GES ve şebeke çalışmaları', 'Ortak proje ve tez'],
+  YEREL:  ['Belediyeler', 'Büyükşehir ve il belediyeleri', 'Araştırma', 'Kamu binaları, gölet ve kanal yüzeyleri', 'Çatı ve yüzer GES pilotları (DSİ yönetmeliği belediyelere izin veriyor)'],
+  ULUS:   ['Uluslararası', 'Dünya Bankası, Ember, IEA, ENTSO-E, IRENA', 'Araştırma', 'Yol haritaları, bağımsız analizler, Avrupa şebeke verisi', 'Yöntem karşılaştırması, finansman, komşu ülke bağlantıları']
 };
 const PANE = {
-  vizyon:['ETKB','EPDK','EPIAS','TUIK'], canli:['EPIAS','TEIAS','BOTAS'], ithalat:['BOTAS','ETKB','EPDK','TPAO'],
-  katman:['TEIAS','CSB','KTB','DKMP','MTA','EDAS'], bolge:['EDAS','TEIAS','TUIK'], parsel:['TKGM','YEREL'], analiz:['YEREL','MGM','EDAS','CSB'],
-  deniz:['SHODB','UAB','DKMP','TPAO','MTA','DSI','EUAS','MGM'], senaryo:['EDAS','EPDK','TUIK'], projeler:['ETKB','EUAS','NUK','TPAO','BOTAS','ETI','KTB'],
-  rapor:['ETKB','EDAS'], enstitu:['TENMAK','AKAD']
+  vizyon:['ETKB','EPDK','EPIAS','TUIK'], canli:['EPIAS','TEIAS','BOTAS'], ithalat:['BOTAS','ETKB','EPDK','TPAO','TUIK','PILDER'],
+  katman:['TEIAS','CSB','KVMGM','TVKGM','DKMP','MTA','EDAS'], bolge:['EDAS','TEIAS','TUIK'], parsel:['TKGM','YEREL'], analiz:['YEREL','OSB','MGM','EDAS','CSB'],
+  deniz:['SHODB','MSB','TVKGM','DKMP','TPAO','MTA','DSI','EUAS'], senaryo:['EDAS','EPDK','TUIK'], projeler:['ETKB','EUAS','NUK','TPAO','BOTAS','ETI','TEMSAN','ASEL'],
+  rapor:['ETKB','EDAS'], enstitu:['TENMAK','TUBITAK','AKAD','EMSAD','TEMSAN']
 };
 // Paydaşlar bölümü
 const pane = document.createElement('div'); pane.className = 'pane'; pane.id = 'pane-paydas';
@@ -45,9 +70,19 @@ const tab = document.createElement('button'); tab.className = 'tab'; tab.dataset
 document.querySelector('.tabs').appendChild(tab);
 tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === tab)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p === pane)); });
 const gruplar = [...new Set(Object.values(P).map(p => p[2]))];
-pane.innerHTML = `<p class="hint">ENAREN'in bu sistemi gerçek bir karar destek aracına dönüştürmesi için birlikte çalışması gereken kurumlar: kimde hangi veri var ve hangi konuda işbirliği yapılabilir. Her bölümün başında o bölümle ilgili paydaşlar etiket olarak durur.</p>
-  ${gruplar.map(g => `<h3>${g}</h3>${Object.entries(P).filter(([, p]) => p[2] === g).map(([k, p]) => `<div class="pd" id="pd-${k}"><b>${esc(p[0])}</b><small>${esc(p[1])}</small><span><em>Veri / yetki:</em> ${esc(p[3])}</span><span><em>İşbirliği:</em> ${esc(p[4])}</span></div>`).join('')}`).join('')}`;
-function ac(k){ A.goTab('paydas'); A.openSheet(); setTimeout(() => { const el = document.getElementById('pd-' + k); if (el){ el.scrollIntoView({block:'center'}); el.classList.add('vurgu'); setTimeout(() => el.classList.remove('vurgu'), 1800); } }, 250); }
+const bolumAd = {vizyon:'Genel bakış', canli:'Canlı', ithalat:'İthalat', katman:'Katmanlar', bolge:'Bölge', parsel:'Parsel', analiz:'Saha analizi', deniz:'Deniz', senaryo:'EV', projeler:'Projeler', rapor:'Raporlar', enstitu:'Enstitü'};
+const bolumleri = k => Object.entries(PANE).filter(([, ks]) => ks.includes(k)).map(([b]) => bolumAd[b]).join(', ');
+let filtre = 'Tümü';
+function ciz(){
+  const satir = Object.entries(P).filter(([, p]) => filtre === 'Tümü' || p[2] === filtre);
+  pane.innerHTML = `<p class="hint">ENAREN'in birlikte çalışması gereken kurumlar: kimde hangi veri ya da yetki var, hangi konuda işbirliği yapılabilir. Her bölümün başında o bölümle ilgili paydaşlar etiket olarak durur. ${Object.keys(P).length} paydaş, ${gruplar.length} grup.</p>
+  <div class="chips pdf">${['Tümü', ...gruplar].map(g => `<button class="chip ${g === filtre ? 'on' : ''}" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>
+  <table class="pdt"><thead><tr><th>Paydaş</th><th>Grup</th><th>Veri / yetki</th><th>ENAREN ile işbirliği</th><th>İlgili bölüm</th></tr></thead>
+  <tbody>${satir.map(([k, p]) => `<tr id="pd-${k}"><td data-l="Paydaş"><b>${esc(p[0])}</b><small>${esc(p[1])}</small></td><td data-l="Grup">${esc(p[2])}</td><td data-l="Veri / yetki">${esc(p[3])}</td><td data-l="İşbirliği">${esc(p[4])}</td><td data-l="Bölüm">${esc(bolumleri(k)) || '–'}</td></tr>`).join('')}</tbody></table>`;
+}
+ciz();
+pane.addEventListener('click', e => { const b = e.target.closest('.pdf button'); if (b){ filtre = b.dataset.g; ciz(); } });
+function ac(k){ if (filtre !== 'Tümü'){ filtre = 'Tümü'; ciz(); } A.goTab('paydas'); A.openSheet(); setTimeout(() => { const el = document.getElementById('pd-' + k); if (el){ el.scrollIntoView({block:'center'}); el.classList.add('vurgu'); setTimeout(() => el.classList.remove('vurgu'), 1800); } }, 250); }
 // Her panelin başına paydaş etiketleri
 function etiketle(){
   Object.entries(PANE).forEach(([id, ks]) => {
