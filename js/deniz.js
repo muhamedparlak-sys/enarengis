@@ -11,8 +11,10 @@ const EMOD_WMS = 'https://ows.emodnet-bathymetry.eu/wms';
 const MR_WFS = 'https://geo.vliz.be/geoserver/MarineRegions/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=MarineRegions:eez&outputFormat=application/json&CQL_FILTER=' + encodeURIComponent("sovereign1='Turkey'");
 
 // ---------- Katmanlar ----------
+function waitStyle(){ return new Promise(res => { const t0 = Date.now(); const chk = () => { if (map.isStyleLoaded() || Date.now() - t0 > 10000) res(); else setTimeout(chk, 150); }; chk(); }); }
 function whenReady(fn){ const t = setInterval(() => { if (state.edas && map.getSource('parsel')){ clearInterval(t); fn(); } }, 300); }
 whenReady(async () => {
+  await waitStyle();
   const before = 'edas-fill';
   map.addSource('bathy', {type:'raster', tiles:[`${EMOD_WMS}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=emodnet:mean_atlas_land&STYLES=&SRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=true`], tileSize:256, attribution:'Batimetri © EMODnet Bathymetry Consortium'});
   map.addLayer({id:'bathy', type:'raster', source:'bathy', paint:{'raster-opacity':0.75}, layout:{visibility:'none'}}, before);
@@ -20,12 +22,14 @@ whenReady(async () => {
   map.addLayer({id:'meb-fill', type:'fill', source:'meb', paint:{'fill-color':'#1f78b4','fill-opacity':0.12}, layout:{visibility:'none'}}, before);
   map.addLayer({id:'meb-line', type:'line', source:'meb', paint:{'line-color':'#1f78b4','line-width':1.5,'line-dasharray':[3,2]}, layout:{visibility:'none'}});
   const dy = await fetch('data/deniz_yetki.geojson?v=8').then(r => r.json());
+  await waitStyle();
   map.addSource('dyetki', {type:'geojson', data:dy});
   map.addLayer({id:'dyetki', type:'line', source:'dyetki', filter:['!=',['get','nitelik'],'sematik'], layout:{visibility:'none','line-cap':'round'}, paint:{'line-color':'#c0392b','line-width':3}});
   map.addLayer({id:'dyetki-sem', type:'line', source:'dyetki', filter:['==',['get','nitelik'],'sematik'], layout:{visibility:'none'}, paint:{'line-color':'#c0392b','line-width':2.5,'line-dasharray':[1,2]}});
   map.addLayer({id:'dyetki-lbl', type:'symbol', source:'dyetki', layout:{visibility:'none','symbol-placement':'line','text-field':['get','ad'],'text-size':11,'text-font':['Open Sans Semibold']}, paint:{'text-color':'#c0392b','text-halo-color':'#fff','text-halo-width':1.5}});
   // OpenFreeMap bina izleri (ortofoto demosu)
   map.addSource('ofm', {type:'vector', url:'https://tiles.openfreemap.org/planet', attribution:'Bina izleri © OpenStreetMap katkıcıları, OpenFreeMap'});
+  await waitStyle();
   map.addLayer({id:'bina', type:'fill', source:'ofm', 'source-layer':'building', minzoom:14, layout:{visibility:'none'}, paint:{'fill-color':'#f2a900','fill-opacity':0.35,'fill-outline-color':'#c0392b'}});
   ['lyrBathy','lyrMeb','lyrDyetki','lyrBina'].forEach(id => A.LAYER_MAP[id] && $('#' + id).addEventListener('change', A.syncLayerChecks));
   A.syncLayerChecks();

@@ -60,7 +60,8 @@ function trCalc(){
   $('#trBars').innerHTML = `<p class="hint">Bölge tüketiminin ne kadarı çatılardan karşılanır:</p>` + rows.map(r => `<div class="bar ev"><span>${esc(r.ad.replace(' EDAŞ', ''))}</span><div class="t"><i style="width:${(r.pay / mx * 100).toFixed(0)}%;background:#f2a900"></i></div><span class="v">${fmt(r.gw, 1)} GW · %${fmt(r.pay)}</span></div>`).join('');
 }
 $('#trPct').addEventListener('input', trCalc);
-const iv = setInterval(() => { if (state.edas?.features[0]?.properties.ghi){ clearInterval(iv); trCalc(); } }, 400);
+const iv = setInterval(() => { if (state.edas?.features[0]?.properties.ghi){ clearInterval(iv); try { trCalc(); } catch (e) { console.warn(e); } } }, 400);
+document.querySelector('.tab[data-tab="analiz"]')?.addEventListener('click', () => { try { trCalc(); } catch (e) {} });
 
 // ---------------- Mahalle ----------------
 $('#mPct').addEventListener('input', () => { $('#mPctL').textContent = '%' + $('#mPct').value; if (state.lastMah) render(); });
@@ -75,7 +76,7 @@ async function footprints(geom){
   if (map.getZoom() < 14.5) map.jumpTo({zoom: 14.5});
   await new Promise(r => { let d = false; const f = () => { if (!d){ d = true; r(); } }; map.once('idle', f); setTimeout(f, 9000); });
   const seen = new Set(); let n = 0, area = 0;
-  map.queryRenderedFeatures({layers:['bina']}).forEach(f => {
+  (map.getLayer('bina') ? map.queryRenderedFeatures({layers:['bina']}) : []).forEach(f => {
     const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [];
     polys.forEach(p => { const ring = p[0].slice(0, -1); if (ring.length < 3) return; const c = [ring.reduce((s, q) => s + q[0], 0) / ring.length, ring.reduce((s, q) => s + q[1], 0) / ring.length]; const k = c.map(v => v.toFixed(6)).join(); if (seen.has(k) || !inPoly(c, geom)) return; seen.add(k); n++; area += A.ringArea(ring); });
   });
