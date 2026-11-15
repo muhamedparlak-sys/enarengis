@@ -9,6 +9,7 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const MENU = [
   ['vizyon','genel','Genel Bakış','Enerji dengesi, resmî hedefler, kaynaklar'],
   ['bolge','parsel','Bölge gezgini','Bölge → il → ilçe → mahalle, tesisler ve akış'],
+  ['ithalat','akis','İthalat ve bağımlılık','Tür, ülke ve kanal kırılımı'],
   ['projeler','rapor','Projeler','Süren ve gelecek projeler, beklentiler'],
   ['katman','katman','Katmanlar','Altlıklar, tematik ve deniz katmanları'],
   ['analiz','analiz','Analiz','Çatı GES, karşılaştırma, bölge sıralaması'],

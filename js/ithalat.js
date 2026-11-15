@@ -10,19 +10,23 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&l
 
 // tip: gaz | petrol | lng | elektrik ; yön: yurtdışı → giriş noktası
 const KORIDOR = [
-  ['TürkAkım', 'gaz', [[30.6, 43.1], [29.4, 42.3], [28.1, 41.63]], 'Rusya → Kıyıköy (Kırklareli). 31,5 milyar m³/yıl kapasite (2 hat).'],
-  ['Mavi Akım', 'gaz', [[37.6, 43.4], [36.9, 42.4], [36.2, 41.31]], 'Rusya → Durusu (Samsun), Karadeniz geçişi.'],
-  ['TANAP / Güney Kafkasya', 'gaz', [[43.6, 41.75], [43.0, 41.62], [42.75, 41.55]], 'Azerbaycan (Şah Deniz) → Türkgözü (Ardahan) → Eskişehir → Avrupa.'],
-  ['İran–Türkiye gaz hattı', 'gaz', [[45.4, 39.3], [44.8, 39.5], [44.35, 39.6]], 'İran → Gürbulak (Ağrı) → Ankara.'],
-  ['Bakü–Tiflis–Ceyhan (BTC)', 'petrol', [[43.6, 41.85], [43.1, 41.65], [42.78, 41.5]], 'Azerbaycan ham petrolü → Ceyhan terminali (geçiş/ihracat).'],
-  ['Irak–Türkiye ham petrol hattı', 'petrol', [[43.4, 36.7], [42.8, 37.0], [42.36, 37.13]], 'Kerkük → Habur (Silopi) → Ceyhan.'],
-  ['LNG: Marmara Ereğlisi', 'lng', [[25.4, 39.6], [26.2, 40.05], [27.0, 40.6], [27.95, 40.96]], 'BOTAŞ LNG terminali (Çanakkale Boğazı üzerinden gemiyle).'],
+  ['TürkAkım', 'gaz', [[30.6, 43.1], [29.4, 42.3], [28.1, 41.63]], 'Rusya → Kıyıköy (Kırklareli). 31,5 milyar m³/yıl kapasite (2 hat). Rusya, 2025 gaz ithalatının %36\'sı (Mavi Akım ile birlikte).'],
+  ['Mavi Akım', 'gaz', [[37.6, 43.4], [36.9, 42.4], [36.2, 41.31]], 'Rusya → Durusu (Samsun), Karadeniz geçişi. Rusya, 2025 gaz ithalatının %36\'sı (TürkAkım ile birlikte).'],
+  ['TANAP / Güney Kafkasya', 'gaz', [[43.6, 41.75], [43.0, 41.62], [42.75, 41.55]], 'Azerbaycan (Şah Deniz) → Türkgözü (Ardahan) → Eskişehir → Avrupa. Azerbaycan, 2025 gaz ithalatının %20\'si.'],
+  ['İran–Türkiye gaz hattı', 'gaz', [[45.4, 39.3], [44.8, 39.5], [44.35, 39.6]], 'İran → Gürbulak (Ağrı) → Ankara. İran, 2025 gaz ithalatının %13\'ü.'],
+  ['Bakü–Tiflis–Ceyhan (BTC)', 'petrol', [[43.6, 41.85], [43.1, 41.65], [42.78, 41.5]], 'Azerbaycan ham petrolü → Ceyhan terminali. Büyük bölümü transit; Türkiye ithalatı değil.'],
+  ['Irak–Türkiye ham petrol hattı', 'petrol', [[43.4, 36.7], [42.8, 37.0], [42.36, 37.13]], 'Kerkük → Habur (Silopi) → Ceyhan. Irak, 2025 ham petrol ithalatının %15\'i.'],
+  ['LNG: Marmara Ereğlisi', 'lng', [[25.4, 39.6], [26.2, 40.05], [27.0, 40.6], [27.95, 40.96]], 'BOTAŞ LNG terminali. LNG (ABD %16, Cezayir %8, diğer) 2025 gaz ithalatının yaklaşık %31\'i.'],
   ['LNG: Aliağa (Egegaz) + FSRU', 'lng', [[25.2, 38.6], [26.2, 38.75], [26.94, 38.79]], 'Ege üzerinden LNG gemileri.'],
   ['LNG FSRU: Dörtyol', 'lng', [[34.8, 35.6], [35.7, 36.4], [36.2, 36.83]], 'Yüzer depolama ve gazlaştırma ünitesi (Hatay).'],
   ['LNG FSRU: Saros', 'lng', [[25.3, 40.2], [26.0, 40.45], [26.6, 40.6]], 'Yüzer depolama ve gazlaştırma ünitesi (Saros Körfezi). Konum yaklaşık.'],
+  ['Ham petrol tankerleri: Novorossiysk → Boğazlar → İzmit', 'petrol', [[37.8, 44.7], [34.0, 43.4], [29.15, 41.35], [29.8, 40.76]], 'Rusya (%46) ve Kazakistan CPC (%13) ham petrolü; 2025 ham petrol ithalatının yaklaşık %59\'u. Tüpraş İzmit rafinerisi.'],
+  ['Ham petrol tankerleri: Süveyş → Aliağa', 'petrol', [[32.55, 31.3], [29.0, 34.2], [26.4, 37.6], [26.95, 38.8]], 'Suudi Arabistan (%7) ve diğer kaynaklar. STAR ve Tüpraş İzmir (Aliağa) rafinerileri.'],
+  ['Kömür gemileri: Karadeniz limanları → Boğazlar → Karabiga', 'komur', [[37.6, 44.9], [33.5, 43.4], [29.1, 41.3], [26.6, 40.3], [27.3, 40.42]], 'Rusya, elektrik üretimi için ithal kömürün %85\'i. Çanakkale, İzmir ve Zonguldak\'taki ithal kömür santralleri.'],
+  ['Kömür gemileri: Kolombiya → İskenderun', 'komur', [[23.2, 34.6], [29.5, 34.9], [34.5, 36.1], [36.05, 36.75]], 'Kolombiya, elektrik üretimi için ithal kömürün %12\'si (Atlantik → Cebelitarık → Akdeniz). Yumurtalık–İskenderun santralleri.'],
   ['Elektrik: Bulgaristan ara bağlantısı', 'elektrik', [[26.2, 42.35], [26.6, 42.05], [26.95, 41.85]], 'ENTSO-E senkron bağlantısı (Avrupa şebekesi). Çift yönlü.'],
   ['Elektrik: Yunanistan ara bağlantısı', 'elektrik', [[25.95, 41.25], [26.3, 41.35], [26.65, 41.45]], 'ENTSO-E senkron bağlantısı. Çift yönlü.'],
-  ['Elektrik: Gürcistan (Borçka)', 'elektrik', [[42.2, 41.75], [41.9, 41.55], [41.68, 41.36]], 'Asenkron (back-to-back) bağlantı. Çift yönlü.']
+  ['Elektrik: Gürcistan (Borçka)', 'elektrik', [[42.2, 41.75], [41.9, 41.55], [41.68, 41.36]], 'Asenkron (back-to-back) bağlantı. Azerbaycan elektriği için transit; 2021–2025\'te bu hattan ~8 TWh Azerbaycan elektriği geldi.']
 ];
 const DEPO = [
   ['Silivri yeraltı gaz depolama', 'gaz', 28.2, 41.02, 'Tükenmiş deniz altı gaz sahası.'],
@@ -32,8 +36,8 @@ const DEPO = [
   ['Ceyhan petrol terminali', 'petrol', 35.93, 36.88, 'BTC ve Irak hatlarının deniz terminali, depolama.'],
   ['Batarya depolama (OSM\'de kayıtlı tesisler)', 'batarya', null, null, 'Depolamalı GES/RES projeleri — Türkiye\'de 33 GW depolamalı proje stoku (Ember).']
 ];
-const RENK = {gaz:'#d95f02', petrol:'#1a1a1a', lng:'#1b9e77', elektrik:'#7570b3', batarya:'#e7298a'};
-const AD = {gaz:'Doğal gaz boru hattı', petrol:'Ham petrol boru hattı', lng:'LNG (gemi rotası)', elektrik:'Elektrik ara bağlantısı', batarya:'Batarya depolama'};
+const RENK = {gaz:'#d95f02', petrol:'#1a1a1a', lng:'#1b9e77', elektrik:'#7570b3', batarya:'#e7298a', komur:'#7a5c3e'};
+const AD = {komur:'Kömür (gemi rotası)', gaz:'Doğal gaz boru hattı', petrol:'Ham petrol (boru / tanker)', lng:'LNG (gemi rotası)', elektrik:'Elektrik ara bağlantısı', batarya:'Batarya depolama'};
 
 function waitReady(fn){ const t = setInterval(() => { if (state.edas && map.isStyleLoaded() && map.getLayer('santral')){ clearInterval(t); fn(); } }, 300); }
 const DASH = [[0,4,3],[0.5,4,2.5],[1,4,2],[1.5,4,1.5],[2,4,1],[2.5,4,0.5],[3,4,0],[0,0.5,3,3.5],[0,1,3,3],[0,1.5,3,2.5],[0,2,3,2],[0,2.5,3,1.5],[0,3,3,1],[0,3.5,3,0.5]];
@@ -49,12 +53,12 @@ waitReady(async () => {
   // koridorlar
   const kf = KORIDOR.map(([ad, tip, coords, not]) => ({type:'Feature', geometry:{type:'LineString', coordinates:coords}, properties:{ad, tip, not}}));
   map.addSource('koridor', {type:'geojson', data:{type:'FeatureCollection', features:kf}});
-  map.addLayer({id:'koridor-bg', type:'line', source:'koridor', layout:{visibility:'none','line-cap':'round'}, paint:{'line-color':['match',['get','tip'],'gaz',RENK.gaz,'petrol',RENK.petrol,'lng',RENK.lng,RENK.elektrik],'line-width':7,'line-opacity':0.18}}, 'santral');
-  map.addLayer({id:'koridor', type:'line', source:'koridor', layout:{visibility:'none'}, paint:{'line-color':['match',['get','tip'],'gaz',RENK.gaz,'petrol',RENK.petrol,'lng',RENK.lng,RENK.elektrik],'line-width':3.5,'line-dasharray':[0,4,3]}}, 'santral');
+  map.addLayer({id:'koridor-bg', type:'line', source:'koridor', layout:{visibility:'none','line-cap':'round'}, paint:{'line-color':['match',['get','tip'],'gaz',RENK.gaz,'petrol',RENK.petrol,'lng',RENK.lng,'komur',RENK.komur,RENK.elektrik],'line-width':7,'line-opacity':0.18}}, 'santral');
+  map.addLayer({id:'koridor', type:'line', source:'koridor', layout:{visibility:'none'}, paint:{'line-color':['match',['get','tip'],'gaz',RENK.gaz,'petrol',RENK.petrol,'lng',RENK.lng,'komur',RENK.komur,RENK.elektrik],'line-width':3.5,'line-dasharray':[0,4,3]}}, 'santral');
   const ends = kf.map(f => ({type:'Feature', geometry:{type:'Point', coordinates:f.geometry.coordinates.at(-1)}, properties:f.properties}));
   const depo = DEPO.filter(d => d[2] != null).map(([ad, tip, x, y, not]) => ({type:'Feature', geometry:{type:'Point', coordinates:[x, y]}, properties:{ad, tip, not, depo:true}}));
   map.addSource('giris', {type:'geojson', data:{type:'FeatureCollection', features:[...ends, ...depo]}});
-  map.addLayer({id:'giris', type:'circle', source:'giris', layout:{visibility:'none'}, paint:{'circle-radius':['case',['get','depo'],8,6],'circle-color':['case',['get','depo'],'#ffffff',['match',['get','tip'],'gaz',RENK.gaz,'petrol',RENK.petrol,'lng',RENK.lng,RENK.elektrik]],'circle-stroke-color':['match',['get','tip'],'gaz',RENK.gaz,'petrol',RENK.petrol,'lng',RENK.lng,RENK.elektrik],'circle-stroke-width':['case',['get','depo'],4,2]}});
+  map.addLayer({id:'giris', type:'circle', source:'giris', layout:{visibility:'none'}, paint:{'circle-radius':['case',['get','depo'],8,6],'circle-color':['case',['get','depo'],'#ffffff',['match',['get','tip'],'gaz',RENK.gaz,'petrol',RENK.petrol,'lng',RENK.lng,'komur',RENK.komur,RENK.elektrik]],'circle-stroke-color':['match',['get','tip'],'gaz',RENK.gaz,'petrol',RENK.petrol,'lng',RENK.lng,'komur',RENK.komur,RENK.elektrik],'circle-stroke-width':['case',['get','depo'],4,2]}});
   map.addLayer({id:'giris-lbl', type:'symbol', source:'giris', minzoom:5.5, layout:{visibility:'none','text-field':['get','ad'],'text-size':10.5,'text-font':['Open Sans Semibold'],'text-offset':[0,1.3],'text-anchor':'top','text-optional':true}, paint:{'text-color':'#1d2733','text-halo-color':'#fff','text-halo-width':1.4}});
   // batarya depolama: OSM santralleri içinde source=battery
   map.addLayer({id:'batarya', type:'circle', source:'oim', 'source-layer':'power_plant_point', filter:['==',['get','source'],'battery'], layout:{visibility:'none'}, paint:{'circle-radius':6,'circle-color':RENK.batarya,'circle-stroke-color':'#fff','circle-stroke-width':1.5}});
@@ -79,6 +83,7 @@ h3.insertAdjacentHTML('beforebegin', `
   <h3>Enerji türüne göre filtre (santraller ve projeler)</h3>
   <div class="chips" id="kFiltre"></div>
   <h3>İthalat ve depolama</h3>
+  <label class="row"><input type="checkbox" id="lyrFilo" checked> Enerji arama filosu (sondaj ve sismik gemileri)</label>
   <label class="row"><input type="checkbox" id="lyrIthal"> İthalat koridorları, LNG terminalleri, ara bağlantılar, depolama</label>
   <div class="legend2" style="margin:2px 0 8px">${Object.entries(AD).map(([k, v]) => `<span><i style="background:${RENK[k]}"></i>${v}</span>`).join('')}<span><i style="background:#fff;border:3px solid #555"></i>Depolama tesisi</span></div>`);
 // Deniz yetki alanı satırına not
