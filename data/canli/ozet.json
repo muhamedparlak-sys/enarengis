@@ -1,13 +1,13 @@
 {
- "guncelleme": "2026-11-18T01:25:56.907232+03:00",
+ "guncelleme": "2026-11-18T07:24:18.505086+03:00",
  "durum": {
   "elektrik_uretim": {
    "ok": true,
-   "kayit": 23
+   "kayit": 30
   },
   "elektrik_tuketim": {
    "ok": true,
-   "kayit": 25
+   "kayit": 30
   },
   "elektrik_tahmin": {
    "ok": true,
