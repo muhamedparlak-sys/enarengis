@@ -1,13 +1,13 @@
 {
- "guncelleme": "2026-11-21T14:05:53.273885+03:00",
+ "guncelleme": "2026-11-21T20:58:44.668958+03:00",
  "durum": {
   "elektrik_uretim": {
    "ok": true,
-   "kayit": 37
+   "kayit": 44
   },
   "elektrik_tuketim": {
    "ok": true,
-   "kayit": 37
+   "kayit": 44
   },
   "elektrik_tahmin": {
    "ok": true,
@@ -31,7 +31,7 @@
   },
   "gaz_depo_aktarim": {
    "ok": true,
-   "kayit": 6
+   "kayit": 7
   },
   "gaz_sistem_stok": {
    "ok": true,
