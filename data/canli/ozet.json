@@ -1,13 +1,13 @@
 {
- "guncelleme": "2026-11-26T11:22:45.322698+03:00",
+ "guncelleme": "2026-11-26T22:02:11.876095+03:00",
  "durum": {
   "elektrik_uretim": {
    "ok": true,
-   "kayit": 34
+   "kayit": 45
   },
   "elektrik_tuketim": {
    "ok": true,
-   "kayit": 35
+   "kayit": 45
   },
   "elektrik_tahmin": {
    "ok": true,
@@ -19,11 +19,11 @@
   },
   "gaz_giris_gercek": {
    "ok": true,
-   "kayit": 6
+   "kayit": 7
   },
   "gaz_cikis_gercek": {
    "ok": true,
-   "kayit": 6
+   "kayit": 7
   },
   "gaz_max_giris": {
    "ok": true,
@@ -31,11 +31,11 @@
   },
   "gaz_depo_aktarim": {
    "ok": true,
-   "kayit": 6
+   "kayit": 7
   },
   "gaz_sistem_stok": {
    "ok": true,
-   "kayit": 6
+   "kayit": 7
   }
  }
 }
